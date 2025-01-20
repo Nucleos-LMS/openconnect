@@ -108,7 +108,7 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
 
       <Grid
         h={{ base: 'calc(100vh - 16rem)', lg: 'calc(100vh - 12rem)' }}
-        templateRows={{ base: '1fr auto', lg: '1fr auto' }}
+        templateRows={{ base: '1fr auto auto', lg: '1fr auto' }}
         templateColumns={{ base: '1fr', lg: '1fr 300px' }}
         bg={bgColor}
         gap={4}
@@ -164,9 +164,35 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
               {remainingTime}
             </Badge>
           </Box>
+
+          {/* Mobile Self View */}
+          <Box
+            position="absolute"
+            bottom={4}
+            right={4}
+            width="120px"
+            height="90px"
+            bg="gray.800"
+            borderRadius="md"
+            display={{ base: 'block', lg: 'none' }}
+            border="2px solid"
+            borderColor="gray.700"
+            zIndex={2}
+          >
+            <VStack
+              position="absolute"
+              bottom={1}
+              left={1}
+              align="start"
+              spacing={0}
+            >
+              <Badge size="sm">{userName}</Badge>
+              <Text fontSize="xs" color="gray.300">{userRole}</Text>
+            </VStack>
+          </Box>
         </Box>
 
-        {/* Side panel */}
+        {/* Side panel - Desktop only */}
         <VStack spacing={4} display={{ base: 'none', lg: 'flex' }}>
           {/* Self view */}
           <Box
@@ -205,6 +231,24 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({
             </VStack>
           </Box>
         </VStack>
+
+        {/* Mobile Call Info */}
+        <Box
+          display={{ base: 'block', lg: 'none' }}
+          p={4}
+          bg={controlsBg}
+          borderRadius="lg"
+        >
+          <HStack justify="space-between">
+            <VStack align="start" spacing={1}>
+              <Text fontSize="sm" fontWeight="bold">Connected with: {participantName}</Text>
+              <HStack spacing={2}>
+                {renderSignalStrength()}
+                <Text fontSize="sm">{connectionQuality.toUpperCase()}</Text>
+              </HStack>
+            </VStack>
+          </HStack>
+        </Box>
       </Grid>
 
       {/* Controls */}
