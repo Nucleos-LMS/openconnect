@@ -1,13 +1,7 @@
 import type { Preview } from "@storybook/react";
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import React from 'react';
-
-const theme = extendTheme({
-  config: {
-    initialColorMode: 'light',
-    useSystemColorMode: false,
-  },
-});
+import { theme } from '../../styles/theme';
 
 const preview: Preview = {
   parameters: {
