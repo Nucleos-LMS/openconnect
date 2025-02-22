@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { VideoProviderFactory } from '../factory';
 import { ProviderConfig } from '../types';
 
-const meta: Meta = {
+const meta: Meta<typeof VideoProvider> = {
   title: 'Providers/VideoProvider',
   parameters: {
     layout: 'centered',
@@ -11,7 +11,7 @@ const meta: Meta = {
 };
 
 export default meta;
-type Story = StoryObj;
+type Story = StoryObj<typeof VideoProvider>;
 
 // Mock provider config
 const config: ProviderConfig = {
@@ -114,8 +114,8 @@ export const NetworkAndDeviceTest: Story = {
         setNetworkStatus('Testing network...');
         await new Promise(resolve => setTimeout(resolve, 1000));
         setNetworkStatus('Network connection good');
-      } catch (error) {
-        setDeviceStatus(`Error: ${error.message}`);
+      } catch (error: any) {
+        setDeviceStatus(`Error: ${error?.message || 'Unknown error occurred'}`);
       }
     };
 
