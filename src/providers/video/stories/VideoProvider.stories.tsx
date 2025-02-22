@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { VideoProviderFactory } from '../factory';
 import { ProviderConfig } from '../types';
 
-const meta: Meta<typeof VideoProvider> = {
+const meta: Meta = {
   title: 'Providers/VideoProvider',
   parameters: {
     layout: 'centered',
@@ -11,7 +11,7 @@ const meta: Meta<typeof VideoProvider> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof VideoProvider>;
+type Story = StoryObj;
 
 // Mock provider config
 const config: ProviderConfig = {
