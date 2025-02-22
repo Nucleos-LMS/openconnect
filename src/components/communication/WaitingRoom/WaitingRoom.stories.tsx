@@ -4,6 +4,7 @@ import { WaitingRoom } from './WaitingRoom';
 const meta: Meta<typeof WaitingRoom> = {
   title: 'Communication/WaitingRoom',
   component: WaitingRoom,
+  tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
   },
