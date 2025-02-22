@@ -37,8 +37,10 @@
     "@storybook/react-webpack5": "^8.5.0",
     "@storybook/testing-library": "^0.2.1",
     "babel-loader": "^9.2.1",
+    "os-browserify": "^0.3.0",
     "react-docgen-typescript": "^2.2.2",
     "ts-loader": "^9.5.2",
+    "tty-browserify": "^0.0.1",
     "typescript": "^5.7.3"
   }
 }
