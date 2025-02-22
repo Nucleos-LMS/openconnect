@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box, VStack, Text, Button, useToast } from '@chakra-ui/react';
-import { DeviceSetup } from './components/DeviceSetup';
-import { NetworkTest } from './components/NetworkTest';
-import { ParticipantStatus } from './components/ParticipantStatus';
-import { CallInfo } from './components/CallInfo';
+import { DeviceSetup } from './DeviceSetup';
+import { NetworkTest } from './NetworkTest';
+import { ParticipantStatus } from './ParticipantStatus';
+import { CallInfo } from './CallInfo';
 
 export interface WaitingRoomProps {
   callType: 'standard' | 'legal' | 'educational';
@@ -40,7 +40,7 @@ export const WaitingRoom: React.FC<WaitingRoomProps> = ({
       />
 
       <DeviceSetup 
-        onError={(error) => {
+        onError={(error: string) => {
           toast({
             title: "Device Setup Error",
             description: error,
@@ -51,7 +51,7 @@ export const WaitingRoom: React.FC<WaitingRoomProps> = ({
       />
 
       <NetworkTest 
-        onComplete={(status) => {
+        onComplete={(status: { isGood: boolean; speed: number }) => {
           if (status.isGood) {
             toast({
               title: "Network Test Complete",
