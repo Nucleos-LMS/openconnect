@@ -4,7 +4,7 @@ import { VideoProviderFactory } from '../factory';
 import { ProviderConfig } from '../types';
 
 const meta: Meta = {
-  title: 'Providers/VideoProvider',
+  title: 'Communication/VideoProvider',
   parameters: {
     layout: 'centered',
   },
@@ -42,7 +42,8 @@ export const BasicVideoCall: Story = {
         });
         setRoomId(room.id);
         setStatus('Room created successfully');
-      } catch (error) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         setStatus(`Error: ${error.message}`);
       }
     };
@@ -81,7 +82,8 @@ export const ProtectedLegalCall: Story = {
         });
         setRoomId(room.id);
         setStatus('Protected room created successfully');
-      } catch (error) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         setStatus(`Error: ${error.message}`);
       }
     };
