@@ -22,11 +22,11 @@ export class VideoProviderFactory {
         newProvider = new TwilioProvider(config);
         break;
       case 'daily':
-        const { DailyProvider } = await import('./providers/daily');
+        const { DailyProvider } = await import('./providers/daily/index');
         newProvider = new DailyProvider(config);
         break;
       case 'google-meet':
-        const { GoogleMeetProvider } = await import('./providers/google-meet');
+        const { GoogleMeetProvider } = await import('./providers/google-meet/index');
         newProvider = new GoogleMeetProvider(config);
         break;
       default:
