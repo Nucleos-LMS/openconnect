@@ -20,4 +20,4 @@ OpenConnect is an innovative, open-source platform designed to revolutionize com
 - [`guidelines.md`](./development/guidelines.md) - Development guidelines and best practices
 
 ## Contributing
-Please read through the documentation before contributing to the project. Each document provides essential context for development decisions and project direction. 
+Please read through the documentation before contributing to the project. Each document provides essential context for development decisions and project direction.      
