@@ -44,7 +44,7 @@ export const BasicVideoCall: Story = {
         setStatus('Room created successfully');
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        setStatus(`Error: ${error.message}`);
+        setStatus(`Error: ${errorMessage}`);
       }
     };
 
@@ -84,7 +84,7 @@ export const ProtectedLegalCall: Story = {
         setStatus('Protected room created successfully');
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        setStatus(`Error: ${error.message}`);
+        setStatus(`Error: ${errorMessage}`);
       }
     };
 
@@ -121,13 +121,11 @@ export const NetworkAndDeviceTest: Story = {
       }
     };
 
-    return (
-      <div style={{ padding: '20px' }}>
-        <h2>Network & Device Test Demo</h2>
-        <button onClick={testDevices}>Test Setup</button>
-        <p>Device Status: {deviceStatus}</p>
-        <p>Network Status: {networkStatus}</p>
-      </div>
+    return React.createElement('div', { style: { padding: '20px' } },
+      React.createElement('h2', null, 'Network & Device Test Demo'),
+      React.createElement('button', { onClick: testDevices }, 'Test Setup'),
+      React.createElement('p', null, `Device Status: ${deviceStatus}`),
+      React.createElement('p', null, `Network Status: ${networkStatus}`)
     );
   }
 };
