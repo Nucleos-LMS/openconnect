@@ -37,7 +37,7 @@ const config: StorybookConfig = {
       include: ['../../components/**/*.tsx'],
     },
   },
-  babel: async (options) => ({
+  babel: async (options: any) => ({
     ...options,
     presets: [
       '@babel/preset-env',
@@ -81,4 +81,4 @@ const config: StorybookConfig = {
   },
 }
 
-export default config 
+export default config  
