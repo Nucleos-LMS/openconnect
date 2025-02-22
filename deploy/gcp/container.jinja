@@ -1,0 +1,137 @@
+resources:
+- name: frontend
+  type: gcp-types/cloudbuild-v1:projects.builds
+  properties:
+    steps:
+    - name: gcr.io/cloud-builders/docker
+      args: ['build', '-t', '{{ properties.frontendImage }}', './frontend']
+    images: ['{{ properties.frontendImage }}']
+
+- name: backend
+  type: gcp-types/cloudbuild-v1:projects.builds
+  properties:
+    steps:
+    - name: gcr.io/cloud-builders/docker
+      args: ['build', '-t', '{{ properties.backendImage }}', './backend']
+    images: ['{{ properties.backendImage }}']
+
+- name: security-module
+  type: gcp-types/cloudbuild-v1:projects.builds
+  properties:
+    steps:
+    - name: gcr.io/cloud-builders/docker
+      args: ['build', '-t', '{{ properties.securityModuleImage }}', './security-module']
+    images: ['{{ properties.securityModuleImage }}']
+
+- name: frontend-service
+  type: gcp-types/run-v1:projects.locations.services
+  properties:
+    parent: projects/{{ env['project'] }}/locations/{{ properties.zone }}
+    location: {{ properties.zone }}
+    spec:
+      template:
+        spec:
+          containers:
+          - image: {{ properties.frontendImage }}
+            env:
+            - name: NODE_ENV
+              value: {{ properties.environment }}
+            - name: VITE_API_URL
+              value: $(ref.backend-service.status.url)
+            ports:
+            - containerPort: 3000
+        metadata:
+          annotations:
+            autoscaling.knative.dev/maxScale: '10'
+
+- name: backend-service
+  type: gcp-types/run-v1:projects.locations.services
+  properties:
+    parent: projects/{{ env['project'] }}/locations/{{ properties.zone }}
+    location: {{ properties.zone }}
+    spec:
+      template:
+        spec:
+          containers:
+          - image: {{ properties.backendImage }}
+            env:
+            - name: NODE_ENV
+              value: {{ properties.environment }}
+            - name: VIDEO_PROVIDER
+              value: {{ properties.videoProvider }}
+            - name: VIDEO_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: video-secrets
+                  key: apiKey
+            - name: VIDEO_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: video-secrets
+                  key: apiSecret
+            - name: SECURITY_MODULE_ENABLED
+              value: {{ properties.securityModuleEnabled }}
+            - name: SECURITY_MODULE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: security-secrets
+                  key: apiKey
+            ports:
+            - containerPort: 8000
+        metadata:
+          annotations:
+            autoscaling.knative.dev/maxScale: '10'
+
+{% if properties.securityModuleEnabled %}
+- name: security-module-service
+  type: gcp-types/run-v1:projects.locations.services
+  properties:
+    parent: projects/{{ env['project'] }}/locations/{{ properties.zone }}
+    location: {{ properties.zone }}
+    spec:
+      template:
+        spec:
+          containers:
+          - image: {{ properties.securityModuleImage }}
+            env:
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: security-secrets
+                  key: apiKey
+            - name: STORAGE_PATH
+              value: /data
+            - name: RETENTION_DAYS
+              value: '30'
+            volumeMounts:
+            - name: security-data
+              mountPath: /data
+            ports:
+            - containerPort: 8001
+          volumes:
+          - name: security-data
+            persistentVolumeClaim:
+              claimName: security-data-pvc
+        metadata:
+          annotations:
+            autoscaling.knative.dev/maxScale: '5'
+
+- name: security-data-pvc
+  type: storage.k8s.io/v1:PersistentVolumeClaim
+  properties:
+    accessModes: ['ReadWriteOnce']
+    resources:
+      requests:
+        storage: 100Gi
+    storageClassName: standard
+{% endif %}
+
+outputs:
+- name: frontendUrl
+  value: $(ref.frontend-service.status.url)
+- name: backendUrl
+  value: $(ref.backend-service.status.url)
+{% if properties.securityModuleEnabled %}
+- name: securityModuleUrl
+  value: $(ref.security-module-service.status.url)
+{% endif %}

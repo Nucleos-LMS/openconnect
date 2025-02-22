@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - VITE_API_URL=http://backend:8000
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - VIDEO_PROVIDER=twilio
+      - VIDEO_API_KEY=${VIDEO_API_KEY}
+      - VIDEO_API_SECRET=${VIDEO_API_SECRET}
+      - NODE_ENV=development
+      - PORT=8000
+      # Security recording module configuration
+      - SECURITY_MODULE_ENABLED=true
+      - SECURITY_MODULE_URL=${SECURITY_MODULE_URL}
+      - SECURITY_MODULE_API_KEY=${SECURITY_MODULE_API_KEY}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  security-module:
+    image: ${SECURITY_MODULE_IMAGE}
+    environment:
+      - API_KEY=${SECURITY_MODULE_API_KEY}
+      - STORAGE_PATH=/data
+      - RETENTION_DAYS=30
+    volumes:
+      - security-data:/data
+    ports:
+      - "8001:8001"
+
+volumes:
+  security-data:
