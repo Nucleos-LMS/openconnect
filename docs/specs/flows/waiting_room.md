@@ -1,7 +1,21 @@
 # Waiting Room Interface Specification
 
 ## Overview
-The waiting room serves as a pre-call preparation space where participants can verify their devices, test their connection, and wait for other participants to join.
+The waiting room serves as a pre-call preparation space where participants can verify their devices, test their connection, and wait for other participants to join. The waiting room integrates with a separate, private security recording module for non-protected calls.
+
+## Architecture
+The waiting room functionality is split into two components:
+1. Core Platform (Open Source)
+   - Basic device setup and testing
+   - Network connection verification
+   - Participant management
+   - Call type identification
+
+2. Security Recording Module (Private Repository)
+   - Recording management for non-protected calls
+   - AI-based monitoring
+   - Secure storage and retention
+   - Audit logging
 
 ## Core Features
 

@@ -37,15 +37,24 @@
 
 ## As a facility staff member
 
-### 1. Monitoring
+### 1. Call Security
+"As a staff member, I want to manage call security settings"
+- Identify call type (protected/non-protected)
+- Configure recording settings for non-protected calls
+- Enable/disable AI monitoring
+- Set retention policies
+- Manage access controls
+
+### 2. Monitoring
 "As a staff member, I want to monitor waiting room status"
 - See all participants' device status
 - Monitor connection quality
 - Track ready/not ready status
 - Identify technical issues
 - View system health metrics
+- Monitor recording system status (private module)
 
-### 2. Support
+### 3. Support
 "As a staff member, I want to assist users with technical issues"
 - See detailed error reports
 - Provide troubleshooting guidance
