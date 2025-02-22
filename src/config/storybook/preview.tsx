@@ -1,15 +1,15 @@
-import React from 'react'
-import type { Preview } from '@storybook/react'
-import { ChakraProvider } from '@chakra-ui/react'
-import { theme } from '@/styles/theme'
+import type { Preview } from "@storybook/react";
+import { ChakraProvider } from "@chakra-ui/react";
+import { theme } from '../../styles/theme';
+import React from 'react';
 
 const preview: Preview = {
   parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
+    actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {
       matchers: {
         color: /(background|color)$/i,
-        date: /Date$/,
+        date: /Date$/i,
       },
     },
   },
@@ -20,6 +20,6 @@ const preview: Preview = {
       </ChakraProvider>
     ),
   ],
-}
+};
 
-export default preview 
+export default preview;
