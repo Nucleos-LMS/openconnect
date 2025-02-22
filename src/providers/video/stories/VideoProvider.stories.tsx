@@ -48,13 +48,11 @@ export const BasicVideoCall: Story = {
       }
     };
 
-    return (
-      <div style={{ padding: '20px' }}>
-        <h2>Basic Video Call Demo</h2>
-        <button onClick={initializeCall}>Create Room</button>
-        {roomId && <p>Room ID: {roomId}</p>}
-        <p>Status: {status}</p>
-      </div>
+    return React.createElement('div', { style: { padding: '20px' } },
+      React.createElement('h2', null, 'Basic Video Call Demo'),
+      React.createElement('button', { onClick: initializeCall }, 'Create Room'),
+      roomId && React.createElement('p', null, `Room ID: ${roomId}`),
+      React.createElement('p', null, `Status: ${status}`)
     );
   }
 };
@@ -88,13 +86,11 @@ export const ProtectedLegalCall: Story = {
       }
     };
 
-    return (
-      <div style={{ padding: '20px' }}>
-        <h2>Protected Legal Call Demo</h2>
-        <button onClick={initializeProtectedCall}>Create Protected Room</button>
-        {roomId && <p>Room ID: {roomId}</p>}
-        <p>Status: {status}</p>
-      </div>
+    return React.createElement('div', { style: { padding: '20px' } },
+      React.createElement('h2', null, 'Protected Legal Call Demo'),
+      React.createElement('button', { onClick: initializeProtectedCall }, 'Create Protected Room'),
+      roomId && React.createElement('p', null, `Room ID: ${roomId}`),
+      React.createElement('p', null, `Status: ${status}`)
     );
   }
 };
