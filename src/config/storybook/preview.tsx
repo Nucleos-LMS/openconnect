@@ -1,7 +1,13 @@
 import type { Preview } from "@storybook/react";
-import { ChakraProvider } from "@chakra-ui/react";
-import { theme } from '../../styles/theme';
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import React from 'react';
+
+const theme = extendTheme({
+  config: {
+    initialColorMode: 'light',
+    useSystemColorMode: false,
+  },
+});
 
 const preview: Preview = {
   parameters: {
@@ -12,10 +18,13 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    chakra: {
+      theme,
+    },
   },
   decorators: [
     (Story) => (
-      <ChakraProvider theme={theme}>
+      <ChakraProvider theme={theme} resetCSS>
         <Story />
       </ChakraProvider>
     ),
