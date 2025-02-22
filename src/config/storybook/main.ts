@@ -54,11 +54,8 @@ const config: StorybookConfig = {
       '@': join(__dirname, '../../'),
     }
     config.resolve.extensions = ['.js', '.jsx', '.ts', '.tsx']
-    if (!config.resolve.fallback) {
-      config.resolve.fallback = {}
-    }
     config.resolve.fallback = {
-      ...config.resolve.fallback,
+      ...(config.resolve.fallback || {}),
       tty: require.resolve('tty-browserify'),
       os: require.resolve('os-browserify/browser')
     }
@@ -89,4 +86,4 @@ const config: StorybookConfig = {
   },
 }
 
-export default config                
+export default config                  
