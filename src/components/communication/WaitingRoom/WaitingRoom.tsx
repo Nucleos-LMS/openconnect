@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box, VStack, Text, Button, useToast } from '@chakra-ui/react';
-import { DeviceSetup } from './DeviceSetup';
-import { NetworkTest } from './NetworkTest';
-import { ParticipantStatus } from './ParticipantStatus';
-import { CallInfo } from './CallInfo';
+import { DeviceSetup } from './components/DeviceSetup';
+import { NetworkTest } from './components/NetworkTest';
+import { ParticipantStatus } from './components/ParticipantStatus';
+import { CallInfo } from './components/CallInfo';
 
 export interface WaitingRoomProps {
   callType: 'standard' | 'legal' | 'educational';
