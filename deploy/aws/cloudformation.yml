@@ -1,0 +1,138 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'OpenConnect Video Platform Deployment'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [development, staging, production]
+  VideoProvider:
+    Type: String
+    Default: twilio
+    AllowedValues: [twilio, daily, google-meet]
+  VideoApiKey:
+    Type: String
+    NoEcho: true
+  VideoApiSecret:
+    Type: String
+    NoEcho: true
+  SecurityModuleEnabled:
+    Type: String
+    Default: 'true'
+    AllowedValues: ['true', 'false']
+  SecurityModuleApiKey:
+    Type: String
+    NoEcho: true
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-vpc
+
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub ${AWS::StackName}-cluster
+      CapacityProviders: [FARGATE]
+
+  FrontendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub ${AWS::StackName}-frontend
+      RequiresCompatibilities: [FARGATE]
+      NetworkMode: awsvpc
+      Cpu: 256
+      Memory: 512
+      ContainerDefinitions:
+        - Name: frontend
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/openconnect-frontend:latest
+          PortMappings:
+            - ContainerPort: 3000
+          Environment:
+            - Name: NODE_ENV
+              Value: !Ref Environment
+            - Name: VITE_API_URL
+              Value: !Sub https://${BackendService.DNSName}
+
+  BackendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub ${AWS::StackName}-backend
+      RequiresCompatibilities: [FARGATE]
+      NetworkMode: awsvpc
+      Cpu: 512
+      Memory: 1024
+      ContainerDefinitions:
+        - Name: backend
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/openconnect-backend:latest
+          PortMappings:
+            - ContainerPort: 8000
+          Environment:
+            - Name: NODE_ENV
+              Value: !Ref Environment
+            - Name: VIDEO_PROVIDER
+              Value: !Ref VideoProvider
+            - Name: VIDEO_API_KEY
+              Value: !Ref VideoApiKey
+            - Name: VIDEO_API_SECRET
+              Value: !Ref VideoApiSecret
+            - Name: SECURITY_MODULE_ENABLED
+              Value: !Ref SecurityModuleEnabled
+            - Name: SECURITY_MODULE_API_KEY
+              Value: !Ref SecurityModuleApiKey
+
+  SecurityModuleTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Condition: SecurityModuleEnabled
+    Properties:
+      Family: !Sub ${AWS::StackName}-security-module
+      RequiresCompatibilities: [FARGATE]
+      NetworkMode: awsvpc
+      Cpu: 512
+      Memory: 1024
+      ContainerDefinitions:
+        - Name: security-module
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/openconnect-security-module:latest
+          PortMappings:
+            - ContainerPort: 8001
+          Environment:
+            - Name: API_KEY
+              Value: !Ref SecurityModuleApiKey
+            - Name: STORAGE_PATH
+              Value: /data
+            - Name: RETENTION_DAYS
+              Value: '30'
+          MountPoints:
+            - SourceVolume: security-data
+              ContainerPath: /data
+      Volumes:
+        - Name: security-data
+          EFSVolumeConfiguration:
+            FilesystemId: !Ref SecurityEFS
+            RootDirectory: /
+
+  SecurityEFS:
+    Type: AWS::EFS::FileSystem
+    Condition: SecurityModuleEnabled
+    Properties:
+      Encrypted: true
+      PerformanceMode: generalPurpose
+      ThroughputMode: bursting
+
+Outputs:
+  FrontendURL:
+    Description: Frontend Application URL
+    Value: !Sub https://${FrontendService.DNSName}
+  BackendURL:
+    Description: Backend API URL
+    Value: !Sub https://${BackendService.DNSName}
+  SecurityModuleURL:
+    Condition: SecurityModuleEnabled
+    Description: Security Module URL
+    Value: !Sub https://${SecurityModuleService.DNSName}
