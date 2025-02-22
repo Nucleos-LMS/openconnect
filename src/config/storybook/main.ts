@@ -48,35 +48,37 @@ const config: StorybookConfig = {
       config.resolve = {}
     }
 
+    // Add path aliases and extensions
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': join(__dirname, '../../'),
     }
+    config.resolve.extensions = ['.js', '.jsx', '.ts', '.tsx']
 
-    if (config.module?.rules) {
-      config.module.rules.push({
-        test: /\.(ts|tsx)$/,
-        use: [
-          {
-            loader: require.resolve('babel-loader'),
-            options: {
-              presets: [
-                ['@babel/preset-env', { targets: "defaults" }],
-                '@babel/preset-typescript',
-                '@babel/preset-react'
-              ],
-            },
+    // Configure module rules
+    if (!config.module) {
+      config.module = { rules: [] }
+    }
+    
+    config.module.rules.push({
+      test: /\.(ts|tsx)$/,
+      exclude: /node_modules/,
+      use: [
+        {
+          loader: require.resolve('babel-loader'),
+          options: {
+            presets: [
+              ['@babel/preset-env', { targets: "defaults" }],
+              '@babel/preset-typescript',
+              ['@babel/preset-react', { runtime: 'automatic' }]
+            ],
           },
-        ],
-      })
-    }
-
-    if (config.resolve.extensions) {
-      config.resolve.extensions.push('.ts', '.tsx')
-    }
+        },
+      ],
+    })
 
     return config
   },
 }
 
-export default config      
+export default config        
