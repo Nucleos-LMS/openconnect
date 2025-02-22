@@ -1,9 +1,13 @@
 import { BaseVideoProvider } from '../base';
 import { Room, RoomOptions, Participant, RoomSettings, SecuritySettings, RecordingInfo, ProviderConfig } from '../../types';
-import { Video } from 'twilio-video';
+import { connect, createLocalTracks, Room as TwilioRoom, LocalTrack, RemoteTrack, LocalVideoTrack, LocalAudioTrack, RemoteVideoTrack, RemoteAudioTrack } from 'twilio-video';
+import { TwilioRoomOptions, TwilioConnectOptions, TwilioRecording, TwilioRoomInfo, TwilioParticipant } from './types';
 
 export class TwilioProvider extends BaseVideoProvider {
-  private client: typeof Video | null = null;
+  private activeRoom: TwilioRoom | null = null;
+  private localTracks: (LocalAudioTrack | LocalVideoTrack)[] = [];
+  private remoteTracks: Map<string, (RemoteAudioTrack | RemoteVideoTrack)[]> = new Map();
+  private config: ProviderConfig | null = null;
 
   async initialize(config: ProviderConfig): Promise<void> {
     this.validateConfig(config);
@@ -11,14 +15,22 @@ export class TwilioProvider extends BaseVideoProvider {
       throw new Error('API secret is required for Twilio');
     }
     
+    this.config = config;
+    
     try {
-      // Initialize Twilio Video client
-      this.client = Video;
-      await this.client.connect(config.apiKey!, {
-        name: 'test-connection',
+      // Create local tracks for testing connection
+      this.localTracks = await createLocalTracks({
         audio: false,
         video: false
       });
+      
+      // Test connection
+      const room = await connect(config.apiKey!, {
+        name: 'test-connection',
+        tracks: this.localTracks
+      });
+      
+      await room.disconnect();
     } catch (error) {
       throw new Error(`Failed to initialize Twilio: ${error}`);
     }
@@ -26,17 +38,20 @@ export class TwilioProvider extends BaseVideoProvider {
 
   async createRoom(options: RoomOptions): Promise<Room> {
     this.validateRoomOptions(options);
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.config) {
+      throw new Error('Twilio provider not initialized');
     }
 
     try {
-      const twilioRoom = await this.client.createRoom({
+      const twilioOptions: TwilioRoomOptions = {
         type: 'group',
         uniqueName: options.name,
         maxParticipants: options.maxParticipants,
-        recordParticipantsOnConnect: options.security?.allowRecording
-      });
+        recordParticipantsOnConnect: options.security?.allowRecording,
+        tracks: this.localTracks
+      };
+
+      const twilioRoom = await connect(this.config.apiKey!, twilioOptions);
 
       return {
         id: twilioRoom.sid,
@@ -62,43 +77,46 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async joinRoom(roomId: string, participant: Participant): Promise<void> {
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.config) {
+      throw new Error('Twilio provider not initialized');
     }
 
     try {
-      await this.client.connect({
+      const connectOptions: TwilioConnectOptions = {
         name: roomId,
         audio: true,
         video: true,
-        participantIdentity: participant.id
-      });
+        participantIdentity: participant.id,
+        tracks: this.localTracks
+      };
+
+      this.activeRoom = await connect(this.config.apiKey!, connectOptions);
     } catch (error) {
       throw new Error(`Failed to join room: ${error}`);
     }
   }
 
   async leaveRoom(roomId: string, participantId: string): Promise<void> {
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.activeRoom) {
+      throw new Error('Not connected to a room');
     }
 
     try {
-      const room = await this.client.connect({ name: roomId });
-      room.disconnect();
+      await this.activeRoom.disconnect();
+      this.activeRoom = null;
     } catch (error) {
       throw new Error(`Failed to leave room: ${error}`);
     }
   }
 
   async listRooms(): Promise<Room[]> {
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.activeRoom || !this.config) {
+      throw new Error('Twilio provider not initialized');
     }
 
     try {
-      const rooms = await this.client.rooms.list();
-      return rooms.map(room => ({
+      const rooms = await this.activeRoom.rooms.list();
+      return rooms.map((room: TwilioRoom): Room => ({
         id: room.sid,
         name: room.uniqueName || '',
         participants: [],
@@ -121,12 +139,12 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async getRoomInfo(roomId: string): Promise<Room> {
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.activeRoom || !this.config) {
+      throw new Error('Twilio provider not initialized');
     }
 
     try {
-      const room = await this.client.rooms(roomId).fetch();
+      const room = await this.activeRoom.rooms(roomId).fetch() as TwilioRoom;
       return {
         id: room.sid,
         name: room.uniqueName || '',
@@ -166,12 +184,15 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async startRecording(roomId: string, options?: { aiMonitoring?: boolean }): Promise<RecordingInfo> {
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.activeRoom || !this.config) {
+      throw new Error('Twilio provider not initialized');
     }
 
     try {
-      const recording = await this.client.rooms(roomId).recordings.create();
+      const recording = await this.activeRoom.rooms(roomId).recordings.create({
+        type: 'audio-video',
+        statusCallback: options?.aiMonitoring ? '/api/recording/monitor' : undefined
+      }) as TwilioRecording;
       return {
         id: recording.sid,
         startTime: new Date(recording.dateCreated),
@@ -186,15 +207,15 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async stopRecording(roomId: string): Promise<void> {
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.activeRoom || !this.config) {
+      throw new Error('Twilio provider not initialized');
     }
 
     try {
-      const recordings = await this.client.rooms(roomId).recordings.list();
+      const recordings = await this.activeRoom.rooms(roomId).recordings.list() as TwilioRecording[];
       for (const recording of recordings) {
         if (recording.status === 'in-progress') {
-          await recording.update({ status: 'stopped' });
+          await this.activeRoom.rooms(roomId).recordings(recording.sid).update({ status: 'stopped' });
         }
       }
     } catch (error) {
@@ -203,15 +224,15 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async pauseRecording(roomId: string): Promise<void> {
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.activeRoom || !this.config) {
+      throw new Error('Twilio provider not initialized');
     }
 
     try {
-      const recordings = await this.client.rooms(roomId).recordings.list();
+      const recordings = await this.activeRoom.rooms(roomId).recordings.list() as TwilioRecording[];
       for (const recording of recordings) {
         if (recording.status === 'in-progress') {
-          await recording.update({ status: 'paused' });
+          await this.activeRoom.rooms(roomId).recordings(recording.sid).update({ status: 'paused' });
         }
       }
     } catch (error) {
@@ -220,15 +241,15 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async resumeRecording(roomId: string): Promise<void> {
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.activeRoom || !this.config) {
+      throw new Error('Twilio provider not initialized');
     }
 
     try {
-      const recordings = await this.client.rooms(roomId).recordings.list();
+      const recordings = await this.activeRoom.rooms(roomId).recordings.list() as TwilioRecording[];
       for (const recording of recordings) {
         if (recording.status === 'paused') {
-          await recording.update({ status: 'in-progress' });
+          await this.activeRoom.rooms(roomId).recordings(recording.sid).update({ status: 'in-progress' });
         }
       }
     } catch (error) {
@@ -237,12 +258,12 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async getRecording(recordingId: string): Promise<RecordingInfo> {
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.activeRoom || !this.config) {
+      throw new Error('Twilio provider not initialized');
     }
 
     try {
-      const recording = await this.client.recordings(recordingId).fetch();
+      const recording = await this.activeRoom.recordings(recordingId).fetch() as TwilioRecording;
       return {
         id: recording.sid,
         startTime: new Date(recording.dateCreated),
@@ -257,12 +278,12 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async listRecordings(roomId: string): Promise<RecordingInfo[]> {
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.activeRoom || !this.config) {
+      throw new Error('Twilio provider not initialized');
     }
 
     try {
-      const recordings = await this.client.rooms(roomId).recordings.list();
+      const recordings = await this.activeRoom.rooms(roomId).recordings.list() as TwilioRecording[];
       return recordings.map(recording => ({
         id: recording.sid,
         startTime: new Date(recording.dateCreated),
@@ -277,12 +298,12 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async updateSecuritySettings(roomId: string, settings: Partial<SecuritySettings>): Promise<Room> {
-    if (!this.client) {
-      throw new Error('Twilio client not initialized');
+    if (!this.activeRoom || !this.config) {
+      throw new Error('Twilio provider not initialized');
     }
 
     try {
-      const room = await this.client.rooms(roomId).update({
+      const room = await this.activeRoom.rooms(roomId).update({
         recordParticipantsOnConnect: settings.allowRecording
       });
       
@@ -293,12 +314,13 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async disconnect(): Promise<void> {
-    if (this.client) {
+    if (this.activeRoom) {
       try {
-        // Disconnect from all rooms
-        const rooms = await this.client.rooms.list({ status: 'in-progress' });
-        await Promise.all(rooms.map(room => room.update({ status: 'completed' })));
-        this.client = null;
+        await this.activeRoom.disconnect();
+        this.activeRoom = null;
+        this.localTracks.forEach(track => track.stop());
+        this.localTracks = [];
+        this.remoteTracks.clear();
       } catch (error) {
         throw new Error(`Failed to disconnect: ${error}`);
       }
