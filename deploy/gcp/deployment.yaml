@@ -1,0 +1,17 @@
+imports:
+- path: container.jinja
+
+resources:
+- name: openconnect
+  type: container.jinja
+  properties:
+    zone: us-central1-a
+    environment: production
+    videoProvider: twilio
+    videoApiKey: $(ref.secrets.videoApiKey)
+    videoApiSecret: $(ref.secrets.videoApiSecret)
+    securityModuleEnabled: true
+    securityModuleApiKey: $(ref.secrets.securityModuleApiKey)
+    frontendImage: gcr.io/$(ref.project.projectId)/openconnect-frontend:latest
+    backendImage: gcr.io/$(ref.project.projectId)/openconnect-backend:latest
+    securityModuleImage: gcr.io/$(ref.project.projectId)/openconnect-security-module:latest
