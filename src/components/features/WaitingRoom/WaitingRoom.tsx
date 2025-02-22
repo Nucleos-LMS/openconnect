@@ -1,8 +1,8 @@
 import React from 'react'
 import { Box, VStack, Heading } from '@chakra-ui/react'
-import { DeviceSetup } from './DeviceSetup.tsx'
-import { NetworkTest } from './NetworkTest.tsx'
-import { BackgroundPreview } from './BackgroundPreview.tsx'
+import { DeviceSetup } from './DeviceSetup'
+import { NetworkTest } from './NetworkTest'
+import { BackgroundPreview } from './BackgroundPreview'
 
 export interface WaitingRoomProps {
   onDeviceSetupComplete?: () => void

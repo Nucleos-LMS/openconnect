@@ -48,19 +48,24 @@ const config: StorybookConfig = {
       config.resolve = {}
     }
 
-    // Add path aliases and extensions
+    // Add path aliases, extensions, and polyfills
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': join(__dirname, '../../'),
     }
     config.resolve.extensions = ['.js', '.jsx', '.ts', '.tsx']
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      tty: false,
+      os: false
+    }
 
     // Configure module rules
     if (!config.module) {
       config.module = { rules: [] }
     }
     
-    config.module.rules.push({
+    config.module?.rules?.push({
       test: /\.(ts|tsx)$/,
       exclude: /node_modules/,
       use: [
@@ -81,4 +86,4 @@ const config: StorybookConfig = {
   },
 }
 
-export default config        
+export default config            
