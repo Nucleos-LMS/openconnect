@@ -18,7 +18,7 @@ export class VideoProviderFactory {
 
     switch (provider) {
       case 'twilio':
-        const { TwilioProvider } = await import('./providers/twilio');
+        const { TwilioProvider } = await import('./providers/twilio/index');
         newProvider = new TwilioProvider(config);
         break;
       case 'daily':
