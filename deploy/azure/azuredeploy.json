@@ -1,0 +1,259 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "type": "string",
+      "defaultValue": "production",
+      "allowedValues": ["development", "staging", "production"]
+    },
+    "videoProvider": {
+      "type": "string",
+      "defaultValue": "twilio",
+      "allowedValues": ["twilio", "daily", "google-meet"]
+    },
+    "videoApiKey": {
+      "type": "securestring"
+    },
+    "videoApiSecret": {
+      "type": "securestring"
+    },
+    "securityModuleEnabled": {
+      "type": "string",
+      "defaultValue": "true",
+      "allowedValues": ["true", "false"]
+    },
+    "securityModuleApiKey": {
+      "type": "securestring"
+    }
+  },
+  "variables": {
+    "acrName": "[concat('openconnect', uniqueString(resourceGroup().id))]",
+    "containerRegistryImage": "[concat(variables('acrName'), '.azurecr.io')]",
+    "frontendContainerImage": "[concat(variables('containerRegistryImage'), '/openconnect-frontend:latest')]",
+    "backendContainerImage": "[concat(variables('containerRegistryImage'), '/openconnect-backend:latest')]",
+    "securityModuleContainerImage": "[concat(variables('containerRegistryImage'), '/openconnect-security-module:latest')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2021-06-01-preview",
+      "name": "[variables('acrName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Basic"
+      },
+      "properties": {
+        "adminUserEnabled": true
+      }
+    },
+    {
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2021-03-01",
+      "name": "frontend",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]"
+      ],
+      "properties": {
+        "containers": [
+          {
+            "name": "frontend",
+            "properties": {
+              "image": "[variables('frontendContainerImage')]",
+              "ports": [
+                {
+                  "port": 3000,
+                  "protocol": "TCP"
+                }
+              ],
+              "environmentVariables": [
+                {
+                  "name": "NODE_ENV",
+                  "value": "[parameters('environment')]"
+                },
+                {
+                  "name": "VITE_API_URL",
+                  "value": "[concat('http://', reference('backend').ipAddress.fqdn)]"
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": 1,
+                  "memoryInGB": 1.5
+                }
+              }
+            }
+          }
+        ],
+        "osType": "Linux",
+        "restartPolicy": "Always",
+        "ipAddress": {
+          "type": "Public",
+          "ports": [
+            {
+              "port": 3000,
+              "protocol": "TCP"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2021-03-01",
+      "name": "backend",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]"
+      ],
+      "properties": {
+        "containers": [
+          {
+            "name": "backend",
+            "properties": {
+              "image": "[variables('backendContainerImage')]",
+              "ports": [
+                {
+                  "port": 8000,
+                  "protocol": "TCP"
+                }
+              ],
+              "environmentVariables": [
+                {
+                  "name": "NODE_ENV",
+                  "value": "[parameters('environment')]"
+                },
+                {
+                  "name": "VIDEO_PROVIDER",
+                  "value": "[parameters('videoProvider')]"
+                },
+                {
+                  "name": "VIDEO_API_KEY",
+                  "secureValue": "[parameters('videoApiKey')]"
+                },
+                {
+                  "name": "VIDEO_API_SECRET",
+                  "secureValue": "[parameters('videoApiSecret')]"
+                },
+                {
+                  "name": "SECURITY_MODULE_ENABLED",
+                  "value": "[parameters('securityModuleEnabled')]"
+                },
+                {
+                  "name": "SECURITY_MODULE_API_KEY",
+                  "secureValue": "[parameters('securityModuleApiKey')]"
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": 1,
+                  "memoryInGB": 1.5
+                }
+              }
+            }
+          }
+        ],
+        "osType": "Linux",
+        "restartPolicy": "Always",
+        "ipAddress": {
+          "type": "Public",
+          "ports": [
+            {
+              "port": 8000,
+              "protocol": "TCP"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "condition": "[equals(parameters('securityModuleEnabled'), 'true')]",
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2021-03-01",
+      "name": "security-module",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]"
+      ],
+      "properties": {
+        "containers": [
+          {
+            "name": "security-module",
+            "properties": {
+              "image": "[variables('securityModuleContainerImage')]",
+              "ports": [
+                {
+                  "port": 8001,
+                  "protocol": "TCP"
+                }
+              ],
+              "environmentVariables": [
+                {
+                  "name": "API_KEY",
+                  "secureValue": "[parameters('securityModuleApiKey')]"
+                },
+                {
+                  "name": "STORAGE_PATH",
+                  "value": "/data"
+                },
+                {
+                  "name": "RETENTION_DAYS",
+                  "value": "30"
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": 1,
+                  "memoryInGB": 1.5
+                }
+              },
+              "volumeMounts": [
+                {
+                  "name": "security-data",
+                  "mountPath": "/data"
+                }
+              ]
+            }
+          }
+        ],
+        "osType": "Linux",
+        "restartPolicy": "Always",
+        "volumes": [
+          {
+            "name": "security-data",
+            "azureFile": {
+              "shareName": "security-data",
+              "storageAccountName": "[variables('storageAccountName')]",
+              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-04-01').keys[0].value]"
+            }
+          }
+        ],
+        "ipAddress": {
+          "type": "Public",
+          "ports": [
+            {
+              "port": 8001,
+              "protocol": "TCP"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "frontendUrl": {
+      "type": "string",
+      "value": "[concat('http://', reference('frontend').ipAddress.fqdn)]"
+    },
+    "backendUrl": {
+      "type": "string",
+      "value": "[concat('http://', reference('backend').ipAddress.fqdn)]"
+    },
+    "securityModuleUrl": {
+      "condition": "[equals(parameters('securityModuleEnabled'), 'true')]",
+      "type": "string",
+      "value": "[concat('http://', reference('security-module').ipAddress.fqdn)]"
+    }
+  }
+}
