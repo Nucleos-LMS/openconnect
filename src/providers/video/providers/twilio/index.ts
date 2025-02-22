@@ -2,7 +2,7 @@ import { BaseVideoProvider } from '../base';
 import { Room, RoomOptions, Participant, RoomSettings, SecuritySettings, RecordingInfo, ProviderConfig } from '../../types';
 import { connect, createLocalTracks, Room as TwilioRoom, LocalTrack, RemoteTrack, ConnectOptions } from 'twilio-video';
 import { convertTwilioRoomToRoom } from './types';
-import { TwilioSecurityRecordingManager } from '@nucleos/openconnect-private/src/recording/twilio';
+import { TwilioSecurityRecordingManager } from '../../../../../openconnect-private/src/recording/twilio';
 
 export class TwilioProvider extends BaseVideoProvider {
   private activeRoom: TwilioRoom | null = null;
