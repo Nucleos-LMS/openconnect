@@ -15,7 +15,6 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-links'),
     getAbsolutePath('@storybook/addon-essentials'),
     getAbsolutePath('@storybook/addon-interactions'),
-    getAbsolutePath('@storybook/preset-typescript'),
   ],
   framework: {
     name: '@storybook/react-webpack5',
@@ -28,14 +27,13 @@ const config: StorybookConfig = {
     builder: '@storybook/builder-webpack5',
   },
   typescript: {
-    check: false,
-    checkOptions: {},
     reactDocgen: 'react-docgen-typescript',
     reactDocgenTypescriptOptions: {
       shouldExtractLiteralValuesFromEnum: true,
       propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
       include: ['../../components/**/*.tsx'],
     },
+    check: true,
   },
   babel: async (options: any) => ({
     ...options,
@@ -81,4 +79,4 @@ const config: StorybookConfig = {
   },
 }
 
-export default config  
+export default config      
