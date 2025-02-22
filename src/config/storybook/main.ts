@@ -6,7 +6,10 @@ function getAbsolutePath(value: string): any {
 }
 
 const config: StorybookConfig = {
-  stories: ['../../components/**/*.stories.@(js|jsx|ts|tsx)'],
+  stories: [
+    '../../components/**/*.stories.@(js|jsx|ts|tsx)',
+    '../../providers/**/*.stories.@(js|jsx|ts|tsx)'
+  ],
   addons: [
     getAbsolutePath('@storybook/addon-links'),
     getAbsolutePath('@storybook/addon-essentials'),
@@ -60,6 +63,10 @@ const config: StorybookConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': join(__dirname, '../../'),
+      '@chakra-ui/react': require.resolve('@chakra-ui/react'),
+      '@emotion/react': require.resolve('@emotion/react'),
+      '@emotion/styled': require.resolve('@emotion/styled'),
+      'framer-motion': require.resolve('framer-motion'),
     };
 
     if (!config.resolve.extensions) {
