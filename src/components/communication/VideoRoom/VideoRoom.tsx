@@ -9,6 +9,7 @@ import {
   useToast
 } from '@chakra-ui/react';
 import { VideoProvider } from '@/providers/video/factory';
+import { VideoControls } from './components/VideoControls';
 
 interface VideoRoomProps {
   callId: string;
@@ -86,6 +87,11 @@ export const VideoRoom = ({
       <Box flex="1" bg="gray.900" position="relative">
         {/* Video elements will be injected here by the provider */}
         <div id="video-container" style={{ width: '100%', height: '100%' }} />
+        <VideoControls
+          onMuteAudio={() => {}}
+          onMuteVideo={() => {}}
+          onEndCall={() => window.location.href = '/calls/new'}
+        />
       </Box>
     </Flex>
   );
