@@ -3,12 +3,15 @@ import { VStack, Button, Text, useToast } from '@chakra-ui/react'
 import { Card } from '@/components/common/Card'
 import { FormField } from '@/components/common/Form'
 
+import type { UserType, ValidationError } from '../types';
+
 export interface EmailVerificationProps {
-  onSubmit: (email: string) => Promise<void>;
-  isLoading?: boolean;
+  userType: UserType;
+  onNext: (data: { email: string }) => void;
+  onError: (error: ValidationError) => void;
 }
 
-export const EmailVerification = ({ onSubmit, isLoading }: EmailVerificationProps) => {
+export const EmailVerification = ({ userType, onNext, onError }: EmailVerificationProps) => {
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const toast = useToast()
@@ -17,20 +20,47 @@ export const EmailVerification = ({ onSubmit, isLoading }: EmailVerificationProp
     e.preventDefault()
     setError('')
 
-    if (!email) {
-      setError('Email is required')
-      return
-    }
-
     try {
-      await onSubmit(email)
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!email || !emailRegex.test(email)) {
+        throw new Error('Please enter a valid email address')
+      }
+
+      // Additional validation for legal/educator
+      if (userType === 'legal' && !email.includes('.gov') && !email.includes('.edu') && !email.includes('.org')) {
+        throw new Error('Legal representatives must use a .gov, .edu, or .org email')
+      }
+      if (userType === 'educator' && !email.includes('.edu')) {
+        throw new Error('Educators must use a .edu email address')
+      }
+
+      // Submit email for verification
+      const res = await fetch('/api/registration/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, userType })
+      })
+
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.message)
+      }
+
+      onNext({ email })
       toast({
         title: 'Verification email sent',
         description: 'Please check your inbox for the verification link',
         status: 'success',
       })
-    } catch (err) {
-      setError('Failed to send verification email. Please try again.')
+    } catch (err: any) {
+      const error = {
+        field: 'email',
+        code: 'validation_error',
+        message: err.message || 'Failed to verify email. Please try again.'
+      }
+      onError(error)
+      setError(error.message)
     }
   }
 
@@ -58,11 +88,11 @@ export const EmailVerification = ({ onSubmit, isLoading }: EmailVerificationProp
           type="submit"
           colorScheme="primary"
           width="100%"
-          isLoading={isLoading}
+          isLoading={false}
         >
           Continue
         </Button>
       </VStack>
     </Card>
   )
-} 
+}  
