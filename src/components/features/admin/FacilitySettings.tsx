@@ -12,23 +12,7 @@ import {
   useToast
 } from '@chakra-ui/react';
 
-interface FacilitySettings {
-  requirements: {
-    idRequired: boolean;
-    additionalDocuments: string[];
-    visitationHours: string;
-  };
-  webrtc: {
-    iceServers: string[];
-    maxBitrate: number;
-    fallbackToRelay: boolean;
-  };
-  monitoring: {
-    enableAiMonitoring: boolean;
-    recordCalls: boolean;
-    retentionDays: number;
-  };
-}
+import { FacilitySettings, facilitySettingsSchema } from './validation';
 
 interface FacilitySettingsProps {
   facilityId: string;
@@ -80,6 +64,9 @@ export const FacilitySettings = ({
     setIsLoading(true);
 
     try {
+      // Validate settings
+      facilitySettingsSchema.parse(settings);
+
       await onSave(settings);
       toast({
         title: 'Settings saved',
