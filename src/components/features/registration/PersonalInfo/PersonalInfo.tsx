@@ -199,6 +199,113 @@ export const PersonalInfo = ({
         </FormControl>
       )}
 
+      {userType === 'legal' && (
+        <Box mb={6}>
+          <Text fontWeight="medium" mb={4}>Legal Information</Text>
+          <Stack spacing={4}>
+            <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+              <FormControl isRequired>
+                <FormLabel>Bar Number</FormLabel>
+                <Input
+                  name="barNumber"
+                  value={form.barNumber}
+                  onChange={handleChange}
+                  placeholder="Enter bar number"
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>Bar State</FormLabel>
+                <Select
+                  name="barState"
+                  value={form.barState}
+                  onChange={handleChange}
+                >
+                  <option value="">Select State</option>
+                  <option value="CA">California</option>
+                  <option value="NY">New York</option>
+                  {/* Add more states */}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <FormControl>
+              <FormLabel>Firm Name</FormLabel>
+              <Input
+                name="firmName"
+                value={form.firmName}
+                onChange={handleChange}
+                placeholder="Enter firm name"
+              />
+            </FormControl>
+
+            <FormControl isRequired>
+              <FormLabel>Practice Areas</FormLabel>
+              <Select
+                name="practiceAreas"
+                value={form.practiceAreas?.[0] || ''}
+                onChange={(e) => setForm(prev => ({ ...prev, practiceAreas: [e.target.value] }))}
+              >
+                <option value="">Select Practice Area</option>
+                <option value="criminal">Criminal Law</option>
+                <option value="civil">Civil Law</option>
+                <option value="appeal">Appeals</option>
+                <option value="other">Other</option>
+              </Select>
+            </FormControl>
+          </Stack>
+        </Box>
+      )}
+
+      {userType === 'educator' && (
+        <Box mb={6}>
+          <Text fontWeight="medium" mb={4}>Professional Information</Text>
+          <Stack spacing={4}>
+            <FormControl isRequired>
+              <FormLabel>Institution</FormLabel>
+              <Input
+                name="institution"
+                value={form.institution}
+                onChange={handleChange}
+                placeholder="Enter institution name"
+              />
+            </FormControl>
+
+            <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+              <FormControl>
+                <FormLabel>Department</FormLabel>
+                <Input
+                  name="department"
+                  value={form.department}
+                  onChange={handleChange}
+                  placeholder="Enter department"
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>Position</FormLabel>
+                <Input
+                  name="position"
+                  value={form.position}
+                  onChange={handleChange}
+                  placeholder="Enter position"
+                />
+              </FormControl>
+            </Grid>
+
+            <FormControl>
+              <FormLabel>Employee ID</FormLabel>
+              <Input
+                name="employeeId"
+                value={form.employeeId}
+                onChange={handleChange}
+                placeholder="Enter employee ID"
+              />
+            </FormControl>
+          </Stack>
+        </Box>
+      )}
+
       <Box>
         <Text fontWeight="medium" mb={4}>Address</Text>
         <Stack spacing={4}>
