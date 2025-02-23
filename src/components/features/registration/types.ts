@@ -144,3 +144,38 @@ export const dateOfBirthSchema = z
     const age = new Date().getFullYear() - date.getFullYear();
     return age >= 18;
   }, 'Must be at least 18 years old');
+
+// Legal representative validation
+export const barNumberSchema = z
+  .string()
+  .min(4, 'Bar number must be at least 4 characters')
+  .max(20, 'Bar number cannot exceed 20 characters');
+
+export const practiceAreasSchema = z
+  .array(z.string())
+  .min(1, 'At least one practice area is required')
+  .max(10, 'Maximum 10 practice areas allowed');
+
+export const clientsSchema = z
+  .array(z.object({
+    inmateId: z.string(),
+    facilityId: z.string(),
+    caseNumber: z.string().optional(),
+    representationType: z.enum(['criminal', 'civil', 'appeal', 'other'])
+  }))
+  .max(50, 'Maximum 50 clients allowed');
+
+// Educator validation
+export const institutionSchema = z
+  .string()
+  .min(2, 'Institution name must be at least 2 characters')
+  .max(100, 'Institution name cannot exceed 100 characters');
+
+export const programsSchema = z
+  .array(z.object({
+    facilityId: z.string(),
+    programName: z.string().min(2).max(100),
+    programType: z.enum(['academic', 'vocational', 'rehabilitation']),
+    expectedStudentCount: z.number().min(1).max(100)
+  }))
+  .max(5, 'Maximum 5 programs allowed');
