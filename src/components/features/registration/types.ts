@@ -102,9 +102,24 @@ export type RegistrationState = {
   step: RegistrationStep;
   userType?: UserType;
   email?: string;
-  personalInfo?: any;
-  identityInfo?: any;
-  relationships?: Relationship[];
+  personalInfo?: FamilyMemberInfo | LegalRepresentativeInfo | EducatorInfo;
+  identityInfo?: {
+    governmentId?: GovernmentId;
+    barCard?: File;
+    employmentVerification?: File;
+  };
+  relationships?: Array<{
+    inmateId: string;
+    facilityId: string;
+    relationship: string;
+    relationshipDetails?: string;
+    isPrimaryContact?: boolean;
+    caseNumber?: string;
+    representationType?: 'criminal' | 'civil' | 'appeal' | 'other';
+    programName?: string;
+    programType?: 'academic' | 'vocational' | 'rehabilitation';
+    expectedStudentCount?: number;
+  }>;
   errors?: ValidationError[];
 };
 
