@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -10,13 +10,13 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import type { UserType, GovernmentId } from '../types';
+import type { UserType, GovernmentId, ValidationError } from '../types';
 
 interface IdentityVerificationProps {
   userType: UserType;
   personalInfo: any;
-  onNext: (data: any) => void;
-  onError: (error: any) => void;
+  onNext: (data: GovernmentId) => void;
+  onError: (error: ValidationError) => void;
 }
 
 interface IdentityForm {
