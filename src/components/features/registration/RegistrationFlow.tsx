@@ -84,7 +84,7 @@ export const RegistrationFlow = () => {
         setState(prev => ({
           ...prev,
           step: 'identity_verification',
-          personalInfo: data
+          personalInfo: data.personalInfo
         }));
         break;
       
@@ -92,7 +92,7 @@ export const RegistrationFlow = () => {
         setState(prev => ({
           ...prev,
           step: 'relationship_info',
-          identityInfo: data
+          identityInfo: data.identityInfo
         }));
         break;
       
@@ -152,7 +152,7 @@ export const RegistrationFlow = () => {
           <RelationshipInfo
             userType={state.userType!}
             personalInfo={state.personalInfo}
-            onNext={(data: { relationships: Relationship[] }) => handleNext({ relationships: data.relationships })}
+            onNext={(data) => handleNext({ relationships: data.relationships })}
             onError={handleError}
           />
         );
