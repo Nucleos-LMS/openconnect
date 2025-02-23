@@ -2,7 +2,12 @@
 
 import React from 'react';
 import { useSession } from 'next-auth/react';
-import { WaitingRoom } from '@/components/communication/WaitingRoom/WaitingRoom';
+import dynamic from 'next/dynamic';
+
+const WaitingRoom = dynamic(
+  () => import('@/components/communication/WaitingRoom/WaitingRoom').then(mod => mod.WaitingRoom),
+  { ssr: false }
+);
 import { Box, Container, Heading, Text } from '@chakra-ui/react';
 
 export default function NewCallPage() {

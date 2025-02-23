@@ -101,9 +101,22 @@ export const VideoRoom = ({
         <div id="video-container" style={{ width: '100%', height: '100%' }} />
         {isRecording && <RecordingIndicator />}
         <VideoControls
-          onMuteAudio={() => {}}
-          onMuteVideo={() => {}}
-          onEndCall={() => window.location.href = '/calls/new'}
+          onMuteAudio={async () => {
+            if (providerRef.current) {
+              await providerRef.current.muteAudio();
+            }
+          }}
+          onMuteVideo={async () => {
+            if (providerRef.current) {
+              await providerRef.current.muteVideo();
+            }
+          }}
+          onEndCall={async () => {
+            if (providerRef.current) {
+              await providerRef.current.leaveRoom();
+            }
+            window.location.href = '/calls/new';
+          }}
         />
       </Box>
     </Flex>
