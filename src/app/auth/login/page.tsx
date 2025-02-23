@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useToast } from '@chakra-ui/react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,12 +11,16 @@ export default function LoginPage() {
   const router = useRouter();
   const toast = useToast();
 
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await signIn('credentials', {
       email,
       password,
       redirect: false,
+      callbackUrl,
     });
 
     if (result?.error) {
@@ -28,7 +32,7 @@ export default function LoginPage() {
         isClosable: true,
       });
     } else {
-      router.push('/');
+      router.push(callbackUrl);
     }
   };
 
