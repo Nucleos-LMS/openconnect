@@ -8,9 +8,9 @@ export class TwilioProvider extends BaseVideoProvider {
   private remoteTracks: Map<string, RemoteTrack[]> = new Map();
   private roomSid: string | null = null;
 
-  constructor(config?: ProviderConfig) {
-    super();
-    this.config = config || {};
+  constructor(config: ProviderConfig) {
+    super(config);
+    this.config = config;
   }
 
   async initialize(config: ProviderConfig): Promise<void> {
