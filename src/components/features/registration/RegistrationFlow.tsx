@@ -5,6 +5,7 @@ import { EmailVerification } from './EmailVerification/EmailVerification';
 import { PersonalInfo } from './PersonalInfo/PersonalInfo';
 import { IdentityVerification } from './IdentityVerification/IdentityVerification';
 import { RelationshipInfo } from './RelationshipInfo/RelationshipInfo';
+import { ContactApproval } from './ContactApproval/ContactApproval';
 import type { RegistrationState, ValidationError, UserType, Relationship } from './types';
 
 export const RegistrationFlow = () => {
@@ -69,8 +70,15 @@ export const RegistrationFlow = () => {
       case 'relationship_info':
         setState(prev => ({
           ...prev,
-          step: 'complete',
+          step: 'contact_approval',
           relationships: data.relationships
+        }));
+        break;
+      
+      case 'contact_approval':
+        setState(prev => ({
+          ...prev,
+          step: 'complete'
         }));
         break;
     }
@@ -120,10 +128,23 @@ export const RegistrationFlow = () => {
           />
         );
       
+      case 'contact_approval':
+        return (
+          <ContactApproval
+            userType={state.userType!}
+            personalInfo={state.personalInfo}
+            onNext={(data) => handleNext({})}
+            onError={handleError}
+          />
+        );
+      
       case 'complete':
         return (
           <Box textAlign="center" py={10}>
             <Heading size="lg">Registration Complete!</Heading>
+            <Text mt={4} color="gray.600">
+              Your registration has been submitted for approval. You will receive an email once it has been reviewed.
+            </Text>
           </Box>
         );
     }

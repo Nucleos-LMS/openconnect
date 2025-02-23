@@ -42,6 +42,7 @@ export type RegistrationStep =
   | 'personal_info'
   | 'identity_verification'
   | 'relationship_info'
+  | 'contact_approval'
   | 'complete';
 
 export type RegistrationState = {
