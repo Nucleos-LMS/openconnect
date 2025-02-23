@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ParticipantManagement } from './ParticipantManagement';
+import { ParticipantManagement, Participant } from './ParticipantManagement';
 
 const meta: Meta<typeof ParticipantManagement> = {
   title: 'Communication/ParticipantManagement',
@@ -13,7 +13,7 @@ const meta: Meta<typeof ParticipantManagement> = {
 export default meta;
 type Story = StoryObj<typeof ParticipantManagement>;
 
-const mockParticipants = [
+const mockParticipants: Participant[] = [
   {
     id: '1',
     name: 'John Doe',
