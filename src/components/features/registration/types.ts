@@ -10,6 +10,50 @@ export type ValidationError = {
   details?: any;
 };
 
+export type Address = {
+  street1: string;
+  street2?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+};
+
+export type GovernmentId = {
+  type: 'drivers_license' | 'state_id' | 'passport';
+  number: string;
+  expirationDate: Date;
+  issuingState?: string;
+  issuingCountry: string;
+};
+
+export type Relationship = {
+  inmateId: string;
+  facilityId: string;
+  relationship: 'parent' | 'spouse' | 'child' | 'sibling' | 'other';
+  relationshipDetails?: string;
+  isPrimaryContact: boolean;
+};
+
+// Registration step types
+export type RegistrationStep = 
+  | 'user_type'
+  | 'email_verification'
+  | 'personal_info'
+  | 'identity_verification'
+  | 'relationship_info'
+  | 'complete';
+
+export type RegistrationState = {
+  step: RegistrationStep;
+  userType?: UserType;
+  email?: string;
+  personalInfo?: any;
+  identityInfo?: any;
+  relationships?: Relationship[];
+  errors?: ValidationError[];
+};
+
 // Validation schemas
 export const nameSchema = z
   .string()
@@ -27,7 +71,7 @@ export const phoneSchema = z
 
 export const dateOfBirthSchema = z
   .date()
-  .refine((date) => {
+  .refine((date: Date) => {
     const age = new Date().getFullYear() - date.getFullYear();
     return age >= 18;
   }, 'Must be at least 18 years old');
