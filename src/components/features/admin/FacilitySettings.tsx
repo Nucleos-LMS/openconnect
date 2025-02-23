@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 
 import { FacilitySettings, facilitySettingsSchema } from './validation';
+import { getFacilitySettings, updateFacilitySettings } from './api';
 
 interface FacilitySettingsProps {
   facilityId: string;
@@ -25,23 +26,26 @@ export const FacilitySettings = ({
   onSave,
   onError
 }: FacilitySettingsProps) => {
-  const [settings, setSettings] = useState<FacilitySettings>({
-    requirements: {
-      idRequired: true,
-      additionalDocuments: [],
-      visitationHours: '9:00-17:00'
-    },
-    webrtc: {
-      iceServers: [],
-      maxBitrate: 1000,
-      fallbackToRelay: true
-    },
-    monitoring: {
-      enableAiMonitoring: false,
-      recordCalls: true,
-      retentionDays: 30
-    }
-  });
+  const [settings, setSettings] = useState<FacilitySettings | null>(null);
+
+  // Load initial settings
+  React.useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const data = await getFacilitySettings(facilityId);
+        setSettings(data);
+      } catch (error: any) {
+        onError(error);
+        toast({
+          title: 'Error loading settings',
+          description: error.message,
+          status: 'error',
+          duration: 5000
+        });
+      }
+    };
+    loadSettings();
+  }, [facilityId]);
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
@@ -67,7 +71,7 @@ export const FacilitySettings = ({
       // Validate settings
       facilitySettingsSchema.parse(settings);
 
-      await onSave(settings);
+      await updateFacilitySettings(facilityId, settings!);
       toast({
         title: 'Settings saved',
         status: 'success',
