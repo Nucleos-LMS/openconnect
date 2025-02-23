@@ -84,7 +84,7 @@ export const RegistrationFlow = () => {
         setState(prev => ({
           ...prev,
           step: 'identity_verification',
-          personalInfo: data.personalInfo
+          personalInfo: data.personalInfo as FamilyMemberInfo | LegalRepresentativeInfo | EducatorInfo
         }));
         break;
       
@@ -132,7 +132,7 @@ export const RegistrationFlow = () => {
           <PersonalInfo
             userType={state.userType!}
             email={state.email!}
-            onNext={(data) => handleNext({ personalInfo: data })}
+            onNext={(data) => handleNext({ personalInfo: data as FamilyMemberInfo | LegalRepresentativeInfo | EducatorInfo })}
             onError={handleError}
           />
         );
@@ -142,7 +142,7 @@ export const RegistrationFlow = () => {
           <IdentityVerification
             userType={state.userType!}
             personalInfo={state.personalInfo}
-            onNext={(data) => handleNext({ identityInfo: data })}
+            onNext={(data) => handleNext({ identityInfo: { governmentId: data } })}
             onError={handleError}
           />
         );
