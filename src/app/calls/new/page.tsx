@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useSession } from 'next-auth/react';
 import { WaitingRoom } from '@/components/communication/WaitingRoom/WaitingRoom';
 import { Box, Container, Heading, Text } from '@chakra-ui/react';
