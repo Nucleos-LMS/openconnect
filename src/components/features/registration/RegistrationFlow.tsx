@@ -6,7 +6,15 @@ import { PersonalInfo } from './PersonalInfo/PersonalInfo';
 import { IdentityVerification } from './IdentityVerification/IdentityVerification';
 import { RelationshipInfo } from './RelationshipInfo/RelationshipInfo';
 import { ContactApproval } from './ContactApproval/ContactApproval';
-import type { RegistrationState, ValidationError, UserType, Relationship } from './types';
+import type { 
+  RegistrationState, 
+  ValidationError, 
+  UserType, 
+  FamilyMemberInfo,
+  LegalRepresentativeInfo,
+  EducatorInfo,
+  GovernmentId
+} from './types';
 
 export const RegistrationFlow = () => {
   const [state, setState] = useState<RegistrationState>({
@@ -32,7 +40,28 @@ export const RegistrationFlow = () => {
     setState(prev => ({ ...prev, errors: undefined }));
   };
 
-  const handleNext = (data: { userType?: UserType; email?: string; personalInfo?: any; identityInfo?: any; relationships?: Relationship[] }) => {
+  const handleNext = (data: { 
+    userType?: UserType; 
+    email?: string; 
+    personalInfo?: FamilyMemberInfo | LegalRepresentativeInfo | EducatorInfo;
+    identityInfo?: {
+      governmentId?: GovernmentId;
+      barCard?: File;
+      employmentVerification?: File;
+    };
+    relationships?: Array<{
+      inmateId: string;
+      facilityId: string;
+      relationship: string;
+      relationshipDetails?: string;
+      isPrimaryContact?: boolean;
+      caseNumber?: string;
+      representationType?: 'criminal' | 'civil' | 'appeal' | 'other';
+      programName?: string;
+      programType?: 'academic' | 'vocational' | 'rehabilitation';
+      expectedStudentCount?: number;
+    }>;
+  }) => {
     clearErrors();
     switch (state.step) {
       case 'user_type':
