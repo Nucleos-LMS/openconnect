@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react';
 import { UserTypeSelection } from './UserTypeSelection/UserTypeSelection';
 import { EmailVerification } from './EmailVerification/EmailVerification';
@@ -115,7 +115,7 @@ export const RegistrationFlow = () => {
           <RelationshipInfo
             userType={state.userType!}
             personalInfo={state.personalInfo}
-            onNext={(data) => handleNext({ relationships: data.relationships })}
+            onNext={(data: { relationships: Relationship[] }) => handleNext({ relationships: data.relationships })}
             onError={handleError}
           />
         );
