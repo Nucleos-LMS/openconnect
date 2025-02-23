@@ -11,14 +11,13 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { nameSchema, phoneSchema, dateOfBirthSchema } from '../types';
-import type { UserType, Address } from '../types';
+import { nameSchema, phoneSchema, dateOfBirthSchema, UserType, ValidationError, Address } from '../types';
 
 interface PersonalInfoProps {
   userType: UserType;
   email: string;
-  onNext: (data: any) => void;
-  onError: (error: any) => void;
+  onNext: (data: PersonalInfoForm) => void;
+  onError: (error: ValidationError) => void;
 }
 
 interface PersonalInfoForm {

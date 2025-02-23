@@ -32,6 +32,28 @@ export const dateOfBirthSchema = z
     return age >= 18;
   }, 'Must be at least 18 years old');
 
+// Validation schemas
+export const nameSchema = z
+  .string()
+  .min(2, 'Name must be at least 2 characters')
+  .max(50, 'Name cannot exceed 50 characters')
+  .regex(/^[a-zA-Z\-\s]+$/, 'Name can only contain letters and hyphens');
+
+export const emailSchema = z
+  .string()
+  .email('Invalid email format');
+
+export const phoneSchema = z
+  .string()
+  .regex(/^\+[1-9]\d{1,14}$/, 'Phone number must be in E.164 format');
+
+export const dateOfBirthSchema = z
+  .date()
+  .refine((date) => {
+    const age = new Date().getFullYear() - date.getFullYear();
+    return age >= 18;
+  }, 'Must be at least 18 years old');
+
 // Common types
 export type UserType = 'family' | 'legal' | 'educator';
 

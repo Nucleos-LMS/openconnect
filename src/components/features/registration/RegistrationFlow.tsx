@@ -5,7 +5,7 @@ import { EmailVerification } from './EmailVerification/EmailVerification';
 import { PersonalInfo } from './PersonalInfo/PersonalInfo';
 import { IdentityVerification } from './IdentityVerification/IdentityVerification';
 import { RelationshipInfo } from './RelationshipInfo/RelationshipInfo';
-import type { RegistrationState, ValidationError, UserType } from './types';
+import type { RegistrationState, ValidationError, UserType, Relationship } from './types';
 
 export const RegistrationFlow = () => {
   const [state, setState] = useState<RegistrationState>({
@@ -31,7 +31,7 @@ export const RegistrationFlow = () => {
     setState(prev => ({ ...prev, errors: undefined }));
   };
 
-  const handleNext = (data: { userType?: UserType; email?: string; personalInfo?: any; identityInfo?: any; relationships?: any[] }) => {
+  const handleNext = (data: { userType?: UserType; email?: string; personalInfo?: any; identityInfo?: any; relationships?: Relationship[] }) => {
     clearErrors();
     switch (state.step) {
       case 'user_type':
