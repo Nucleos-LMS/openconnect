@@ -11,7 +11,16 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { nameSchema, phoneSchema, dateOfBirthSchema, UserType, ValidationError, Address } from '../types';
+import { 
+  nameSchema, 
+  phoneSchema, 
+  dateOfBirthSchema, 
+  barNumberSchema,
+  institutionSchema,
+  UserType, 
+  ValidationError, 
+  Address 
+} from '../types';
 
 interface PersonalInfoProps {
   userType: UserType;
@@ -23,9 +32,19 @@ interface PersonalInfoProps {
 interface PersonalInfoForm {
   firstName: string;
   lastName: string;
-  dateOfBirth: string;
+  dateOfBirth?: string;
   phone: string;
   address: Address;
+  // Legal representative fields
+  barNumber?: string;
+  barState?: string;
+  firmName?: string;
+  practiceAreas?: string[];
+  // Educator fields
+  institution?: string;
+  department?: string;
+  position?: string;
+  employeeId?: string;
 }
 
 export const PersonalInfo = ({
@@ -37,7 +56,7 @@ export const PersonalInfo = ({
   const [form, setForm] = useState<PersonalInfoForm>({
     firstName: '',
     lastName: '',
-    dateOfBirth: '',
+    ...(userType === 'family' && { dateOfBirth: '' }),
     phone: '',
     address: {
       street1: '',
@@ -46,7 +65,19 @@ export const PersonalInfo = ({
       state: '',
       zipCode: '',
       country: 'US'
-    }
+    },
+    ...(userType === 'legal' && {
+      barNumber: '',
+      barState: '',
+      firmName: '',
+      practiceAreas: []
+    }),
+    ...(userType === 'educator' && {
+      institution: '',
+      department: '',
+      position: '',
+      employeeId: ''
+    })
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -77,7 +108,11 @@ export const PersonalInfo = ({
       phoneSchema.parse(form.phone);
       
       if (userType === 'family') {
-        dateOfBirthSchema.parse(new Date(form.dateOfBirth));
+        dateOfBirthSchema.parse(new Date(form.dateOfBirth!));
+      } else if (userType === 'legal') {
+        barNumberSchema.parse(form.barNumber!);
+      } else if (userType === 'educator') {
+        institutionSchema.parse(form.institution!);
       }
 
       // Submit personal info
