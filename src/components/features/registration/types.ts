@@ -27,12 +27,65 @@ export type GovernmentId = {
   issuingCountry: string;
 };
 
-export type Relationship = {
-  inmateId: string;
-  facilityId: string;
-  relationship: 'parent' | 'spouse' | 'child' | 'sibling' | 'other';
-  relationshipDetails?: string;
-  isPrimaryContact: boolean;
+export type FamilyMemberInfo = {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+  email: string;
+  phone: string;
+  address: Address;
+  governmentId: GovernmentId;
+  relationships: Array<{
+    inmateId: string;
+    facilityId: string;
+    relationship: 'parent' | 'spouse' | 'child' | 'sibling' | 'other';
+    relationshipDetails?: string;
+    isPrimaryContact: boolean;
+  }>;
+};
+
+export type LegalRepresentativeInfo = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  barNumber: string;
+  barState: string;
+  firmName?: string;
+  firmAddress: Address;
+  credentials: {
+    barCardImage: File;
+    professionalEmail: string;
+    practiceAreas: string[];
+  };
+  clients: Array<{
+    inmateId: string;
+    facilityId: string;
+    caseNumber?: string;
+    representationType: 'criminal' | 'civil' | 'appeal' | 'other';
+  }>;
+};
+
+export type EducatorInfo = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  institution: string;
+  department?: string;
+  position: string;
+  employeeId?: string;
+  credentials: {
+    institutionEmail: string;
+    employmentVerification: File;
+    teachingCertification?: File;
+  };
+  programs: Array<{
+    facilityId: string;
+    programName: string;
+    programType: 'academic' | 'vocational' | 'rehabilitation';
+    expectedStudentCount: number;
+  }>;
 };
 
 // Registration step types
