@@ -90,6 +90,14 @@ export const FacilitySettings = ({
     }
   };
 
+  if (!settings) {
+    return (
+      <Box p={8} textAlign="center">
+        <Text>Loading settings...</Text>
+      </Box>
+    );
+  }
+
   return (
     <Box as="form" onSubmit={handleSubmit}>
       <VStack spacing={8} align="stretch">
