@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useSession } from 'next-auth/react';
 import { useParams } from 'next/navigation';
 import { VideoRoom } from '@/components/communication/VideoRoom/VideoRoom';
