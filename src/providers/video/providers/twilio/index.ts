@@ -10,9 +10,7 @@ export class TwilioProvider extends BaseVideoProvider {
 
   constructor(config?: ProviderConfig) {
     super();
-    if (config) {
-      this.config = config;
-    }
+    this.config = config || {};
   }
 
   async initialize(config: ProviderConfig): Promise<void> {
@@ -172,10 +170,11 @@ export class TwilioProvider extends BaseVideoProvider {
     }
 
     try {
-      // Use Twilio's recording API
-      const recording = await this.activeRoom.startRecording();
+      // Use Twilio's REST API for recording (to be implemented)
+      // For now return a mock recording since actual implementation will be in private repo
+      const recordingId = `recording-${Date.now()}`;
       return {
-        id: recording.sid,
+        id: recordingId,
         startTime: new Date(),
         status: 'active',
         duration: 0,
@@ -197,7 +196,7 @@ export class TwilioProvider extends BaseVideoProvider {
     }
 
     try {
-      await this.activeRoom.stopRecording();
+      // Use Twilio's REST API for recording (to be implemented in private repo)
     } catch (error) {
       throw new Error(`Failed to stop recording: ${error}`);
     }
@@ -213,7 +212,7 @@ export class TwilioProvider extends BaseVideoProvider {
     }
 
     try {
-      await this.activeRoom.pauseRecording();
+      // Use Twilio's REST API for recording (to be implemented in private repo)
     } catch (error) {
       throw new Error(`Failed to pause recording: ${error}`);
     }
@@ -229,7 +228,7 @@ export class TwilioProvider extends BaseVideoProvider {
     }
 
     try {
-      await this.activeRoom.resumeRecording();
+      // Use Twilio's REST API for recording (to be implemented in private repo)
     } catch (error) {
       throw new Error(`Failed to resume recording: ${error}`);
     }
