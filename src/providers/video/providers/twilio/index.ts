@@ -2,24 +2,22 @@ import { BaseVideoProvider } from '../base';
 import { Room, RoomOptions, Participant, RoomSettings, SecuritySettings, RecordingInfo, ProviderConfig } from '../../types';
 import { connect, createLocalTracks, Room as TwilioRoom, LocalTrack, RemoteTrack, ConnectOptions } from 'twilio-video';
 import { convertTwilioRoomToRoom } from './types';
-import { TwilioSecurityRecordingManager } from '../../../../../openconnect-private/src/recording/twilio';
-
 export class TwilioProvider extends BaseVideoProvider {
   private activeRoom: TwilioRoom | null = null;
   private localTracks: LocalTrack[] = [];
   private remoteTracks: Map<string, RemoteTrack[]> = new Map();
   private roomSid: string | null = null;
-  private securityRecordingManager: TwilioSecurityRecordingManager;
 
-  constructor(config: ProviderConfig) {
-    super(config);
-    this.securityRecordingManager = new TwilioSecurityRecordingManager(config);
+  constructor(config?: ProviderConfig) {
+    super();
+    if (config) {
+      this.config = config;
+    }
   }
 
   async initialize(config: ProviderConfig): Promise<void> {
-    this.validateConfig(config);
-    if (!config.apiKey) {
-      throw new Error('API key is required for Twilio');
+    if (!config.apiKey || !config.apiSecret) {
+      throw new Error('Twilio provider requires apiKey and apiSecret');
     }
     
     // Store config for later use
@@ -38,8 +36,8 @@ export class TwilioProvider extends BaseVideoProvider {
 
   async createRoom(options: RoomOptions): Promise<Room> {
     this.validateRoomOptions(options);
-    if (!this.config) {
-      throw new Error('Twilio provider not initialized');
+    if (!this.config?.apiKey || !this.config?.apiSecret) {
+      throw new Error('Twilio provider not initialized with required credentials');
     }
 
     try {
@@ -47,10 +45,11 @@ export class TwilioProvider extends BaseVideoProvider {
         name: options.name || `room-${Date.now()}`,
         tracks: [],
         audio: true,
-        video: true
+        video: true,
+        region: this.config.region || 'us-east-1'
       };
 
-      this.activeRoom = await connect(this.config.apiKey!, twilioOptions);
+      this.activeRoom = await connect(this.config.apiKey, twilioOptions);
       this.roomSid = this.activeRoom.sid;
       
       return {
@@ -77,8 +76,8 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async joinRoom(roomId: string, participant: Participant): Promise<void> {
-    if (!this.config) {
-      throw new Error('Twilio provider not initialized');
+    if (!this.config?.apiKey || !this.config?.apiSecret) {
+      throw new Error('Twilio provider not initialized with required credentials');
     }
 
     if (this.activeRoom && this.activeRoom.sid === roomId) {
@@ -90,10 +89,11 @@ export class TwilioProvider extends BaseVideoProvider {
         name: roomId,
         audio: participant.audioEnabled,
         video: participant.videoEnabled,
-        tracks: this.localTracks
+        tracks: this.localTracks,
+        region: this.config.region || 'us-east-1'
       };
 
-      this.activeRoom = await connect(this.config.apiKey!, connectOptions);
+      this.activeRoom = await connect(this.config.apiKey, connectOptions);
       this.roomSid = this.activeRoom.sid;
     } catch (error) {
       throw new Error(`Failed to join room: ${error}`);
@@ -167,65 +167,109 @@ export class TwilioProvider extends BaseVideoProvider {
       throw new Error('Not connected to the specified room');
     }
 
-    const room = await this.getRoomInfo(roomId);
-    const securityRecording = await this.securityRecordingManager.startRecording(room);
+    if (!this.config?.apiKey || !this.config?.apiSecret) {
+      throw new Error('Twilio provider not initialized with required credentials');
+    }
 
-    return {
-      id: securityRecording.id,
-      startTime: securityRecording.metadata.startTime,
-      status: securityRecording.status,
-      duration: securityRecording.metadata.endTime ? 
-        (securityRecording.metadata.endTime.getTime() - securityRecording.metadata.startTime.getTime()) / 1000 : 0,
-      aiMonitoringEnabled: securityRecording.metadata.aiMonitoringEnabled,
-      retentionPeriod: securityRecording.metadata.retentionPeriod
-    };
+    try {
+      // Use Twilio's recording API
+      const recording = await this.activeRoom.startRecording();
+      return {
+        id: recording.sid,
+        startTime: new Date(),
+        status: 'active',
+        duration: 0,
+        aiMonitoringEnabled: options?.aiMonitoring || false,
+        retentionPeriod: 30 // Default 30 days
+      };
+    } catch (error) {
+      throw new Error(`Failed to start recording: ${error}`);
+    }
   }
 
   async stopRecording(roomId: string): Promise<void> {
-    const recordings = await this.listRecordings(roomId);
-    if (recordings.length > 0) {
-      await this.securityRecordingManager.stopRecording(recordings[0].id);
+    if (!this.activeRoom || this.activeRoom.sid !== roomId) {
+      throw new Error('Not connected to the specified room');
+    }
+    
+    if (!this.config?.apiKey || !this.config?.apiSecret) {
+      throw new Error('Twilio provider not initialized with required credentials');
+    }
+
+    try {
+      await this.activeRoom.stopRecording();
+    } catch (error) {
+      throw new Error(`Failed to stop recording: ${error}`);
     }
   }
 
   async pauseRecording(roomId: string): Promise<void> {
-    const recordings = await this.listRecordings(roomId);
-    if (recordings.length > 0) {
-      await this.securityRecordingManager.pauseRecording(recordings[0].id);
+    if (!this.activeRoom || this.activeRoom.sid !== roomId) {
+      throw new Error('Not connected to the specified room');
+    }
+    
+    if (!this.config?.apiKey || !this.config?.apiSecret) {
+      throw new Error('Twilio provider not initialized with required credentials');
+    }
+
+    try {
+      await this.activeRoom.pauseRecording();
+    } catch (error) {
+      throw new Error(`Failed to pause recording: ${error}`);
     }
   }
 
   async resumeRecording(roomId: string): Promise<void> {
-    const recordings = await this.listRecordings(roomId);
-    if (recordings.length > 0) {
-      await this.securityRecordingManager.resumeRecording(recordings[0].id);
+    if (!this.activeRoom || this.activeRoom.sid !== roomId) {
+      throw new Error('Not connected to the specified room');
+    }
+    
+    if (!this.config?.apiKey || !this.config?.apiSecret) {
+      throw new Error('Twilio provider not initialized with required credentials');
+    }
+
+    try {
+      await this.activeRoom.resumeRecording();
+    } catch (error) {
+      throw new Error(`Failed to resume recording: ${error}`);
     }
   }
 
   async getRecording(recordingId: string): Promise<RecordingInfo> {
-    const securityRecording = await this.securityRecordingManager.getRecording(recordingId);
-    return {
-      id: securityRecording.id,
-      startTime: securityRecording.metadata.startTime,
-      status: securityRecording.status,
-      duration: securityRecording.metadata.endTime ? 
-        (securityRecording.metadata.endTime.getTime() - securityRecording.metadata.startTime.getTime()) / 1000 : 0,
-      aiMonitoringEnabled: securityRecording.metadata.aiMonitoringEnabled,
-      retentionPeriod: securityRecording.metadata.retentionPeriod
-    };
+    if (!this.config?.apiKey || !this.config?.apiSecret) {
+      throw new Error('Twilio provider not initialized with required credentials');
+    }
+
+    try {
+      // Basic implementation - actual recording info will be in private repo
+      return {
+        id: recordingId,
+        startTime: new Date(),
+        status: 'active',
+        duration: 0,
+        aiMonitoringEnabled: false,
+        retentionPeriod: 30
+      };
+    } catch (error) {
+      throw new Error(`Failed to get recording: ${error}`);
+    }
   }
 
   async listRecordings(roomId: string): Promise<RecordingInfo[]> {
-    const securityRecordings = await this.securityRecordingManager.listRecordings(roomId);
-    return securityRecordings.map(recording => ({
-      id: recording.id,
-      startTime: recording.metadata.startTime,
-      status: recording.status,
-      duration: recording.metadata.endTime ? 
-        (recording.metadata.endTime.getTime() - recording.metadata.startTime.getTime()) / 1000 : 0,
-      aiMonitoringEnabled: recording.metadata.aiMonitoringEnabled,
-      retentionPeriod: recording.metadata.retentionPeriod
-    }));
+    if (!this.activeRoom || this.activeRoom.sid !== roomId) {
+      throw new Error('Not connected to the specified room');
+    }
+
+    if (!this.config?.apiKey || !this.config?.apiSecret) {
+      throw new Error('Twilio provider not initialized with required credentials');
+    }
+
+    try {
+      // Basic implementation - actual recording list will be in private repo
+      return [];
+    } catch (error) {
+      throw new Error(`Failed to list recordings: ${error}`);
+    }
   }
 
   async updateSecuritySettings(roomId: string, settings: Partial<SecuritySettings>): Promise<Room> {
