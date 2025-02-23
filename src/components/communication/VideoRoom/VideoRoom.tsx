@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { VideoProvider } from '@/providers/video/factory';
 import { VideoControls } from './components/VideoControls';
+import { RecordingIndicator } from './components/RecordingIndicator';
 
 interface VideoRoomProps {
   callId: string;
@@ -26,18 +27,29 @@ export const VideoRoom = ({
 }: VideoRoomProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const providerRef = useRef<VideoProvider>();
   const toast = useToast();
 
   useEffect(() => {
     const joinCall = async () => {
       try {
-        const provider = await VideoProvider.create({
+        providerRef.current = await VideoProvider.create({
           userId,
           userRole,
           facilityId
         });
 
-        await provider.joinRoom(callId);
+        await providerRef.current.joinRoom(callId);
+        
+        // Start recording if required by facility settings
+        const facilityRes = await fetch(`/api/facilities/${facilityId}/settings`);
+        const facilitySettings = await facilityRes.json();
+        
+        if (facilitySettings.monitoring.recordCalls) {
+          await providerRef.current.startRecording();
+          setIsRecording(true);
+        }
         setIsConnecting(false);
       } catch (err: any) {
         setError(err.message);
@@ -87,6 +99,7 @@ export const VideoRoom = ({
       <Box flex="1" bg="gray.900" position="relative">
         {/* Video elements will be injected here by the provider */}
         <div id="video-container" style={{ width: '100%', height: '100%' }} />
+        {isRecording && <RecordingIndicator />}
         <VideoControls
           onMuteAudio={() => {}}
           onMuteVideo={() => {}}
