@@ -19,13 +19,20 @@ export const RegistrationFlow = () => {
     }));
   };
 
+  const handleUserTypeNext = (data: { userType: UserType }) => {
+    handleNext({ userType: data.userType });
+  };
+
+  const handleEmailNext = (data: { email: string }) => {
+    handleNext({ email: data.email });
+  };
+
   const clearErrors = () => {
     setState(prev => ({ ...prev, errors: undefined }));
   };
 
-  const handleNext = (data: { userType?: UserType; email?: string; personalInfo?: any; identityInfo?: any; relationships?: any }) => {
+  const handleNext = (data: { userType?: UserType; email?: string; personalInfo?: any; identityInfo?: any; relationships?: any[] }) => {
     clearErrors();
-    
     switch (state.step) {
       case 'user_type':
         setState(prev => ({
@@ -72,13 +79,13 @@ export const RegistrationFlow = () => {
   const renderStep = () => {
     switch (state.step) {
       case 'user_type':
-        return <UserTypeSelection onNext={handleNext} onError={handleError} />;
+        return <UserTypeSelection onNext={handleUserTypeNext} onError={handleError} />;
       
       case 'email_verification':
         return (
           <EmailVerification
             userType={state.userType!}
-            onNext={handleNext}
+            onNext={handleEmailNext}
             onError={handleError}
           />
         );
@@ -88,7 +95,7 @@ export const RegistrationFlow = () => {
           <PersonalInfo
             userType={state.userType!}
             email={state.email!}
-            onNext={handleNext}
+            onNext={(data) => handleNext({ personalInfo: data })}
             onError={handleError}
           />
         );
@@ -98,7 +105,7 @@ export const RegistrationFlow = () => {
           <IdentityVerification
             userType={state.userType!}
             personalInfo={state.personalInfo}
-            onNext={handleNext}
+            onNext={(data) => handleNext({ identityInfo: data })}
             onError={handleError}
           />
         );
@@ -108,7 +115,7 @@ export const RegistrationFlow = () => {
           <RelationshipInfo
             userType={state.userType!}
             personalInfo={state.personalInfo}
-            onNext={handleNext}
+            onNext={(data) => handleNext({ relationships: data.relationships })}
             onError={handleError}
           />
         );

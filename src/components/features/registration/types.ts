@@ -1,5 +1,15 @@
 import { z } from 'zod';
 
+// Common types
+export type UserType = 'family' | 'legal' | 'educator';
+
+export type ValidationError = {
+  field: string;
+  code: string;
+  message: string;
+  details?: any;
+};
+
 // Validation schemas
 export const nameSchema = z
   .string()
