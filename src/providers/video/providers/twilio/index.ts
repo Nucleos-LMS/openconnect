@@ -2,16 +2,18 @@ import { BaseVideoProvider } from '../base';
 import { Room, RoomOptions, Participant, RoomSettings, SecuritySettings, RecordingInfo, ProviderConfig } from '../../types';
 import { connect, createLocalTracks, Room as TwilioRoom, LocalTrack, RemoteTrack, ConnectOptions } from 'twilio-video';
 import { convertTwilioRoomToRoom } from './types';
+import { TwilioSecurityRecordingManager } from '../../../../../openconnect-private/src/recording/twilio';
 
 export class TwilioProvider extends BaseVideoProvider {
   private activeRoom: TwilioRoom | null = null;
   private localTracks: LocalTrack[] = [];
   private remoteTracks: Map<string, RemoteTrack[]> = new Map();
   private roomSid: string | null = null;
-  private activeRecording: RecordingInfo | null = null;
+  private securityRecordingManager: TwilioSecurityRecordingManager;
 
   constructor(config: ProviderConfig) {
     super(config);
+    this.securityRecordingManager = new TwilioSecurityRecordingManager(config);
   }
 
   async initialize(config: ProviderConfig): Promise<void> {
@@ -165,60 +167,65 @@ export class TwilioProvider extends BaseVideoProvider {
       throw new Error('Not connected to the specified room');
     }
 
-    // Mock recording for now since we need the REST API client for actual recording
-    this.activeRecording = {
-      id: `recording-${Date.now()}`,
-      startTime: new Date(),
-      status: 'active',
-      duration: 0,
-      aiMonitoringEnabled: options?.aiMonitoring || false,
-      retentionPeriod: 30 // Default 30 days retention
+    const room = await this.getRoomInfo(roomId);
+    const securityRecording = await this.securityRecordingManager.startRecording(room);
+
+    return {
+      id: securityRecording.id,
+      startTime: securityRecording.metadata.startTime,
+      status: securityRecording.status,
+      duration: securityRecording.metadata.endTime ? 
+        (securityRecording.metadata.endTime.getTime() - securityRecording.metadata.startTime.getTime()) / 1000 : 0,
+      aiMonitoringEnabled: securityRecording.metadata.aiMonitoringEnabled,
+      retentionPeriod: securityRecording.metadata.retentionPeriod
     };
-    return this.activeRecording;
   }
 
   async stopRecording(roomId: string): Promise<void> {
-    if (!this.activeRoom || this.activeRoom.sid !== roomId) {
-      throw new Error('Not connected to the specified room');
+    const recordings = await this.listRecordings(roomId);
+    if (recordings.length > 0) {
+      await this.securityRecordingManager.stopRecording(recordings[0].id);
     }
-    // Mock implementation since we need the REST API client for actual recording
   }
 
   async pauseRecording(roomId: string): Promise<void> {
-    if (!this.activeRoom || this.activeRoom.sid !== roomId) {
-      throw new Error('Not connected to the specified room');
+    const recordings = await this.listRecordings(roomId);
+    if (recordings.length > 0) {
+      await this.securityRecordingManager.pauseRecording(recordings[0].id);
     }
-    // Mock implementation since we need the REST API client for actual recording
   }
 
   async resumeRecording(roomId: string): Promise<void> {
-    if (!this.activeRoom || this.activeRoom.sid !== roomId) {
-      throw new Error('Not connected to the specified room');
+    const recordings = await this.listRecordings(roomId);
+    if (recordings.length > 0) {
+      await this.securityRecordingManager.resumeRecording(recordings[0].id);
     }
-    // Mock implementation since we need the REST API client for actual recording
   }
 
   async getRecording(recordingId: string): Promise<RecordingInfo> {
-    if (!this.activeRoom) {
-      throw new Error('Not connected to any room');
-    }
-    // Mock implementation since we need the REST API client for actual recording
+    const securityRecording = await this.securityRecordingManager.getRecording(recordingId);
     return {
-      id: recordingId,
-      startTime: new Date(),
-      status: 'active',
-      duration: 0,
-      aiMonitoringEnabled: false,
-      retentionPeriod: 30
+      id: securityRecording.id,
+      startTime: securityRecording.metadata.startTime,
+      status: securityRecording.status,
+      duration: securityRecording.metadata.endTime ? 
+        (securityRecording.metadata.endTime.getTime() - securityRecording.metadata.startTime.getTime()) / 1000 : 0,
+      aiMonitoringEnabled: securityRecording.metadata.aiMonitoringEnabled,
+      retentionPeriod: securityRecording.metadata.retentionPeriod
     };
   }
 
   async listRecordings(roomId: string): Promise<RecordingInfo[]> {
-    if (!this.activeRoom || this.activeRoom.sid !== roomId) {
-      throw new Error('Not connected to the specified room');
-    }
-    // Return active recording if it exists
-    return this.activeRecording ? [this.activeRecording] : [];
+    const securityRecordings = await this.securityRecordingManager.listRecordings(roomId);
+    return securityRecordings.map(recording => ({
+      id: recording.id,
+      startTime: recording.metadata.startTime,
+      status: recording.status,
+      duration: recording.metadata.endTime ? 
+        (recording.metadata.endTime.getTime() - recording.metadata.startTime.getTime()) / 1000 : 0,
+      aiMonitoringEnabled: recording.metadata.aiMonitoringEnabled,
+      retentionPeriod: recording.metadata.retentionPeriod
+    }));
   }
 
   async updateSecuritySettings(roomId: string, settings: Partial<SecuritySettings>): Promise<Room> {
