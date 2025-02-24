@@ -5,7 +5,14 @@ import type { NextRequest } from 'next/server';
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const isApiRoute = req.nextUrl.pathname.startsWith('/api');
-  const isAuthRoute = req.nextUrl.pathname.startsWith('/login');
+  const isAuthRoute = req.nextUrl.pathname.startsWith('/login') || 
+                     req.nextUrl.pathname.startsWith('/registration') ||
+                     req.nextUrl.pathname.startsWith('/auth/');
+
+  // Handle root route
+  if (req.nextUrl.pathname === '/' && !isLoggedIn) {
+    return NextResponse.redirect(new URL('/login', req.url));
+  }
 
   if (!isLoggedIn && !isAuthRoute) {
     return NextResponse.redirect(new URL('/login', req.url));
