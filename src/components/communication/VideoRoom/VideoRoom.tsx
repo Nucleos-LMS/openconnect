@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Box,
   Button,
@@ -8,7 +8,7 @@ import {
   Text,
   useToast
 } from '@chakra-ui/react';
-import { VideoProvider } from '@/providers/video/factory';
+import { createVideoProvider } from '@/providers/video/factory';
 import { VideoControls } from './components/VideoControls';
 import { RecordingIndicator } from './components/RecordingIndicator';
 
@@ -28,13 +28,13 @@ export const VideoRoom = ({
   const [isConnecting, setIsConnecting] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const providerRef = useRef<VideoProvider>();
+  const providerRef = useRef<Awaited<ReturnType<typeof createVideoProvider>>>();
   const toast = useToast();
 
   useEffect(() => {
     const joinCall = async () => {
       try {
-        providerRef.current = await VideoProvider.create({
+        providerRef.current = await createVideoProvider('twilio', {
           userId,
           userRole,
           facilityId
