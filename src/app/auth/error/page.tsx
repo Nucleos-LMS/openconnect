@@ -1,13 +1,19 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Box, Heading, Text, Button } from '@chakra-ui/react';
-import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function ErrorPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const error = searchParams.get('error');
+function ErrorContent() {
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    setError(searchParams.get('error'));
+  }, []);
+
+  const handleBack = () => {
+    window.location.href = '/auth/login';
+  };
 
   return (
     <Box maxW="md" mx="auto" mt={8} p={6} borderWidth={1} borderRadius="lg">
@@ -19,10 +25,19 @@ export default function ErrorPage() {
       </Text>
       <Button
         colorScheme="blue"
-        onClick={() => router.push('/auth/login')}
+        onClick={handleBack}
       >
         Back to Login
       </Button>
     </Box>
+  );
+}
+
+// Server component wrapper
+export default function ErrorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ErrorContent />
+    </Suspense>
   );
 }

@@ -1,18 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useToast } from '@chakra-ui/react';
 import { signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter();
+  const [callbackUrl, setCallbackUrl] = useState('/');
   const toast = useToast();
 
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    setCallbackUrl(searchParams.get('callbackUrl') || '/');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +33,7 @@ export default function LoginPage() {
         isClosable: true,
       });
     } else {
-      router.push(callbackUrl);
+      window.location.href = callbackUrl;
     }
   };
 
@@ -63,12 +64,21 @@ export default function LoginPage() {
           <Button
             variant="outline"
             width="full"
-            onClick={() => router.push('/registration')}
+            onClick={() => window.location.href = '/registration'}
           >
             Register
           </Button>
         </VStack>
       </form>
     </Box>
+  );
+}
+
+// Server component wrapper
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
