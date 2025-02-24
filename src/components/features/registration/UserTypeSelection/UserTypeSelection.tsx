@@ -3,8 +3,11 @@ import { VStack, SimpleGrid, Icon, Text } from '@chakra-ui/react'
 import { FaUser, FaGavel, FaGraduationCap } from 'react-icons/fa'
 import { Card } from '../../../common/Card'
 
+import type { UserType, ValidationError } from '../types';
+
 export interface UserTypeSelectionProps {
-  onSelect: (userType: 'family' | 'legal' | 'educator') => void;
+  onNext: (data: { userType: UserType }) => void;
+  onError: (error: ValidationError) => void;
 }
 
 const userTypes = [
@@ -28,7 +31,7 @@ const userTypes = [
   },
 ] as const
 
-export const UserTypeSelection = ({ onSelect }: UserTypeSelectionProps) => {
+export const UserTypeSelection = ({ onNext, onError }: UserTypeSelectionProps) => {
   return (
     <VStack spacing={6} width="100%" maxW="4xl">
       <Text fontSize="2xl" fontWeight="bold">
@@ -43,7 +46,7 @@ export const UserTypeSelection = ({ onSelect }: UserTypeSelectionProps) => {
           <Card
             key={type.id}
             as="button"
-            onClick={() => onSelect(type.id)}
+            onClick={() => onNext({ userType: type.id as UserType })}
             display="flex"
             flexDirection="column"
             alignItems="center"
@@ -69,4 +72,4 @@ export const UserTypeSelection = ({ onSelect }: UserTypeSelectionProps) => {
       </SimpleGrid>
     </VStack>
   )
-} 
+}  
