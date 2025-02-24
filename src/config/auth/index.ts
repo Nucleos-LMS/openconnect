@@ -1,8 +1,10 @@
-import { NextAuthOptions } from 'next-auth';
-import { JWT } from 'next-auth/jwt';
+import type { NextAuthConfig } from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
+import type { Session } from 'next-auth';
+import type { User } from '@/lib/types/next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-export const authConfig: NextAuthOptions = {
+export const authConfig: NextAuthConfig = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -44,28 +46,28 @@ export const authConfig: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, profile, trigger }) {
       if (user) {
         return {
           ...token,
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          facility_id: user.facility_id
+          id: user.id ?? '',
+          email: user.email ?? '',
+          name: user.name ?? '',
+          role: (user as User).role ?? 'user',
+          facility_id: (user as User).facility_id ?? ''
         } as JWT;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (token && session.user) {
         session.user = {
           ...session.user,
-          id: token.id as string,
-          email: token.email as string,
-          name: token.name as string,
-          role: token.role as string,
-          facility_id: token.facility_id as string
+          id: token.id ?? '',
+          email: token.email ?? '',
+          name: token.name ?? '',
+          role: token.role ?? 'user',
+          facility_id: token.facility_id ?? ''
         };
       }
       return session;

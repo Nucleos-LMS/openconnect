@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withClient } from '@/lib/db';
-import type { DbClient, DbError } from '@/lib/db.types';
+import type { DbClient, DbError } from '@/lib/types/db';
 
 export const runtime = 'edge';
 

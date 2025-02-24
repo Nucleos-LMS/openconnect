@@ -17,7 +17,10 @@ type Story = StoryObj;
 const config: ProviderConfig = {
   apiKey: 'mock-api-key',
   apiSecret: 'mock-api-secret',
-  environment: 'development'
+  environment: 'development',
+  userId: 'mock-user-id',
+  userRole: 'staff',
+  facilityId: 'mock-facility-id'
 };
 
 export const BasicVideoCall: Story = {

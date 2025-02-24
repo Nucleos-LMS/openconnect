@@ -40,6 +40,9 @@ export interface RoomSettings {
 }
 
 export interface ProviderConfig {
+  userId: string;
+  userRole: string;
+  facilityId: string;
   apiKey?: string;
   apiSecret?: string;
   region?: string;
@@ -81,6 +84,10 @@ export interface VideoProvider {
   
   // Security controls
   updateSecuritySettings(roomId: string, settings: Partial<SecuritySettings>): Promise<Room>;
+  
+  // Media controls
+  muteAudio(): Promise<void>;
+  muteVideo(): Promise<void>;
   
   disconnect(): Promise<void>;
 }
