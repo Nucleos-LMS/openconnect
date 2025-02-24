@@ -22,6 +22,10 @@ export abstract class BaseVideoProvider implements VideoProvider {
   abstract listRecordings(roomId: string): Promise<RecordingInfo[]>;
   abstract updateSecuritySettings(roomId: string, settings: Partial<SecuritySettings>): Promise<Room>;
   abstract disconnect(): Promise<void>;
+  
+  abstract muteAudio(): Promise<void>;
+  
+  abstract muteVideo(): Promise<void>;
 
   protected validateConfig(config: ProviderConfig): void {
     if (!config.apiKey) {

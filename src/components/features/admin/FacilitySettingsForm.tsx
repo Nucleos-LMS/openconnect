@@ -12,20 +12,23 @@ import {
   useToast
 } from '@chakra-ui/react';
 
-import { FacilitySettings, facilitySettingsSchema } from './validation';
+import type { FacilitySettings } from './validation';
+import { facilitySettingsSchema } from './validation';
 import { getFacilitySettings, updateFacilitySettings } from './api';
 
-interface FacilitySettingsProps {
+export { type FacilitySettings };
+
+interface FacilitySettingsFormProps {
   facilityId: string;
   onSave: (settings: FacilitySettings) => Promise<void>;
   onError: (error: Error) => void;
 }
 
-export const FacilitySettings = ({
+export const FacilitySettingsForm = ({
   facilityId,
   onSave,
   onError
-}: FacilitySettingsProps) => {
+}: FacilitySettingsFormProps) => {
   const [settings, setSettings] = useState<FacilitySettings | null>(null);
 
   // Load initial settings
@@ -54,13 +57,16 @@ export const FacilitySettings = ({
     field: string,
     value: any
   ) => {
-    setSettings(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value
-      }
-    }));
+    setSettings(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [field]: value
+        }
+      };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

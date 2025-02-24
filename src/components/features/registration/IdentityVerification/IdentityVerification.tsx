@@ -90,7 +90,10 @@ export const IdentityVerification = ({
         throw new Error(error.message);
       }
 
-      onNext(form);
+      onNext({
+        ...form,
+        expirationDate: new Date(form.expirationDate)
+      });
     } catch (error: any) {
       onError({
         field: error.path?.[0] || 'form',

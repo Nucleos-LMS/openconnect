@@ -28,7 +28,12 @@ export const ProviderConfig: React.FC<ProviderConfigProps> = ({
 }) => {
   const toast = useToast();
   const [provider, setProvider] = useState<SupportedProvider>(currentProvider);
-  const [providerConfig, setProviderConfig] = useState<VideoProviderConfig>(config);
+  const [providerConfig, setProviderConfig] = useState<VideoProviderConfig>({
+    userId: 'default',
+    userRole: 'staff',
+    facilityId: 'default',
+    ...config
+  });
 
   const handleSave = () => {
     try {

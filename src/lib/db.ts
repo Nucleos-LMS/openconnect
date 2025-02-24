@@ -1,5 +1,5 @@
 import { createClient } from '@vercel/postgres';
-import { DbClient, DbError } from './db.types';
+import { DbClient, DbError } from './types/db';
 
 export function getClient() {
   const client = createClient();

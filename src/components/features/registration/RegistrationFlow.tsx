@@ -132,7 +132,23 @@ export const RegistrationFlow = () => {
           <PersonalInfo
             userType={state.userType!}
             email={state.email!}
-            onNext={(data) => handleNext({ personalInfo: data as FamilyMemberInfo | LegalRepresentativeInfo | EducatorInfo })}
+            onNext={(data) => {
+              let typedData;
+              switch (state.userType) {
+                case 'family':
+                  typedData = data as FamilyMemberInfo;
+                  break;
+                case 'legal':
+                  typedData = data as LegalRepresentativeInfo;
+                  break;
+                case 'educator':
+                  typedData = data as EducatorInfo;
+                  break;
+                default:
+                  throw new Error('Invalid user type');
+              }
+              handleNext({ personalInfo: typedData });
+            }}
             onError={handleError}
           />
         );

@@ -305,4 +305,20 @@ export class TwilioProvider extends BaseVideoProvider {
       throw new Error(`Failed to disconnect: ${error}`);
     }
   }
+
+  async muteAudio(): Promise<void> {
+    if (this.activeRoom) {
+      this.activeRoom.localParticipant.audioTracks.forEach(track => {
+        track.track.disable();
+      });
+    }
+  }
+
+  async muteVideo(): Promise<void> {
+    if (this.activeRoom) {
+      this.activeRoom.localParticipant.videoTracks.forEach(track => {
+        track.track.disable();
+      });
+    }
+  }
 }

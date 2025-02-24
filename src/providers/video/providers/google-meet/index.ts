@@ -69,4 +69,12 @@ export class GoogleMeetProvider extends BaseVideoProvider {
       this.client = null;
     }
   }
+
+  async muteAudio(): Promise<void> {
+    throw new Error('Google Meet provider not yet implemented');
+  }
+
+  async muteVideo(): Promise<void> {
+    throw new Error('Google Meet provider not yet implemented');
+  }
 }

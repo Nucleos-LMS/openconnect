@@ -9,25 +9,31 @@ import {
   useToast
 } from '@chakra-ui/react';
 import { createVideoProvider } from '@/providers/video/factory';
+import type { Participant, VideoProvider } from '@/providers/video/types';
 import { VideoControls } from './components/VideoControls';
 import { RecordingIndicator } from './components/RecordingIndicator';
 
 interface VideoRoomProps {
   callId: string;
-  userId: string;
-  userRole: string;
-  facilityId: string;
+  userId?: string;
+  userRole?: 'resident' | 'visitor' | 'attorney' | 'staff';
+  facilityId?: string;
 }
 
 export const VideoRoom = ({
   callId,
-  userId,
-  userRole,
-  facilityId
+  userId = '',
+  userRole = 'visitor',
+  facilityId = ''
 }: VideoRoomProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [participant] = useState<Participant>({
+    id: userId || '',
+    name: '',
+    role: (userRole || 'visitor') as 'resident' | 'visitor' | 'attorney' | 'staff'
+  });
   const providerRef = useRef<Awaited<ReturnType<typeof createVideoProvider>>>();
   const toast = useToast();
 
@@ -40,14 +46,16 @@ export const VideoRoom = ({
           facilityId
         });
 
-        await providerRef.current.joinRoom(callId);
+        await providerRef.current.joinRoom(callId, participant);
         
         // Start recording if required by facility settings
         const facilityRes = await fetch(`/api/facilities/${facilityId}/settings`);
         const facilitySettings = await facilityRes.json();
         
         if (facilitySettings.monitoring.recordCalls) {
-          await providerRef.current.startRecording();
+          await providerRef.current.startRecording(callId, {
+            aiMonitoring: facilitySettings.monitoring.aiMonitoring
+          });
           setIsRecording(true);
         }
         setIsConnecting(false);
@@ -113,7 +121,7 @@ export const VideoRoom = ({
           }}
           onEndCall={async () => {
             if (providerRef.current) {
-              await providerRef.current.leaveRoom();
+              await providerRef.current.leaveRoom(callId, userId);
             }
             window.location.href = '/calls/new';
           }}

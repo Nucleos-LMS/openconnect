@@ -69,4 +69,12 @@ export class DailyProvider extends BaseVideoProvider {
       this.client = null;
     }
   }
+
+  async muteAudio(): Promise<void> {
+    throw new Error('Daily.co provider not yet implemented');
+  }
+
+  async muteVideo(): Promise<void> {
+    throw new Error('Daily.co provider not yet implemented');
+  }
 }

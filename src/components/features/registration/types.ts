@@ -27,6 +27,14 @@ export type GovernmentId = {
   issuingCountry: string;
 };
 
+export type Relationship = {
+  inmateId: string;
+  facilityId: string;
+  relationship: 'parent' | 'spouse' | 'child' | 'sibling' | 'other';
+  relationshipDetails?: string;
+  isPrimaryContact: boolean;
+};
+
 export type FamilyMemberInfo = {
   firstName: string;
   lastName: string;
@@ -35,13 +43,7 @@ export type FamilyMemberInfo = {
   phone: string;
   address: Address;
   governmentId: GovernmentId;
-  relationships: Array<{
-    inmateId: string;
-    facilityId: string;
-    relationship: 'parent' | 'spouse' | 'child' | 'sibling' | 'other';
-    relationshipDetails?: string;
-    isPrimaryContact: boolean;
-  }>;
+  relationships: Array<Relationship>;
 };
 
 export type LegalRepresentativeInfo = {

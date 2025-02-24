@@ -33,7 +33,7 @@ export default function CallPage() {
       <VideoRoom
         callId={callId}
         userId={session.user.id}
-        userRole={session.user.role}
+        userRole={session.user.role as 'resident' | 'visitor' | 'attorney' | 'staff'}
         facilityId={session.user.facility_id}
       />
     </Container>

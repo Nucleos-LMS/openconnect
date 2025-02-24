@@ -1,25 +1,26 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FacilitySettings } from './FacilitySettings';
+import { FacilitySettingsForm } from './FacilitySettingsForm';
+import type { FacilitySettings } from './validation';
 
-const meta: Meta<typeof FacilitySettings> = {
+const meta: Meta<typeof FacilitySettingsForm> = {
   title: 'Admin/FacilitySettings',
-  component: FacilitySettings,
+  component: FacilitySettingsForm,
   parameters: {
     layout: 'centered',
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof FacilitySettings>;
+type Story = StoryObj<typeof FacilitySettingsForm>;
 
 export const Default: Story = {
   args: {
     facilityId: '123',
-    onSave: async (settings) => {
+    onSave: async (settings: FacilitySettings) => {
       console.log('Saving settings:', settings);
       await new Promise(resolve => setTimeout(resolve, 1000));
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error('Error:', error);
     },
   },

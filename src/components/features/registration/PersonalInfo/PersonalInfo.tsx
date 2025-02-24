@@ -19,13 +19,16 @@ import {
   institutionSchema,
   UserType, 
   ValidationError, 
-  Address 
+  Address,
+  FamilyMemberInfo,
+  LegalRepresentativeInfo,
+  EducatorInfo
 } from '../types';
 
 interface PersonalInfoProps {
   userType: UserType;
   email: string;
-  onNext: (data: PersonalInfoForm) => void;
+  onNext: (data: FamilyMemberInfo | LegalRepresentativeInfo | EducatorInfo) => void;
   onError: (error: ValidationError) => void;
 }
 
@@ -133,7 +136,31 @@ export const PersonalInfo = ({
         throw new Error(error.message);
       }
 
-      onNext(form);
+      // Transform form data into the correct type based on userType
+      const transformedData = {
+        ...form,
+        email,
+        ...(userType === 'family' && {
+          governmentId: { type: 'state_id', number: '', expirationDate: new Date(), issuingCountry: 'US' },
+          relationships: []
+        }),
+        ...(userType === 'legal' && {
+          credentials: {
+            barCardImage: new File([], 'placeholder'),
+            professionalEmail: email,
+            practiceAreas: form.practiceAreas || []
+          },
+          clients: []
+        }),
+        ...(userType === 'educator' && {
+          credentials: {
+            institutionEmail: email,
+            employmentVerification: new File([], 'placeholder'),
+          },
+          programs: []
+        })
+      };
+      onNext(transformedData as FamilyMemberInfo | LegalRepresentativeInfo | EducatorInfo);
     } catch (error: any) {
       onError({
         field: error.path?.[0] || 'form',

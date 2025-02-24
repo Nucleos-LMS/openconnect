@@ -17,6 +17,9 @@ export const Twilio: Story = {
   args: {
     currentProvider: 'twilio',
     config: {
+      userId: 'test-user',
+      userRole: 'staff',
+      facilityId: 'test-facility',
       environment: 'development',
       logLevel: 'info',
       region: 'us-east-1',
@@ -29,6 +32,9 @@ export const Daily: Story = {
   args: {
     currentProvider: 'daily',
     config: {
+      userId: 'test-user',
+      userRole: 'staff',
+      facilityId: 'test-facility',
       environment: 'development',
       logLevel: 'info',
     },
@@ -40,6 +46,9 @@ export const GoogleMeet: Story = {
   args: {
     currentProvider: 'google-meet',
     config: {
+      userId: 'test-user',
+      userRole: 'staff',
+      facilityId: 'test-facility',
       environment: 'development',
       logLevel: 'info',
     },
