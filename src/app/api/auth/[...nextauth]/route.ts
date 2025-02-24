@@ -1,24 +1,12 @@
 import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import { authConfig } from '@/lib/auth.config';
 
-const handler = NextAuth({
-  providers: [
-    CredentialsProvider({
-      name: 'Credentials',
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
-        
-        try {
-          const res = await fetch('http://localhost:8000/api/auth/token', {
-            method: 'POST',
+const handler = NextAuth(authConfig);
+export { handler as GET, handler as POST };
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({
-              username: credentials.email,
-              password: credentials.password,
+              username: credentials.email as string,
+              password: credentials.password as string,
             }),
           });
 
@@ -27,8 +15,11 @@ const handler = NextAuth({
           if (res.ok && user) {
             return {
               id: user.id,
-              email: credentials.email,
+              email: credentials.email as string,
+              role: user.role || 'visitor',
+              facility_id: user.facility_id || '',
               accessToken: user.access_token,
+              name: user.name,
             };
           }
           return null;
@@ -56,6 +47,7 @@ const handler = NextAuth({
       return session;
     }
   }
-});
+};
 
+const handler = NextAuth(config);
 export { handler as GET, handler as POST };
