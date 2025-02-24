@@ -10,7 +10,9 @@
     "build-storybook": "storybook build -c src/config/storybook",
     "test": "jest --config jest.config.ts",
     "test:watch": "jest --config jest.config.ts --watch",
-    "test:coverage": "jest --config jest.config.ts --coverage"
+    "test:coverage": "jest --config jest.config.ts --coverage",
+    "seed": "psql $POSTGRES_URL -f backend/app/database/seed.sql",
+    "lint": "next lint"
   },
   "dependencies": {
     "@auth/core": "^0.37.4",
