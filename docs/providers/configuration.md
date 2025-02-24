@@ -5,10 +5,12 @@
 ### Required Variables
 ```bash
 # Twilio Provider Configuration
-TWILIO_ACCOUNT_SID=your_account_sid    # Required for Twilio
-TWILIO_AUTH_TOKEN=your_auth_token      # Required for Twilio
-TWILIO_API_KEY=your_api_key            # Required for Twilio
-TWILIO_API_SECRET=your_api_secret      # Required for Twilio
+# Get these values from your Twilio Console: https://www.twilio.com/console
+# IMPORTANT: Never commit actual credentials to version control!
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx    # Required for Twilio
+TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      # Required for Twilio
+TWILIO_API_KEY=SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx       # Required for Twilio
+TWILIO_API_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      # Required for Twilio
 
 # Provider Settings
 PROVIDER_TYPE=twilio                    # twilio | daily | google-meet
