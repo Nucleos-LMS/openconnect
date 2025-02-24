@@ -14,7 +14,10 @@ describe('TwilioProvider', () => {
     apiKey: 'test-key',
     apiSecret: 'test-secret',
     environment: 'development',
-    region: 'us-east-1'
+    region: 'us-east-1',
+    userId: 'test-user-id',
+    userRole: 'staff',
+    facilityId: 'test-facility-id'
   };
 
   beforeEach(() => {
@@ -25,7 +28,14 @@ describe('TwilioProvider', () => {
 
   describe('initialize', () => {
     test('requires API credentials', async () => {
-      await expect(provider.initialize({})).rejects.toThrow('Twilio provider requires apiKey and apiSecret');
+      await expect(provider.initialize({
+        apiKey: '',
+        apiSecret: '',
+        environment: 'development',
+        userId: 'test-user',
+        userRole: 'staff',
+        facilityId: 'test-facility'
+      })).rejects.toThrow('Twilio provider requires apiKey and apiSecret');
     });
 
     test('initializes with valid credentials', async () => {

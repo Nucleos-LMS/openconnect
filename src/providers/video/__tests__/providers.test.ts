@@ -6,7 +6,10 @@ describe('Video Provider Integration Tests', () => {
   const config: ProviderConfig = {
     apiKey: 'test-api-key',
     apiSecret: 'test-api-secret',
-    environment: 'development'
+    environment: 'development',
+    userId: 'test-user-id',
+    userRole: 'staff',
+    facilityId: 'test-facility-id'
   };
 
   const roomOptions: RoomOptions = {

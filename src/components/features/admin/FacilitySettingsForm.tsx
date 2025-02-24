@@ -30,6 +30,8 @@ export const FacilitySettingsForm = ({
   onError
 }: FacilitySettingsFormProps) => {
   const [settings, setSettings] = useState<FacilitySettings | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
 
   // Load initial settings
   React.useEffect(() => {
@@ -48,9 +50,7 @@ export const FacilitySettingsForm = ({
       }
     };
     loadSettings();
-  }, [facilityId]);
-  const [isLoading, setIsLoading] = useState(false);
-  const toast = useToast();
+  }, [facilityId, toast]);
 
   const handleChange = (
     section: keyof FacilitySettings,
@@ -168,7 +168,7 @@ export const FacilitySettingsForm = ({
         {/* Monitoring Section */}
         <Box>
           <Text fontSize="xl" fontWeight="bold" mb={4}>
-            Monitoring & Recording
+            Monitoring and Recording
           </Text>
           <Stack spacing={4}>
             <FormControl display="flex" alignItems="center">

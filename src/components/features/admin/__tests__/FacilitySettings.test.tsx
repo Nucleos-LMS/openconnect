@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { FacilitySettings } from '../FacilitySettings';
+import { FacilitySettingsForm } from '../FacilitySettingsForm';
 import { getFacilitySettings, updateFacilitySettings } from '../api';
 
 jest.mock('../api', () => ({
@@ -26,7 +26,7 @@ const mockSettings = {
   }
 };
 
-describe('FacilitySettings', () => {
+describe('FacilitySettingsForm', () => {
   beforeEach(() => {
     (getFacilitySettings as jest.Mock).mockResolvedValue(mockSettings);
     (updateFacilitySettings as jest.Mock).mockResolvedValue(undefined);
@@ -34,7 +34,7 @@ describe('FacilitySettings', () => {
 
   it('loads initial settings', async () => {
     render(
-      <FacilitySettings
+      <FacilitySettingsForm
         facilityId="123"
         onSave={jest.fn()}
         onError={jest.fn()}
@@ -54,7 +54,7 @@ describe('FacilitySettings', () => {
     const onError = jest.fn();
 
     render(
-      <FacilitySettings
+      <FacilitySettingsForm
         facilityId="123"
         onSave={onSave}
         onError={onError}
@@ -90,7 +90,7 @@ describe('FacilitySettings', () => {
     const onError = jest.fn();
 
     render(
-      <FacilitySettings
+      <FacilitySettingsForm
         facilityId="123"
         onSave={jest.fn()}
         onError={onError}

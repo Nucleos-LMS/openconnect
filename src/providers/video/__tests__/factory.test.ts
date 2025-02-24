@@ -5,7 +5,10 @@ describe('VideoProviderFactory', () => {
   const config: ProviderConfig = {
     apiKey: 'test-api-key',
     apiSecret: 'test-api-secret',
-    environment: 'development'
+    environment: 'development',
+    userId: 'test-user-id',
+    userRole: 'staff',
+    facilityId: 'test-facility-id'
   };
 
   afterEach(async () => {
