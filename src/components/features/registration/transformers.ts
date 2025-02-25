@@ -4,7 +4,7 @@ import type {
   EducatorInfo,
   Address
 } from './types';
-import type { PersonalInfoForm } from './PersonalInfo/types';
+import type { PersonalInfoForm } from '../PersonalInfo/types';
 
 export function transformToFamilyMemberInfo(data: PersonalInfoForm, email: string): FamilyMemberInfo {
   const address: Address = {
