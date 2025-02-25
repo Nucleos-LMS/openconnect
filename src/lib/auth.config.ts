@@ -1,7 +1,9 @@
 import { type DefaultSession } from 'next-auth';
 import { type NextAuthConfig } from 'next-auth';
 import { type User } from 'next-auth';
-import { type JWT } from '@auth/core/jwt';
+import { type JWT } from 'next-auth/jwt';
+import { type AdapterUser } from '@auth/core/adapters';
+import { type Awaitable } from '@auth/core/types';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 
@@ -35,7 +37,7 @@ interface AuthUser {
 export const authConfig: NextAuthConfig = {
   providers: [
     Credentials({
-      async authorize(credentials: Record<string, any>, request: Request): Promise<AuthUser | null> {
+      async authorize(credentials: Record<string, any>): Promise<User | null> {
         const { email, password } = credentials as { email: string; password: string };
         
         const client = createClient();
@@ -70,13 +72,13 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user: AuthUser | null }): Promise<JWT> {
+    async jwt({ token, user }: { token: JWT; user: User | AdapterUser | null }): Promise<JWT> {
       if (user) {
         token.role = user.role;
       }
       return token;
     },
-    async session({ session, token }: { session: DefaultSession; token: JWT }): Promise<DefaultSession> {
+    async session({ session, token }: { session: any; token: JWT }): Promise<DefaultSession> {
       if (token && session.user) {
         session.user.role = token.role;
       }
