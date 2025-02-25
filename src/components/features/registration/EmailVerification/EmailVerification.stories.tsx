@@ -15,26 +15,38 @@ type Story = StoryObj<typeof EmailVerification>
 
 export const Default: Story = {
   args: {
-    onSubmit: async (email) => {
+    userType: 'resident',
+    onNext: async (data) => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      console.log('Verification email sent to:', email)
+      console.log('Verification email sent to:', data.email)
     },
+    onError: (error) => {
+      console.error('Error:', error)
+    }
   },
 }
 
-export const Loading: Story = {
+export const Legal: Story = {
   args: {
-    onSubmit: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 5000))
+    userType: 'legal',
+    onNext: async (data) => {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      console.log('Verification email sent to:', data.email)
     },
-    isLoading: true,
+    onError: (error) => {
+      console.error('Error:', error)
+    }
   },
 }
 
 export const WithError: Story = {
   args: {
-    onSubmit: async () => {
-      await new Promise((resolve, reject) => setTimeout(reject, 1000))
+    userType: 'resident',
+    onNext: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
     },
+    onError: (error) => {
+      console.error('Error:', error)
+    }
   },
-} 
+}   
