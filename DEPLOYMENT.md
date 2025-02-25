@@ -1,5 +1,27 @@
 # Deployment Configuration
 
+## Package Management
+This project uses pnpm for package management. Do not use npm or yarn.
+
+### Installation
+```bash
+# Install pnpm if not installed
+npm install -g pnpm
+
+# Install dependencies
+pnpm install
+```
+
+### Available Scripts
+- Development: `pnpm dev` - Start the development server
+- Build: `pnpm build` - Build the production application
+- Test: `pnpm test` - Run tests
+- Test Watch: `pnpm test:watch` - Run tests in watch mode
+- Test Coverage: `pnpm test:coverage` - Run tests with coverage report
+- Storybook: `pnpm storybook` - Start Storybook development server
+- Build Storybook: `pnpm build-storybook` - Build Storybook for production
+- Lint: `pnpm lint` - Run ESLint
+
 ## Environment Variables
 
 ### Required Variables
