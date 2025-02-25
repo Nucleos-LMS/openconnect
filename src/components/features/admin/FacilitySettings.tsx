@@ -12,12 +12,13 @@ import {
   useToast
 } from '@chakra-ui/react';
 
-import { type FacilitySettingsType, facilitySettingsSchema } from './validation';
+import type { FacilitySettings } from './validation';
+import { facilitySettingsSchema } from './validation';
 import { getFacilitySettings, updateFacilitySettings } from './api';
 
 interface FacilitySettingsProps {
   facilityId: string;
-  onSave: (settings: FacilitySettingsType) => Promise<void>;
+  onSave: (settings: FacilitySettings) => Promise<void>;
   onError: (error: Error) => void;
 }
 
@@ -26,7 +27,7 @@ export const FacilitySettings = ({
   onSave,
   onError
 }: FacilitySettingsProps) => {
-  const [settings, setSettings] = useState<FacilitySettingsType | null>(null);
+  const [settings, setSettings] = useState<FacilitySettings | null>(null);
 
   // Load initial settings
   React.useEffect(() => {
@@ -50,11 +51,11 @@ export const FacilitySettings = ({
   const toast = useToast();
 
   const handleChange = (
-    section: keyof FacilitySettingsType,
+    section: keyof FacilitySettings,
     field: string,
     value: any
   ) => {
-    setSettings(prev => {
+    setSettings((prev: FacilitySettings | null) => {
       if (!prev) return null;
       return {
         ...prev,
