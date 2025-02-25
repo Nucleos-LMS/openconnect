@@ -2,9 +2,9 @@ import type {
   FamilyMemberInfo,
   LegalRepresentativeInfo,
   EducatorInfo,
-  PersonalInfoForm,
   Address
 } from './types';
+import type { PersonalInfoForm } from './PersonalInfo/types';
 
 export function transformToFamilyMemberInfo(data: PersonalInfoForm, email: string): FamilyMemberInfo {
   const address: Address = {
@@ -32,10 +32,10 @@ export function transformToFamilyMemberInfo(data: PersonalInfoForm, email: strin
     relationships: [{
       inmateId: '',
       facilityId: '',
-      relationship: 'other' as const,
+      relationship: 'other',
       isPrimaryContact: true
     }]
-  };
+  } satisfies FamilyMemberInfo;
 }
 
 export function transformToLegalRepresentativeInfo(data: PersonalInfoForm, email: string): LegalRepresentativeInfo {
@@ -53,8 +53,6 @@ export function transformToLegalRepresentativeInfo(data: PersonalInfoForm, email
     lastName: data.lastName || '',
     email: email,
     phone: data.phone || '',
-    dateOfBirth: new Date(data.dateOfBirth || Date.now()),
-    address,
     barNumber: data.barNumber || '',
     barState: data.barState || '',
     firmName: data.firmName || '',
@@ -65,7 +63,7 @@ export function transformToLegalRepresentativeInfo(data: PersonalInfoForm, email
       practiceAreas: []
     },
     clients: []
-  };
+  } satisfies LegalRepresentativeInfo;
 }
 
 export function transformToEducatorInfo(data: PersonalInfoForm, email: string): EducatorInfo {
@@ -83,8 +81,6 @@ export function transformToEducatorInfo(data: PersonalInfoForm, email: string): 
     lastName: data.lastName || '',
     email: email,
     phone: data.phone || '',
-    dateOfBirth: new Date(data.dateOfBirth || Date.now()),
-    address,
     institution: data.institution || '',
     department: data.department || '',
     position: data.position || '',
@@ -94,5 +90,5 @@ export function transformToEducatorInfo(data: PersonalInfoForm, email: string): 
       employmentVerification: new File([], 'placeholder')
     },
     programs: []
-  };
+  } satisfies EducatorInfo;
 }
