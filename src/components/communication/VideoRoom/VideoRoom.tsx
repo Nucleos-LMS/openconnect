@@ -9,13 +9,14 @@ import {
   useToast
 } from '@chakra-ui/react';
 import { createVideoProvider } from '@/providers/video/factory';
+import type { Room as TwilioRoom } from 'twilio-video';
 import { VideoControls } from './components/VideoControls';
 import { RecordingIndicator } from './components/RecordingIndicator';
 
 interface VideoRoomProps {
   callId: string;
   userId: string;
-  userRole: 'resident' | 'visitor' | 'attorney' | 'staff';
+  userRole: string;
   facilityId: string;
   userName?: string;
 }
@@ -30,6 +31,8 @@ export const VideoRoom = ({
   const [isConnecting, setIsConnecting] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const [isVideoMuted, setIsVideoMuted] = useState(false);
   const providerRef = useRef<Awaited<ReturnType<typeof createVideoProvider>>>();
   const toast = useToast();
 
@@ -55,7 +58,7 @@ export const VideoRoom = ({
         const facilitySettings = await facilityRes.json();
         
         if (facilitySettings.monitoring.recordCalls) {
-          await providerRef.current.startRecording({
+          await providerRef.current.startRecording(callId, {
             aiMonitoring: facilitySettings.monitoring.aiMonitoring
           });
           setIsRecording(true);
@@ -113,17 +116,19 @@ export const VideoRoom = ({
         <VideoControls
           onMuteAudio={async () => {
             if (providerRef.current) {
-              await providerRef.current.muteAudio();
+              await providerRef.current.muteAudioTrack();
+              setIsAudioMuted(true);
             }
           }}
           onMuteVideo={async () => {
             if (providerRef.current) {
-              await providerRef.current.muteVideo();
+              await providerRef.current.muteVideoTrack();
+              setIsVideoMuted(true);
             }
           }}
           onEndCall={async () => {
             if (providerRef.current) {
-              await providerRef.current.leaveRoom(callId);
+              await providerRef.current.leaveRoom(callId, userId);
             }
             window.location.href = '/calls/new';
           }}
