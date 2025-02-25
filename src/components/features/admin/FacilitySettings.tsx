@@ -168,7 +168,7 @@ export const FacilitySettings = ({
         {/* Monitoring Section */}
         <Box>
           <Text fontSize="xl" fontWeight="bold" mb={4}>
-            Monitoring & Recording
+            Monitoring &amp; Recording
           </Text>
           <Stack spacing={4}>
             <FormControl display="flex" alignItems="center">

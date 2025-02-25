@@ -1,6 +1,7 @@
-import type { DefaultSession, NextAuthOptions } from 'next-auth';
-import type { JWT } from 'next-auth/jwt';
-import Credentials from 'next-auth/providers/credentials';
+import { type DefaultSession } from 'next-auth';
+import { type NextAuthConfig } from 'next-auth';
+import { type DefaultJWT } from 'next-auth/jwt';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 declare module 'next-auth' {
   interface Session {
@@ -25,7 +26,7 @@ interface AuthUser {
   image?: string | null;
 }
 
-export const authConfig: NextAuthOptions = {
+export const authConfig: NextAuthConfig = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
