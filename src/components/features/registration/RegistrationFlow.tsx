@@ -136,7 +136,8 @@ export const RegistrationFlow = () => {
               let typedData;
               const baseData = {
                 ...data,
-                email: state.email!
+                email: state.email!,
+                dateOfBirth: new Date()
               };
 
               switch (state.userType) {
