@@ -1,5 +1,4 @@
-import { BaseVideoProvider } from '../base';
-import { Room, RoomOptions, Participant, RoomSettings, SecuritySettings, RecordingInfo, ProviderConfig } from '../../types';
+import { Room, RoomOptions, Participant, RoomSettings, SecuritySettings, RecordingInfo, ProviderConfig, VideoProvider } from '../../types';
 
 export class GoogleMeetProvider implements VideoProvider {
   private client: any = null;
