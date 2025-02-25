@@ -305,4 +305,37 @@ export class TwilioProvider extends BaseVideoProvider {
       throw new Error(`Failed to disconnect: ${error}`);
     }
   }
+
+  // Media controls
+  async muteAudioTrack(): Promise<void> {
+    if (this.activeRoom) {
+      this.activeRoom.localParticipant.audioTracks.forEach(track => {
+        track.track.disable();
+      });
+    }
+  }
+
+  async unmuteAudioTrack(): Promise<void> {
+    if (this.activeRoom) {
+      this.activeRoom.localParticipant.audioTracks.forEach(track => {
+        track.track.enable();
+      });
+    }
+  }
+
+  async muteVideoTrack(): Promise<void> {
+    if (this.activeRoom) {
+      this.activeRoom.localParticipant.videoTracks.forEach(track => {
+        track.track.disable();
+      });
+    }
+  }
+
+  async unmuteVideoTrack(): Promise<void> {
+    if (this.activeRoom) {
+      this.activeRoom.localParticipant.videoTracks.forEach(track => {
+        track.track.enable();
+      });
+    }
+  }
 }
