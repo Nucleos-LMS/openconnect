@@ -15,6 +15,11 @@ import type {
   EducatorInfo,
   GovernmentId
 } from './types';
+import { 
+  transformToFamilyMemberInfo,
+  transformToLegalRepresentativeInfo,
+  transformToEducatorInfo
+} from './transformers';
 
 export const RegistrationFlow = () => {
   const [state, setState] = useState<RegistrationState>({
@@ -134,79 +139,19 @@ export const RegistrationFlow = () => {
             email={state.email!}
             onNext={(data) => {
               let typedData;
-              const baseData = {
-                firstName: data.firstName || '',
-                lastName: data.lastName || '',
-                email: state.email!,
-                phone: data.phone || '',
-                dateOfBirth: new Date(),
-                address: {
-                  street1: data.street1 || '',
-                  street2: data.street2,
-                  city: data.city || '',
-                  state: data.state || '',
-                  zipCode: data.zipCode || '',
-                  country: data.country || 'US'
-                }
-              };
-
+              
               switch (state.userType) {
                 case 'family':
-                  typedData = {
-                    ...baseData,
-                    governmentId: {
-                      type: 'state_id',
-                      number: '',
-                      expirationDate: new Date(),
-                      issuingCountry: 'US'
-                    },
-                    relationships: [{
-                      inmateId: '',
-                      facilityId: '',
-                      relationship: 'other',
-                      isPrimaryContact: true
-                    }]
-                  } as FamilyMemberInfo;
+                  typedData = transformToFamilyMemberInfo(data, state.email!);
                   break;
                 case 'legal':
-                  typedData = {
-                    ...baseData,
-                    barNumber: '',
-                    barState: '',
-                    firmName: '',
-                    firmAddress: '',
-                    credentials: {
-                      barCardImage: new File([], 'placeholder'),
-                      professionalEmail: state.email!,
-                      practiceAreas: []
-                    },
-                    clients: []
-                  } as LegalRepresentativeInfo;
+                  typedData = transformToLegalRepresentativeInfo(data, state.email!);
                   break;
                 case 'educator':
-                  typedData = {
-                    ...baseData,
-                    institution: '',
-                    department: '',
-                    position: '',
-                    credentials: {
-                      institutionEmail: state.email!,
-                      employmentVerification: new File([], 'placeholder')
-                    },
-                    programs: []
-                  } as EducatorInfo;
+                  typedData = transformToEducatorInfo(data, state.email!);
                   break;
                 default:
-                  typedData = {
-                    ...baseData,
-                    governmentId: {
-                      type: 'state_id',
-                      number: '',
-                      expirationDate: new Date(),
-                      issuingCountry: 'US'
-                    },
-                    relationships: []
-                  } as FamilyMemberInfo;
+                  typedData = transformToFamilyMemberInfo(data, state.email!);
               }
               handleNext({ personalInfo: typedData });
             }}
