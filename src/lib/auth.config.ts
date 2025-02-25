@@ -18,13 +18,22 @@ declare module 'next-auth' {
     }
   }
 
+  interface User {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    facility_id: string;
+    image?: string | null;
+  }
+
   interface JWT {
     role?: string;
     facility_id?: string;
   }
 }
 
-interface AuthUser extends User {
+interface AuthUser {
   id: string;
   email: string;
   name: string;
@@ -75,7 +84,8 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user }: { token: JWT; user: User | null }): Promise<JWT> {
       if (user) {
-        token.role = user.role;
+        token.role = (user as any).role;
+        token.facility_id = (user as any).facility_id;
       }
       return token;
     },
