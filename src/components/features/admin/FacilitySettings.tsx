@@ -12,13 +12,13 @@ import {
   useToast
 } from '@chakra-ui/react';
 
-import type { FacilitySettings } from './validation';
+import type { FacilitySettings as FacilitySettingsType } from './validation';
 import { facilitySettingsSchema } from './validation';
 import { getFacilitySettings, updateFacilitySettings } from './api';
 
 interface FacilitySettingsProps {
   facilityId: string;
-  onSave: (settings: FacilitySettings) => Promise<void>;
+  onSave: (settings: FacilitySettingsType) => Promise<void>;
   onError: (error: Error) => void;
 }
 
