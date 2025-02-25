@@ -19,9 +19,9 @@ declare module 'next-auth' {
   }
 
   interface User {
-    id?: string;
-    email?: string | null;
-    name?: string | null;
+    id: string;
+    email: string | null;
+    name: string | null;
     role?: string;
     facility_id?: string;
     image?: string | null;
@@ -36,7 +36,7 @@ declare module 'next-auth' {
 export const authConfig: NextAuthConfig = {
   providers: [
     Credentials({
-      async authorize(credentials: Record<string, any>): Promise<User> {
+      async authorize(credentials: Record<string, any>): Promise<User | null> {
         const { email, password } = credentials as { email: string; password: string };
         
         const client = createClient();
@@ -56,9 +56,9 @@ export const authConfig: NextAuthConfig = {
           // In production, verify password hash here
           // For test users, allow any password
           const typedUser: User = {
-            id: user.id?.toString(),
-            email: user.email?.toString(),
-            name: user.name?.toString(),
+            id: user.id?.toString() || '',
+            email: user.email?.toString() || '',
+            name: user.name?.toString() || '',
             role: user.role?.toString(),
             facility_id: user.facility_id?.toString(),
             image: null
