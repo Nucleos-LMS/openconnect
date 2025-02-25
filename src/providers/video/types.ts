@@ -45,6 +45,9 @@ export interface ProviderConfig {
   region?: string;
   environment?: 'development' | 'production';
   logLevel?: 'debug' | 'info' | 'warn' | 'error';
+  userId: string;
+  userRole: string;
+  facilityId: string;
   security?: {
     encryptionKey?: string;
     monitoringConfig?: {
