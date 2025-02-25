@@ -35,7 +35,7 @@ export class GoogleMeetProvider extends BaseVideoProvider {
     throw new Error('Google Meet provider not yet implemented');
   }
 
-  async startRecording(roomId: string, options?: { aiMonitoring?: boolean }): Promise<RecordingInfo> {
+  async startRecording(roomId: string): Promise<RecordingInfo> {
     throw new Error('Google Meet provider not yet implemented');
   }
 

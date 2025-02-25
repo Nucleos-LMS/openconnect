@@ -19,15 +19,18 @@ export class VideoProviderFactory {
     switch (provider) {
       case 'twilio':
         const { TwilioProvider } = await import('./providers/twilio/index');
-        newProvider = new TwilioProvider(config);
+        newProvider = new TwilioProvider();
+        await newProvider.initialize(config);
         break;
       case 'daily':
         const { DailyProvider } = await import('./providers/daily/index');
-        newProvider = new DailyProvider(config);
+        newProvider = new DailyProvider();
+        await newProvider.initialize(config);
         break;
       case 'google-meet':
         const { GoogleMeetProvider } = await import('./providers/google-meet/index');
-        newProvider = new GoogleMeetProvider(config);
+        newProvider = new GoogleMeetProvider();
+        await newProvider.initialize(config);
         break;
       default:
         throw new Error(`Unsupported provider: ${provider}`);
