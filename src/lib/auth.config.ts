@@ -1,21 +1,32 @@
-import type { NextAuthConfig } from 'next-auth';
-import type { NextAuthConfig } from 'next-auth';
+import type { DefaultSession, NextAuthOptions } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 
 declare module 'next-auth' {
-  interface User {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-    facility_id: string;
-    image?: string | null;
+  interface Session {
+    user: {
+      role: string;
+      facility_id: string;
+    } & DefaultSession['user']
+  }
+
+  interface JWT {
+    role?: string;
+    facility_id?: string;
   }
 }
 
-export const authConfig: NextAuthConfig = {
+interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  facility_id: string;
+  image?: string | null;
+}
+
+export const authConfig: NextAuthOptions = {
   providers: [
     Credentials({
       async authorize(credentials, request): Promise<User | null> {
