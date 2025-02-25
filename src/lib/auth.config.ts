@@ -3,13 +3,13 @@ import type { DefaultSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 
-type User = {
+type User = DefaultSession['user'] & {
   id: string;
   email: string;
   name: string;
   role: string;
   facility_id: string;
-} & DefaultSession['user'];
+};
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -34,11 +34,12 @@ export const authConfig: NextAuthConfig = {
           // In production, verify password hash here
           // For test users, allow any password
           const typedUser: User = {
-            id: user.id.toString(),
-            email: user.email.toString(),
-            name: user.name.toString(),
-            role: user.role.toString(),
-            facility_id: user.facility_id.toString(),
+            id: user.id?.toString() || '',
+            email: user.email?.toString() || '',
+            name: user.name?.toString() || '',
+            role: user.role?.toString() || '',
+            facility_id: user.facility_id?.toString() || '',
+            image: null
           };
           return typedUser;
         } finally {
