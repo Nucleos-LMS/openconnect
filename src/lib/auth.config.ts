@@ -13,7 +13,7 @@ export const authConfig: NextAuthConfig = {
         
         try {
           const { rows } = await client.query(
-            'SELECT id, email, name, role FROM users WHERE email = $1',
+            'SELECT id, email, name, role, facility_id FROM users WHERE email = $1',
             [email]
           );
 
@@ -29,6 +29,7 @@ export const authConfig: NextAuthConfig = {
             email: user.email,
             name: user.name,
             role: user.role,
+            facility_id: user.facility_id,
           };
         } finally {
           await client.end();
