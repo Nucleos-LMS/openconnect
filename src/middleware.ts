@@ -1,8 +1,9 @@
 import { auth } from './lib/auth';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import type { NextMiddleware } from 'next/server';
 
-export default auth((req) => {
+export default auth((req: NextRequest): ReturnType<NextMiddleware> => {
   const isLoggedIn = !!req.auth;
   const isApiRoute = req.nextUrl.pathname.startsWith('/api');
   const isAuthRoute = req.nextUrl.pathname.startsWith('/auth/');
