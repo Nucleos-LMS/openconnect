@@ -9,9 +9,13 @@ import { createClient } from '@vercel/postgres';
 declare module 'next-auth' {
   interface Session extends DefaultSession {
     user: {
+      id: string;
+      email: string;
+      name: string;
       role?: string;
       facility_id?: string;
-    } & DefaultSession['user']
+      image?: string | null;
+    }
   }
 
   interface JWT {
@@ -42,15 +46,14 @@ export const authConfig: NextAuthConfig = {
           const user = rows[0];
           // In production, verify password hash here
           // For test users, allow any password
-          const typedUser = {
+          return {
             id: user.id?.toString() || '',
             email: user.email?.toString() || '',
             name: user.name?.toString() || '',
             role: user.role?.toString(),
             facility_id: user.facility_id?.toString(),
-            image: null,
-            emailVerified: null
-          } satisfies User;
+            image: null
+          };
           return typedUser;
         } finally {
           await client.end();
