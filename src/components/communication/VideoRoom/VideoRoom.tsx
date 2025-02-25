@@ -16,7 +16,7 @@ import { RecordingIndicator } from './components/RecordingIndicator';
 interface VideoRoomProps {
   callId: string;
   userId: string;
-  userRole: string;
+  userRole: 'resident' | 'visitor' | 'attorney' | 'staff';
   facilityId: string;
   userName?: string;
 }
@@ -48,7 +48,7 @@ export const VideoRoom = ({
         await providerRef.current.joinRoom(callId, {
           id: userId,
           name: userName || 'Anonymous',
-          role: userRole,
+          role: userRole as 'resident' | 'visitor' | 'attorney' | 'staff',
           audioEnabled: true,
           videoEnabled: true
         });
