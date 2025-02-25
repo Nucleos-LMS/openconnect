@@ -5,10 +5,13 @@ export interface PersonalInfoForm {
   lastName: string;
   dateOfBirth?: string;
   phone: string;
-  address?: Address;
+  address: Address;
+  // Legal representative fields
   barNumber?: string;
   barState?: string;
   firmName?: string;
+  practiceAreas?: string[];
+  // Educator fields
   institution?: string;
   department?: string;
   position?: string;
