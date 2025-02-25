@@ -21,7 +21,7 @@ export default function NewCallPage() {
     );
   }
 
-  if (!session) {
+  if (!session?.user?.id || !session?.user?.role || !session?.user?.facility_id) {
     return (
       <Container maxW="container.md" py={8}>
         <Heading size="lg">Access Denied</Heading>
@@ -40,9 +40,13 @@ export default function NewCallPage() {
       </Box>
 
       <WaitingRoom
-        userId={session.user.id}
-        userRole={session.user.role}
-        facilityId={session.user.facility_id}
+        userId={session.user.id ?? ''}
+        userRole={session.user.role ?? 'visitor'}
+        facilityId={session.user.facility_id ?? ''}
+        callType="standard"
+        scheduledTime={new Date().toISOString()}
+        participants={[]}
+        onJoinCall={() => {}}
       />
     </Container>
   );
