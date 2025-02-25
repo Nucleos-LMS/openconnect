@@ -135,9 +135,19 @@ export const RegistrationFlow = () => {
             onNext={(data) => {
               let typedData;
               const baseData = {
-                ...data,
+                firstName: data.firstName || '',
+                lastName: data.lastName || '',
                 email: state.email!,
-                dateOfBirth: new Date()
+                phone: data.phone || '',
+                dateOfBirth: new Date(),
+                address: {
+                  street1: data.street1 || '',
+                  street2: data.street2,
+                  city: data.city || '',
+                  state: data.state || '',
+                  zipCode: data.zipCode || '',
+                  country: data.country || 'US'
+                }
               };
 
               switch (state.userType) {
