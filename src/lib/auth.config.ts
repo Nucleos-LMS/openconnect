@@ -9,13 +9,9 @@ import { createClient } from '@vercel/postgres';
 declare module 'next-auth' {
   interface Session extends DefaultSession {
     user: {
-      id: string;
-      email: string;
-      name: string;
       role?: string;
       facility_id?: string;
-      image?: string | null;
-    }
+    } & DefaultSession['user']
   }
 
   interface JWT {
@@ -72,6 +68,7 @@ export const authConfig: NextAuthConfig = {
     async session({ session, token }: { session: any; token: JWT }): Promise<DefaultSession> {
       if (token && session.user) {
         session.user.role = token.role;
+        session.user.facility_id = token.facility_id;
       }
       return session;
     },
