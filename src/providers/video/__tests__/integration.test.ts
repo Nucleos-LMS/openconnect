@@ -5,10 +5,10 @@ describe('Video Provider Integration', () => {
   let config: ProviderConfig;
 
   beforeAll(() => {
-    // Use secure environment variables for configuration
+    // Use environment variables for configuration
     config = {
-      apiKey: process.env.Twilio_API_Key___Openconnect_dev___SID,
-      apiSecret: process.env.Twilio_API_Key___Openconnect_dev___Secret,
+      apiKey: process.env.TWILIO_API_KEY || process.env.Twilio_API_Key___Openconnect_dev___SID,
+      apiSecret: process.env.TWILIO_API_SECRET || process.env.Twilio_API_Key___Openconnect_dev___Secret,
       environment: 'development',
       region: 'us-east-1'
     };
