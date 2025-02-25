@@ -27,7 +27,7 @@ export const FacilitySettings = ({
   onSave,
   onError
 }: FacilitySettingsProps) => {
-  const [settings, setSettings] = useState<FacilitySettings | null>(null);
+  const [settings, setSettings] = useState<FacilitySettingsType | null>(null);
 
   // Load initial settings
   React.useEffect(() => {
@@ -51,11 +51,11 @@ export const FacilitySettings = ({
   const toast = useToast();
 
   const handleChange = (
-    section: keyof FacilitySettings,
+    section: keyof FacilitySettingsType,
     field: string,
     value: any
   ) => {
-    setSettings((prev: FacilitySettings | null) => {
+    setSettings((prev: FacilitySettingsType | null) => {
       if (!prev) return null;
       return {
         ...prev,
