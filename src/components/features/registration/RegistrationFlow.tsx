@@ -132,7 +132,74 @@ export const RegistrationFlow = () => {
           <PersonalInfo
             userType={state.userType!}
             email={state.email!}
-            onNext={(data) => handleNext({ personalInfo: data as FamilyMemberInfo | LegalRepresentativeInfo | EducatorInfo })}
+            onNext={(data) => {
+              let typedData;
+              const baseData = {
+                ...data,
+                email: state.email!,
+                dateOfBirth: new Date(data.dateOfBirth || Date.now())
+              };
+
+              switch (state.userType) {
+                case 'family':
+                  typedData = {
+                    ...baseData,
+                    governmentId: {
+                      type: 'state_id',
+                      number: '',
+                      expirationDate: new Date(),
+                      issuingCountry: 'US'
+                    },
+                    relationships: [{
+                      inmateId: '',
+                      facilityId: '',
+                      relationship: 'other',
+                      isPrimaryContact: true
+                    }]
+                  } as FamilyMemberInfo;
+                  break;
+                case 'legal':
+                  typedData = {
+                    ...baseData,
+                    barNumber: data.barNumber || '',
+                    barState: data.barState || '',
+                    firmName: '',
+                    firmAddress: data.address,
+                    credentials: {
+                      barCardImage: new File([], 'placeholder'),
+                      professionalEmail: state.email!,
+                      practiceAreas: []
+                    },
+                    clients: []
+                  } as LegalRepresentativeInfo;
+                  break;
+                case 'educator':
+                  typedData = {
+                    ...baseData,
+                    institution: data.institution || '',
+                    department: '',
+                    position: data.position || '',
+                    credentials: {
+                      institutionEmail: state.email!,
+                      employmentVerification: new File([], 'placeholder')
+                    },
+                    programs: []
+                  } as EducatorInfo;
+                  break;
+                default:
+                  typedData = {
+                    ...baseData,
+                    governmentId: {
+                      type: 'state_id',
+                      number: '',
+                      expirationDate: new Date(),
+                      issuingCountry: 'US'
+                    },
+                    relationships: []
+                  } as FamilyMemberInfo;
+              }
+              handleNext({ personalInfo: typedData });
+            }}
             onError={handleError}
           />
         );

@@ -14,7 +14,10 @@ describe('TwilioProvider', () => {
     apiKey: 'test-key',
     apiSecret: 'test-secret',
     environment: 'development',
-    region: 'us-east-1'
+    region: 'us-east-1',
+    userId: 'test-user',
+    userRole: 'visitor',
+    facilityId: 'test-facility'
   };
 
   beforeEach(() => {

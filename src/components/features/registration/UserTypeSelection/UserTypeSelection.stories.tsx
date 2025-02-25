@@ -15,8 +15,11 @@ type Story = StoryObj<typeof UserTypeSelection>
 
 export const Default: Story = {
   args: {
-    onSelect: (userType) => {
-      console.log('Selected user type:', userType)
+    onNext: (data) => {
+      console.log('Selected user type:', data.userType)
     },
+    onError: (error) => {
+      console.error('Error:', error)
+    }
   },
 } 

@@ -5,7 +5,7 @@ import { createClient } from '@vercel/postgres';
 export const authConfig: NextAuthConfig = {
   providers: [
     Credentials({
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const { email, password } = credentials as { email: string; password: string };
         
         const client = createClient();

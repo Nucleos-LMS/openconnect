@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { EmailVerification } from './EmailVerification'
+import type { UserType } from '../types'
 
 const meta: Meta<typeof EmailVerification> = {
   title: 'Features/Registration/EmailVerification',
@@ -13,9 +14,9 @@ const meta: Meta<typeof EmailVerification> = {
 export default meta
 type Story = StoryObj<typeof EmailVerification>
 
-export const Default: Story = {
+export const Family: Story = {
   args: {
-    userType: 'resident',
+    userType: 'family' as UserType,
     onNext: async (data) => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
       console.log('Verification email sent to:', data.email)
@@ -28,7 +29,7 @@ export const Default: Story = {
 
 export const Legal: Story = {
   args: {
-    userType: 'legal',
+    userType: 'legal' as UserType,
     onNext: async (data) => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
       console.log('Verification email sent to:', data.email)
@@ -39,9 +40,9 @@ export const Legal: Story = {
   },
 }
 
-export const WithError: Story = {
+export const Educator: Story = {
   args: {
-    userType: 'resident',
+    userType: 'educator' as UserType,
     onNext: async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
     },
@@ -49,4 +50,4 @@ export const WithError: Story = {
       console.error('Error:', error)
     }
   },
-}   
+}       
