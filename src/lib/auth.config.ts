@@ -3,12 +3,15 @@ import type { DefaultSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 
-type User = DefaultSession['user'] & {
+import type { Awaitable } from 'next-auth';
+
+type User = {
   id: string;
   email: string;
   name: string;
   role: string;
   facility_id: string;
+  image?: string | null;
 };
 
 export const authConfig: NextAuthConfig = {

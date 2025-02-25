@@ -3,13 +3,16 @@ import type { JWT } from 'next-auth/jwt';
 import type { DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
+import type { Awaitable } from 'next-auth';
+
 type User = {
   id: string;
   email: string;
   name: string;
   role: string;
   facility_id: string;
-} & DefaultSession['user'];
+  image?: string | null;
+};
 
 export const authConfig = {
   providers: [
