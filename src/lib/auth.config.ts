@@ -1,17 +1,22 @@
-import type { DefaultSession, NextAuthOptions } from 'next-auth';
-import type { JWT } from 'next-auth/jwt';
-import Credentials from 'next-auth/providers/credentials';
+import type { DefaultSession } from 'next-auth';
+import type { AuthOptions } from 'next-auth';
+import type { JWT as NextAuthJWT } from 'next-auth/jwt';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 
 declare module 'next-auth' {
   interface Session {
     user: {
+      id: string;
+      email: string;
+      name: string;
       role: string;
       facility_id: string;
-    } & DefaultSession['user']
+      image?: string | null;
+    }
   }
 
-  interface JWT {
+  interface JWT extends NextAuthJWT {
     role?: string;
     facility_id?: string;
   }
@@ -26,10 +31,10 @@ interface AuthUser {
   image?: string | null;
 }
 
-export const authConfig: NextAuthOptions = {
+export const authConfig: AuthOptions = {
   providers: [
     Credentials({
-      async authorize(credentials, request): Promise<User | null> {
+      async authorize(credentials, request): Promise<AuthUser | null> {
         const { email, password } = credentials as { email: string; password: string };
         
         const client = createClient();
@@ -48,7 +53,7 @@ export const authConfig: NextAuthOptions = {
           const user = rows[0];
           // In production, verify password hash here
           // For test users, allow any password
-          const typedUser: User = {
+          const typedUser: AuthUser = {
             id: user.id?.toString() || '',
             email: user.email?.toString() || '',
             name: user.name?.toString() || '',
@@ -64,13 +69,13 @@ export const authConfig: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user: AuthUser | null }) {
       if (user) {
         token.role = user.role;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: DefaultSession; token: JWT }) {
       if (token && session.user) {
         session.user.role = token.role;
       }
