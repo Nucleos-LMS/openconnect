@@ -1,7 +1,15 @@
 import type { NextAuthConfig } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
-import type { User } from '@/types/next-auth';
+import type { DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+
+interface User extends DefaultSession['user'] {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  facility_id: string;
+}
 
 export const authConfig = {
   providers: [
