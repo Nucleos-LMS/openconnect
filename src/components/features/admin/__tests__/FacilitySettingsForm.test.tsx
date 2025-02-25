@@ -34,7 +34,7 @@ describe('FacilitySettingsForm', () => {
 
   it('loads initial settings', async () => {
     render(
-      <FacilitySettings
+      <FacilitySettingsForm
         facilityId="123"
         onSave={jest.fn()}
         onError={jest.fn()}
@@ -54,7 +54,7 @@ describe('FacilitySettingsForm', () => {
     const onError = jest.fn();
 
     render(
-      <FacilitySettings
+      <FacilitySettingsForm
         facilityId="123"
         onSave={onSave}
         onError={onError}
@@ -90,7 +90,7 @@ describe('FacilitySettingsForm', () => {
     const onError = jest.fn();
 
     render(
-      <FacilitySettings
+      <FacilitySettingsForm
         facilityId="123"
         onSave={jest.fn()}
         onError={onError}
