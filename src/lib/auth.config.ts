@@ -3,7 +3,7 @@ import { type NextAuthConfig } from 'next-auth';
 import { type User } from 'next-auth';
 import { type JWT } from 'next-auth/jwt';
 import { type AdapterUser } from '@auth/core/adapters';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import { CredentialsProvider } from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 
 declare module 'next-auth' {
@@ -71,7 +71,7 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user: AuthUser | null }): Promise<JWT> {
+    async jwt({ token, user }: { token: JWT; user: User | null }): Promise<JWT> {
       if (user) {
         token.role = user.role;
       }
