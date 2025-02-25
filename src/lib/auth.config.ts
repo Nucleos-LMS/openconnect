@@ -19,11 +19,11 @@ declare module 'next-auth' {
   }
 
   interface User {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-    facility_id: string;
+    id?: string;
+    email?: string | null;
+    name?: string | null;
+    role?: string;
+    facility_id?: string;
     image?: string | null;
   }
 
@@ -33,20 +33,10 @@ declare module 'next-auth' {
   }
 }
 
-interface AuthUser {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  facility_id: string;
-  image?: string | null;
-  accessToken: string;
-}
-
 export const authConfig: NextAuthConfig = {
   providers: [
     Credentials({
-      async authorize(credentials: Record<string, any>): Promise<User | null> {
+      async authorize(credentials: Record<string, any>): Promise<User> {
         const { email, password } = credentials as { email: string; password: string };
         
         const client = createClient();
@@ -65,14 +55,13 @@ export const authConfig: NextAuthConfig = {
           const user = rows[0];
           // In production, verify password hash here
           // For test users, allow any password
-          const typedUser: AuthUser = {
-            id: user.id?.toString() || '',
-            email: user.email?.toString() || '',
-            name: user.name?.toString() || '',
-            role: user.role?.toString() || '',
-            facility_id: user.facility_id?.toString() || '',
-            image: null,
-            accessToken: 'dummy-token' // Required by next-auth User type
+          const typedUser: User = {
+            id: user.id?.toString(),
+            email: user.email?.toString(),
+            name: user.name?.toString(),
+            role: user.role?.toString(),
+            facility_id: user.facility_id?.toString(),
+            image: null
           };
           return typedUser;
         } finally {
