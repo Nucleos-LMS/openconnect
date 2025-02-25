@@ -10,10 +10,7 @@ describe('Video Provider Integration', () => {
       apiKey: process.env.TWILIO_API_KEY || process.env.Twilio_API_Key___Openconnect_dev___SID,
       apiSecret: process.env.TWILIO_API_SECRET || process.env.Twilio_API_Key___Openconnect_dev___Secret,
       environment: 'development',
-      region: 'us-east-1',
-      userId: 'test-user-id',
-      userRole: 'staff',
-      facilityId: 'test-facility-id'
+      region: 'us-east-1'
     };
   });
 
