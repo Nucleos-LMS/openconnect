@@ -101,9 +101,7 @@ describe('Video Provider Integration', () => {
       const provider = await VideoProviderFactory.create('twilio', config);
 
       // Start recording
-      const recording = await provider.startRecording(room.id, {
-        aiMonitoring: true
-      });
+      const recording = await provider.startRecording(room.id);
       expect(recording.id).toBeDefined();
       expect(recording.status).toBe('active');
       expect(recording.aiMonitoringEnabled).toBe(true);

@@ -1,26 +1,36 @@
+import { auth } from './lib/auth';
 import { NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 import type { NextRequest } from 'next/server';
+import type { AuthConfig } from '@auth/core/types';
+import type { NextMiddleware } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
-  const publicPaths = ['/auth/login', '/auth/register', '/auth/error'];
-  const isPublicPath = publicPaths.some(path => 
-    request.nextUrl.pathname.startsWith(path)
-  );
+export default auth((req: NextRequest) => {
+  const isLoggedIn = !!req.auth;
+  const isApiRoute = req.nextUrl.pathname.startsWith('/api');
+  const isAuthRoute = req.nextUrl.pathname.startsWith('/auth/');
 
-  if (!token && !isPublicPath) {
-    const url = new URL('/auth/login', request.url);
-    url.searchParams.set('callbackUrl', request.url);
+  // Handle root route
+  if (req.nextUrl.pathname === '/' && !isLoggedIn) {
+    return NextResponse.redirect(new URL('/auth/login', req.url));
+  }
+
+  if (!isLoggedIn && !isAuthRoute) {
+    const url = new URL('/auth/login', req.url);
+    url.searchParams.set('callbackUrl', req.url);
     return NextResponse.redirect(url);
   }
 
+  if (isLoggedIn && isAuthRoute) {
+    return NextResponse.redirect(new URL('/calls/new', req.url));
+  }
+
+  if (isApiRoute && !isLoggedIn) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   return NextResponse.next();
-}
+});
 
 export const config = {
-  matcher: [
-    // Match all paths except public assets
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ]
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

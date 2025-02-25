@@ -12,21 +12,22 @@ import {
   useToast
 } from '@chakra-ui/react';
 
-import { type FacilitySettingsType, facilitySettingsSchema } from './validation';
+import { facilitySettingsSchema } from './validation';
+import type { FacilitySettings } from './validation';
 import { getFacilitySettings, updateFacilitySettings } from './api';
 
 interface FacilitySettingsProps {
   facilityId: string;
-  onSave: (settings: FacilitySettingsType) => Promise<void>;
+  onSave: (settings: FacilitySettings) => Promise<void>;
   onError: (error: Error) => void;
 }
 
-export const FacilitySettings = ({
+export const FacilitySettingsForm = ({
   facilityId,
   onSave,
   onError
 }: FacilitySettingsProps) => {
-  const [settings, setSettings] = useState<FacilitySettingsType | null>(null);
+  const [settings, setSettings] = useState<FacilitySettings | null>(null);
 
   // Load initial settings
   React.useEffect(() => {
@@ -50,7 +51,7 @@ export const FacilitySettings = ({
   const toast = useToast();
 
   const handleChange = (
-    section: keyof FacilitySettingsType,
+    section: keyof FacilitySettings,
     field: string,
     value: any
   ) => {
@@ -165,7 +166,7 @@ export const FacilitySettings = ({
         {/* Monitoring Section */}
         <Box>
           <Text fontSize="xl" fontWeight="bold" mb={4}>
-            Monitoring & Recording
+            {"Monitoring & Recording"}
           </Text>
           <Stack spacing={4}>
             <FormControl display="flex" alignItems="center">

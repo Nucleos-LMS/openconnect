@@ -53,3 +53,7 @@ export class VideoProviderFactory {
     }
   }
 }
+
+// Export the VideoProvider type and factory
+export type { VideoProvider };
+export const createVideoProvider = VideoProviderFactory.create.bind(VideoProviderFactory);
