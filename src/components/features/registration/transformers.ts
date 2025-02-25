@@ -10,6 +10,7 @@ import type { PersonalInfoForm } from './PersonalInfo/types';
 export function transformToFamilyMemberInfo(data: PersonalInfoForm, email: string): FamilyMemberInfo {
   if (!data.address) {
     throw new Error('Address is required for family member registration');
+  }
   const address: Address = {
     street1: data.address?.street1 || '',
     street2: data.address?.street2 || '',
