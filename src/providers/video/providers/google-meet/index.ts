@@ -1,7 +1,7 @@
 import { BaseVideoProvider } from '../base';
 import { Room, RoomOptions, Participant, RoomSettings, SecuritySettings, RecordingInfo, ProviderConfig } from '../../types';
 
-export class GoogleMeetProvider extends BaseVideoProvider {
+export class GoogleMeetProvider implements VideoProvider {
   private client: any = null;
 
   async initialize(config: ProviderConfig): Promise<void> {

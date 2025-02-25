@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 import type { AuthConfig } from '@auth/core/types';
 import type { NextMiddleware } from 'next/server';
 
-export default auth((req: NextRequest): ReturnType<NextMiddleware> => {
+export default auth((req: NextRequest) => {
   const isLoggedIn = !!req.auth;
   const isApiRoute = req.nextUrl.pathname.startsWith('/api');
   const isAuthRoute = req.nextUrl.pathname.startsWith('/auth/');
