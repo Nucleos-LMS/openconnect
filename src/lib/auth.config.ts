@@ -7,15 +7,11 @@ import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 
 declare module 'next-auth' {
-  interface Session {
+  interface Session extends DefaultSession {
     user: {
-      id: string;
-      email: string;
-      name: string;
-      role: string;
-      facility_id: string;
-      image?: string | null;
-    }
+      role?: string;
+      facility_id?: string;
+    } & DefaultSession['user']
   }
 
   interface JWT {
@@ -52,7 +48,8 @@ export const authConfig: NextAuthConfig = {
             name: user.name?.toString() || '',
             role: user.role?.toString(),
             facility_id: user.facility_id?.toString(),
-            image: null
+            image: null,
+            emailVerified: null
           } satisfies User;
           return typedUser;
         } finally {
