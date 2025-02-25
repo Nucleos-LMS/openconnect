@@ -18,15 +18,6 @@ declare module 'next-auth' {
     }
   }
 
-  interface User {
-    id: string;
-    email: string | null;
-    name: string | null;
-    role?: string;
-    facility_id?: string;
-    image?: string | null;
-  }
-
   interface JWT {
     role?: string;
     facility_id?: string;
@@ -55,14 +46,14 @@ export const authConfig: NextAuthConfig = {
           const user = rows[0];
           // In production, verify password hash here
           // For test users, allow any password
-          const typedUser: User = {
+          const typedUser = {
             id: user.id?.toString() || '',
             email: user.email?.toString() || '',
             name: user.name?.toString() || '',
             role: user.role?.toString(),
             facility_id: user.facility_id?.toString(),
             image: null
-          };
+          } satisfies User;
           return typedUser;
         } finally {
           await client.end();
