@@ -1,18 +1,19 @@
 import type { NextAuthConfig } from 'next-auth';
-import type { DefaultSession } from 'next-auth';
+import type { NextAuthConfig } from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 
-import type { Awaitable } from 'next-auth';
-
-type User = {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  facility_id: string;
-  image?: string | null;
-};
+declare module 'next-auth' {
+  interface User {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    facility_id: string;
+    image?: string | null;
+  }
+}
 
 export const authConfig: NextAuthConfig = {
   providers: [
