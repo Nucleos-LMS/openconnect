@@ -48,9 +48,9 @@ export const authConfig: NextAuthConfig = {
             name: user.name?.toString() || '',
             role: user.role?.toString(),
             facility_id: user.facility_id?.toString(),
-            image: null
+            image: null,
+            emailVerified: null
           };
-          return typedUser;
         } finally {
           await client.end();
         }
@@ -65,7 +65,7 @@ export const authConfig: NextAuthConfig = {
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: JWT }): Promise<DefaultSession> {
+    async session({ session, token }: { session: any; token: JWT }): Promise<Session> {
       if (token && session.user) {
         session.user.role = token.role;
         session.user.facility_id = token.facility_id;
