@@ -11,16 +11,8 @@ export default function LoginPage() {
   const router = useRouter();
   const toast = useToast();
 
-  const SearchParamsWrapper = () => {
-    const searchParams = useSearchParams();
-    return searchParams.get('callbackUrl') || '/';
-  };
-
-  const callbackUrl = (
-    <Suspense fallback={<Text>Loading...</Text>}>
-      <SearchParamsWrapper />
-    </Suspense>
-  );
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams?.get('callbackUrl') || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
