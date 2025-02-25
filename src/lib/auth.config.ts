@@ -1,30 +1,12 @@
-import { type DefaultSession } from 'next-auth';
 import { type NextAuthConfig } from 'next-auth';
-import { type User } from 'next-auth';
-import { type JWT } from 'next-auth/jwt';
-import { type AdapterUser } from '@auth/core/adapters';
-import Credentials from 'next-auth/providers/credentials';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
-
-declare module 'next-auth' {
-  interface Session extends DefaultSession {
-    user: {
-      role?: string;
-      facility_id?: string;
-    } & DefaultSession['user']
-  }
-
-  interface JWT {
-    role?: string;
-    facility_id?: string;
-  }
-}
 
 export const authConfig: NextAuthConfig = {
   providers: [
-    Credentials({
-      async authorize(credentials: Record<string, any>): Promise<User | null> {
-        const { email, password } = credentials as { email: string; password: string };
+    CredentialsProvider({
+      async authorize(credentials, request) {
+        const { email, password } = credentials || {};
         
         const client = createClient();
         await client.connect();
@@ -48,8 +30,7 @@ export const authConfig: NextAuthConfig = {
             name: user.name?.toString() || '',
             role: user.role?.toString(),
             facility_id: user.facility_id?.toString(),
-            image: null,
-            emailVerified: null
+            image: null
           };
         } finally {
           await client.end();
@@ -58,14 +39,14 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user: User | null }): Promise<JWT> {
+    async jwt({ token, user }) {
       if (user) {
         token.role = (user as any).role;
         token.facility_id = (user as any).facility_id;
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: JWT }): Promise<Session> {
+    async session({ session, token }) {
       if (token && session.user) {
         session.user.role = token.role;
         session.user.facility_id = token.facility_id;
