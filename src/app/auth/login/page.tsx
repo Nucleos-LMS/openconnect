@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useToast } from '@chakra-ui/react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -11,8 +11,16 @@ export default function LoginPage() {
   const router = useRouter();
   const toast = useToast();
 
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const SearchParamsWrapper = () => {
+    const searchParams = useSearchParams();
+    return searchParams.get('callbackUrl') || '/';
+  };
+
+  const callbackUrl = (
+    <Suspense fallback={<Text>Loading...</Text>}>
+      <SearchParamsWrapper />
+    </Suspense>
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
