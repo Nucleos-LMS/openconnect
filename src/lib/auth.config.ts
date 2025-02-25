@@ -3,13 +3,13 @@ import type { DefaultSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 
-interface User extends DefaultSession['user'] {
+type User = {
   id: string;
   email: string;
   name: string;
   role: string;
   facility_id: string;
-}
+} & DefaultSession['user'];
 
 export const authConfig: NextAuthConfig = {
   providers: [
