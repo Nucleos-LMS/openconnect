@@ -3,7 +3,7 @@ import { type NextAuthConfig } from 'next-auth';
 import { type User } from 'next-auth';
 import { type JWT } from 'next-auth/jwt';
 import { type AdapterUser } from '@auth/core/adapters';
-import { CredentialsProvider } from 'next-auth/providers/credentials';
+import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 
 declare module 'next-auth' {
@@ -36,7 +36,7 @@ interface AuthUser {
 export const authConfig: NextAuthConfig = {
   providers: [
     Credentials({
-      async authorize(credentials: Record<string, any>): Promise<AuthUser | null> {
+      async authorize(credentials: Record<string, any>): Promise<User | null> {
         const { email, password } = credentials as { email: string; password: string };
         
         const client = createClient();
