@@ -24,13 +24,14 @@ declare module 'next-auth' {
   }
 }
 
-interface AuthUser {
+interface AuthUser extends User {
   id: string;
   email: string;
   name: string;
   role: string;
   facility_id: string;
   image?: string | null;
+  accessToken: string;
 }
 
 export const authConfig: NextAuthConfig = {
@@ -61,7 +62,8 @@ export const authConfig: NextAuthConfig = {
             name: user.name?.toString() || '',
             role: user.role?.toString() || '',
             facility_id: user.facility_id?.toString() || '',
-            image: null
+            image: null,
+            accessToken: 'dummy-token' // Required by next-auth User type
           };
           return typedUser;
         } finally {
