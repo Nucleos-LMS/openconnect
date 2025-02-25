@@ -136,8 +136,7 @@ export const RegistrationFlow = () => {
               let typedData;
               const baseData = {
                 ...data,
-                email: state.email!,
-                dateOfBirth: new Date(data.dateOfBirth || Date.now())
+                email: state.email!
               };
 
               switch (state.userType) {
@@ -161,10 +160,10 @@ export const RegistrationFlow = () => {
                 case 'legal':
                   typedData = {
                     ...baseData,
-                    barNumber: data.barNumber || '',
-                    barState: data.barState || '',
+                    barNumber: '',
+                    barState: '',
                     firmName: '',
-                    firmAddress: data.address,
+                    firmAddress: '',
                     credentials: {
                       barCardImage: new File([], 'placeholder'),
                       professionalEmail: state.email!,
@@ -176,9 +175,9 @@ export const RegistrationFlow = () => {
                 case 'educator':
                   typedData = {
                     ...baseData,
-                    institution: data.institution || '',
+                    institution: '',
                     department: '',
-                    position: data.position || '',
+                    position: '',
                     credentials: {
                       institutionEmail: state.email!,
                       employmentVerification: new File([], 'placeholder')

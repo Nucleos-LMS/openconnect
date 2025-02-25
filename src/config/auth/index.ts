@@ -3,7 +3,7 @@ import type { JWT } from 'next-auth/jwt';
 import type { DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-type User = DefaultSession['user'] & {
+interface User extends DefaultSession['user'] {
   id: string;
   email: string;
   name: string;
@@ -19,7 +19,7 @@ export const authConfig = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials, request): Promise<User | null> {
         if (!credentials?.email || !credentials?.password) return null;
         
         try {
@@ -35,13 +35,14 @@ export const authConfig = {
           const user = await res.json();
           if (!res.ok) throw new Error(user.detail);
           
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            facility_id: user.facility_id,
+          const typedUser: User = {
+            id: user.id.toString(),
+            email: user.email.toString(),
+            name: user.name.toString(),
+            role: user.role.toString(),
+            facility_id: user.facility_id.toString(),
           };
+          return typedUser;
         } catch (error) {
           throw new Error('Invalid credentials');
         }
