@@ -3,7 +3,7 @@ import type { JWT } from 'next-auth/jwt';
 import type { DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-interface User extends DefaultSession['user'] {
+type User = DefaultSession['user'] & {
   id: string;
   email: string;
   name: string;
