@@ -7,7 +7,7 @@ import type { NextMiddleware } from 'next/server';
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const isApiRoute = req.nextUrl.pathname.startsWith('/api');
-  const isAuthRoute = req.nextUrl.pathname.startsWith('/auth/');
+  const isAuthRoute = req.nextUrl.pathname.startsWith('/auth/') || req.nextUrl.pathname === '/login';
 
   // Handle root route
   if (req.nextUrl.pathname === '/' && !isLoggedIn) {

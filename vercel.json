@@ -7,7 +7,7 @@
   "regions": ["iad1"],
   "env": {
     "NEXT_PUBLIC_API_URL": "https://openconnect-api.vercel.app",
-    "NEXTAUTH_URL": "https://openconnect-jdj7tgo0f-noahs-projects-22bb8274.vercel.app",
+    "NEXTAUTH_URL": "https://openconnect-proahxw10-noahs-projects-22bb8274.vercel.app",
     "NEXTAUTH_SECRET": "dKPntuOaj26qQ0unshxDJCyOo+YxS0Aa0PuorhWYFz4="
   },
   "public": true,

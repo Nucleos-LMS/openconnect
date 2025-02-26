@@ -8,7 +8,7 @@ export default async function NewCallPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect('/auth/login?callbackUrl=/calls/new');
+    redirect('/login?callbackUrl=/calls/new');
   }
 
   return (
