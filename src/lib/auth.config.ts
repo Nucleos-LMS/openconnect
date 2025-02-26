@@ -37,7 +37,9 @@ export const authConfig: NextAuthConfig = {
       async authorize(credentials, request) {
         const { email, password } = credentials || {};
         
-        const client = createClient();
+        const client = createClient({
+          connectionString: process.env.POSTGRES_URL_NON_POOLING
+        });
         await client.connect();
         
         try {
