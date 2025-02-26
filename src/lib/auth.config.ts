@@ -1,6 +1,29 @@
 import { type NextAuthConfig } from 'next-auth';
+import { JWT } from '@auth/core/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
+import { AdapterUser } from '@auth/core/adapters';
+
+type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff';
+
+interface CustomUser extends AdapterUser {
+  role: UserRole;
+  facility_id: string;
+}
+
+declare module '@auth/core/jwt' {
+  interface JWT {
+    role?: UserRole;
+    facility_id?: string;
+  }
+}
+
+declare module 'next-auth' {
+  interface User extends CustomUser {}
+  interface Session {
+    user: CustomUser;
+  }
+}
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -24,14 +47,16 @@ export const authConfig: NextAuthConfig = {
           const user = rows[0];
           // In production, verify password hash here
           // For test users, allow any password
-          return {
+          const customUser: CustomUser = {
             id: user.id?.toString() || '',
             email: user.email?.toString() || '',
-            name: user.name?.toString() || '',
-            role: user.role?.toString(),
-            facility_id: user.facility_id?.toString(),
-            image: null
+            name: user.name?.toString() || null,
+            role: (user.role?.toString() || 'visitor') as UserRole,
+            facility_id: user.facility_id?.toString() || '',
+            image: null,
+            emailVerified: new Date()
           };
+          return customUser;
         } finally {
           await client.end();
         }
@@ -41,15 +66,22 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
-        token.facility_id = (user as any).facility_id;
+        const customUser = user as CustomUser;
+        return {
+          ...token,
+          role: customUser.role,
+          facility_id: customUser.facility_id
+        };
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.role = token.role;
-        session.user.facility_id = token.facility_id;
+        session.user = {
+          ...session.user,
+          role: (token.role || 'visitor') as UserRole,
+          facility_id: token.facility_id || ''
+        };
       }
       return session;
     },
