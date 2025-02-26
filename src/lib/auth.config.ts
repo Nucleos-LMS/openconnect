@@ -94,5 +94,4 @@ export const authConfig: NextAuthConfig = {
   pages: {
     signIn: '/login',
   },
-  baseUrl: urls.auth,
 };
