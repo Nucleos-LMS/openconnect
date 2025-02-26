@@ -1,30 +1,6 @@
-import { type DefaultSession } from 'next-auth';
-import { type NextAuthConfig } from 'next-auth';
+import { type DefaultSession, type NextAuthConfig, type User } from 'next-auth';
 import { type DefaultJWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
-
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      role: string;
-      facility_id: string;
-    } & DefaultSession['user']
-  }
-
-  interface JWT {
-    role?: string;
-    facility_id?: string;
-  }
-}
-
-interface AuthUser {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  facility_id: string;
-  image?: string | null;
-}
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -50,14 +26,17 @@ export const authConfig: NextAuthConfig = {
           const user = await res.json();
           if (!res.ok) throw new Error(user.detail);
           
-          const typedUser: User = {
+          const typedUser = {
             id: user.id.toString(),
             email: user.email.toString(),
             name: user.name.toString(),
             role: user.role.toString(),
             facility_id: user.facility_id.toString(),
           };
-          return typedUser;
+          return {
+            ...typedUser,
+            emailVerified: new Date()
+          };
         } catch (error) {
           throw new Error('Invalid credentials');
         }
@@ -78,7 +57,7 @@ export const authConfig: NextAuthConfig = {
           name: user.name,
           role: user.role,
           facility_id: user.facility_id
-        } as JWT;
+        };
       }
       return token;
     },

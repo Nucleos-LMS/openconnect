@@ -6,9 +6,14 @@ import { AdapterUser } from '@auth/core/adapters';
 
 type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff';
 
-interface CustomUser extends AdapterUser {
+interface CustomUser {
+  id: string;
+  email: string;
+  name: string | null;
   role: UserRole;
   facility_id: string;
+  image: string | null;
+  emailVerified: Date | null;
 }
 
 declare module '@auth/core/jwt' {
@@ -47,7 +52,7 @@ export const authConfig: NextAuthConfig = {
           const user = rows[0];
           // In production, verify password hash here
           // For test users, allow any password
-          const customUser: CustomUser = {
+          return {
             id: user.id?.toString() || '',
             email: user.email?.toString() || '',
             name: user.name?.toString() || null,
@@ -55,8 +60,7 @@ export const authConfig: NextAuthConfig = {
             facility_id: user.facility_id?.toString() || '',
             image: null,
             emailVerified: new Date()
-          };
-          return customUser;
+          } satisfies CustomUser;
         } finally {
           await client.end();
         }
