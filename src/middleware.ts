@@ -1,8 +1,5 @@
-import { auth } from './lib/auth';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import type { AuthConfig } from '@auth/core/types';
-import type { NextMiddleware } from 'next/server';
 
 // Simplified middleware to isolate the issue
 export default function middleware(req: NextRequest) {
