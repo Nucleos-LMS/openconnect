@@ -32,9 +32,9 @@ export default function CallPage() {
     <Container maxW="container.xl" p={0}>
       <VideoRoom
         callId={callId}
-        userId={session.user.id}
-        userRole={session.user.role}
-        facilityId={session.user.facility_id}
+        userId={session?.user?.id ?? ''}
+        userRole={(session?.user?.role ?? 'visitor') as 'resident' | 'visitor' | 'attorney' | 'staff'}
+        facilityId={session?.user?.facility_id ?? ''}
       />
     </Container>
   );

@@ -1,13 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Box, Heading, Text, Button } from '@chakra-ui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function ErrorPage() {
+function ErrorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const error = searchParams.get('error');
+  const error = searchParams?.get('error');
 
   return (
     <Box maxW="md" mx="auto" mt={8} p={6} borderWidth={1} borderRadius="lg">
@@ -24,5 +24,13 @@ export default function ErrorPage() {
         Back to Login
       </Button>
     </Box>
+  );
+}
+
+export default function ErrorPage() {
+  return (
+    <Suspense fallback={<Text>Loading...</Text>}>
+      <ErrorContent />
+    </Suspense>
   );
 }

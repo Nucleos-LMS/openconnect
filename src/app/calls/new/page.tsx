@@ -1,33 +1,14 @@
-'use client';
-
 import React from 'react';
-import { useSession } from 'next-auth/react';
-import dynamic from 'next/dynamic';
-
-const WaitingRoom = dynamic(
-  () => import('@/components/communication/WaitingRoom/WaitingRoom').then(mod => mod.WaitingRoom),
-  { ssr: false }
-);
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { WaitingRoom } from '@/components/communication/WaitingRoom/WaitingRoom';
 import { Box, Container, Heading, Text } from '@chakra-ui/react';
 
-export default function NewCallPage() {
-  const { data: session, status } = useSession();
+export default async function NewCallPage() {
+  const session = await auth();
 
-  if (status === 'loading') {
-    return (
-      <Container maxW="container.md" py={8}>
-        <Text>Loading...</Text>
-      </Container>
-    );
-  }
-
-  if (!session) {
-    return (
-      <Container maxW="container.md" py={8}>
-        <Heading size="lg">Access Denied</Heading>
-        <Text mt={4}>Please sign in to start a video call.</Text>
-      </Container>
-    );
+  if (!session?.user) {
+    redirect('/auth/login?callbackUrl=/calls/new');
   }
 
   return (
@@ -40,9 +21,13 @@ export default function NewCallPage() {
       </Box>
 
       <WaitingRoom
-        userId={session.user.id}
-        userRole={session.user.role}
-        facilityId={session.user.facility_id}
+        userId={session.user.id ?? ''}
+        userRole={session.user.role ?? 'visitor'}
+        facilityId={session.user.facility_id ?? ''}
+        callType="standard"
+        scheduledTime={new Date().toISOString()}
+        participants={[]}
+        onJoinCall={() => {}}
       />
     </Container>
   );

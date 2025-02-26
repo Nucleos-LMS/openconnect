@@ -1,7 +1,12 @@
-import { Room, RoomOptions, Participant, RoomSettings, SecuritySettings, RecordingInfo, ProviderConfig, VideoProvider } from '../../types';
+import { BaseVideoProvider } from '../base';
+import { Room, RoomOptions, Participant, RoomSettings, SecuritySettings, RecordingInfo, ProviderConfig } from '../../types';
 
-export class GoogleMeetProvider implements VideoProvider {
+export class GoogleMeetProvider extends BaseVideoProvider {
   private client: any = null;
+
+  constructor(config: ProviderConfig) {
+    super(config);
+  }
 
   async initialize(config: ProviderConfig): Promise<void> {
     this.validateConfig(config);
@@ -34,7 +39,7 @@ export class GoogleMeetProvider implements VideoProvider {
     throw new Error('Google Meet provider not yet implemented');
   }
 
-  async startRecording(roomId: string): Promise<RecordingInfo> {
+  async startRecording(roomId: string, options?: { aiMonitoring?: boolean }): Promise<RecordingInfo> {
     throw new Error('Google Meet provider not yet implemented');
   }
 
@@ -67,5 +72,22 @@ export class GoogleMeetProvider implements VideoProvider {
       // Cleanup will be implemented here
       this.client = null;
     }
+  }
+
+  // Media controls
+  async muteAudioTrack(): Promise<void> {
+    throw new Error('Google Meet provider not yet implemented');
+  }
+
+  async unmuteAudioTrack(): Promise<void> {
+    throw new Error('Google Meet provider not yet implemented');
+  }
+
+  async muteVideoTrack(): Promise<void> {
+    throw new Error('Google Meet provider not yet implemented');
+  }
+
+  async unmuteVideoTrack(): Promise<void> {
+    throw new Error('Google Meet provider not yet implemented');
   }
 }

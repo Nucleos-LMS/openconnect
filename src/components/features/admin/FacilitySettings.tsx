@@ -12,7 +12,8 @@ import {
   useToast
 } from '@chakra-ui/react';
 
-import { type FacilitySettingsType, facilitySettingsSchema } from './validation';
+import type { FacilitySettings as FacilitySettingsType } from './validation';
+import { facilitySettingsSchema } from './validation';
 import { getFacilitySettings, updateFacilitySettings } from './api';
 
 interface FacilitySettingsProps {
@@ -27,6 +28,7 @@ export const FacilitySettings = ({
   onError
 }: FacilitySettingsProps) => {
   const [settings, setSettings] = useState<FacilitySettingsType | null>(null);
+  const toast = useToast();
 
   // Load initial settings
   React.useEffect(() => {
@@ -45,16 +47,15 @@ export const FacilitySettings = ({
       }
     };
     loadSettings();
-  }, [facilityId]);
+  }, [facilityId, onError, toast]);
   const [isLoading, setIsLoading] = useState(false);
-  const toast = useToast();
 
   const handleChange = (
     section: keyof FacilitySettingsType,
     field: string,
     value: any
   ) => {
-    setSettings(prev => {
+    setSettings((prev: FacilitySettingsType | null) => {
       if (!prev) return null;
       return {
         ...prev,
@@ -75,16 +76,18 @@ export const FacilitySettings = ({
       facilitySettingsSchema.parse(settings);
 
       await updateFacilitySettings(facilityId, settings!);
+      await onSave(settings!);
       toast({
         title: 'Settings saved',
         status: 'success',
         duration: 3000
       });
     } catch (error: any) {
-      onError(error);
+      const errorToReport = error instanceof Error ? error : new Error(error.message);
+      onError(errorToReport);
       toast({
         title: 'Error saving settings',
-        description: error.message,
+        description: errorToReport.message,
         status: 'error',
         duration: 5000
       });
@@ -165,7 +168,7 @@ export const FacilitySettings = ({
         {/* Monitoring Section */}
         <Box>
           <Text fontSize="xl" fontWeight="bold" mb={4}>
-            Monitoring & Recording
+            Monitoring &amp; Recording
           </Text>
           <Stack spacing={4}>
             <FormControl display="flex" alignItems="center">

@@ -45,9 +45,9 @@ export interface ProviderConfig {
   region?: string;
   environment?: 'development' | 'production';
   logLevel?: 'debug' | 'info' | 'warn' | 'error';
-  userId: string;
-  userRole: string;
-  facilityId: string;
+  userId?: string;
+  userRole?: string;
+  facilityId?: string;
   security?: {
     encryptionKey?: string;
     monitoringConfig?: {
@@ -86,4 +86,10 @@ export interface VideoProvider {
   updateSecuritySettings(roomId: string, settings: Partial<SecuritySettings>): Promise<Room>;
   
   disconnect(): Promise<void>;
+  
+  // Media controls
+  muteAudioTrack(): Promise<void>;
+  unmuteAudioTrack(): Promise<void>;
+  muteVideoTrack(): Promise<void>;
+  unmuteVideoTrack(): Promise<void>;
 }

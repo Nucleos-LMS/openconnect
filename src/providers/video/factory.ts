@@ -1,9 +1,10 @@
 import { VideoProvider, ProviderConfig } from './types';
+import { BaseVideoProvider } from './providers/base';
 
 type SupportedProvider = 'twilio' | 'daily' | 'google-meet';
 
 export class VideoProviderFactory {
-  private static providers = new Map<string, VideoProvider>();
+  private static providers = new Map<string, BaseVideoProvider>();
 
   static async create(
     provider: SupportedProvider,
@@ -14,7 +15,7 @@ export class VideoProviderFactory {
       return existingProvider;
     }
 
-    let newProvider: VideoProvider;
+    let newProvider: BaseVideoProvider;
 
     switch (provider) {
       case 'twilio':

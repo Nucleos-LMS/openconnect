@@ -23,6 +23,18 @@ export abstract class BaseVideoProvider implements VideoProvider {
   abstract updateSecuritySettings(roomId: string, settings: Partial<SecuritySettings>): Promise<Room>;
   abstract disconnect(): Promise<void>;
 
+  // Media controls
+  abstract muteAudioTrack(): Promise<void>;
+  abstract unmuteAudioTrack(): Promise<void>;
+  abstract muteVideoTrack(): Promise<void>;
+  abstract unmuteVideoTrack(): Promise<void>;
+
+  protected validateUserConfig(config: ProviderConfig): void {
+    if (!config.userId || !config.userRole || !config.facilityId) {
+      throw new Error('User configuration (userId, userRole, facilityId) is required for video calls');
+    }
+  }
+
   protected validateConfig(config: ProviderConfig): void {
     if (!config.apiKey) {
       throw new Error('API key is required');

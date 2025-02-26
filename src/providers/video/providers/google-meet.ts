@@ -63,4 +63,21 @@ export class GoogleMeetProvider extends BaseVideoProvider {
   async disconnect(): Promise<void> {
     throw new Error('Method not implemented.');
   }
+
+  // Media controls
+  async muteAudioTrack(): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  async unmuteAudioTrack(): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  async muteVideoTrack(): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  async unmuteVideoTrack(): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 }

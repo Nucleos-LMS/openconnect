@@ -15,6 +15,11 @@ import type {
   EducatorInfo,
   GovernmentId
 } from './types';
+import { 
+  transformToFamilyMemberInfo,
+  transformToLegalRepresentativeInfo,
+  transformToEducatorInfo
+} from './transformers';
 
 export const RegistrationFlow = () => {
   const [state, setState] = useState<RegistrationState>({
@@ -132,7 +137,24 @@ export const RegistrationFlow = () => {
           <PersonalInfo
             userType={state.userType!}
             email={state.email!}
-            onNext={(data) => handleNext({ personalInfo: data as FamilyMemberInfo | LegalRepresentativeInfo | EducatorInfo })}
+            onNext={(data) => {
+              let typedData;
+              
+              switch (state.userType) {
+                case 'family':
+                  typedData = transformToFamilyMemberInfo(data, state.email!);
+                  break;
+                case 'legal':
+                  typedData = transformToLegalRepresentativeInfo(data, state.email!);
+                  break;
+                case 'educator':
+                  typedData = transformToEducatorInfo(data, state.email!);
+                  break;
+                default:
+                  typedData = transformToFamilyMemberInfo(data, state.email!);
+              }
+              handleNext({ personalInfo: typedData });
+            }}
             onError={handleError}
           />
         );

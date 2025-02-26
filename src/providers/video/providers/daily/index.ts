@@ -4,6 +4,10 @@ import { Room, RoomOptions, Participant, RoomSettings, SecuritySettings, Recordi
 export class DailyProvider extends BaseVideoProvider {
   private client: any = null;
 
+  constructor(config: ProviderConfig) {
+    super(config);
+  }
+
   async initialize(config: ProviderConfig): Promise<void> {
     this.validateConfig(config);
     // Daily.co initialization will be implemented here
@@ -68,5 +72,22 @@ export class DailyProvider extends BaseVideoProvider {
       // Cleanup will be implemented here
       this.client = null;
     }
+  }
+
+  // Media controls
+  async muteAudioTrack(): Promise<void> {
+    throw new Error('Daily.co provider not yet implemented');
+  }
+
+  async unmuteAudioTrack(): Promise<void> {
+    throw new Error('Daily.co provider not yet implemented');
+  }
+
+  async muteVideoTrack(): Promise<void> {
+    throw new Error('Daily.co provider not yet implemented');
+  }
+
+  async unmuteVideoTrack(): Promise<void> {
+    throw new Error('Daily.co provider not yet implemented');
   }
 }

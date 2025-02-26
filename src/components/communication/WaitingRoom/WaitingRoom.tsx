@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Box, VStack, Text, Button, useToast } from '@chakra-ui/react';
 import { DeviceSetup } from './components/DeviceSetup';
@@ -6,21 +8,27 @@ import { ParticipantStatus } from './components/ParticipantStatus';
 import { CallInfo } from './components/CallInfo';
 
 export interface WaitingRoomProps {
-  callType: 'standard' | 'legal' | 'educational';
-  scheduledTime: string;
-  participants: Array<{
+  userId: string;
+  userRole: string;
+  facilityId: string;
+  callType?: 'standard' | 'legal' | 'educational';
+  scheduledTime?: string;
+  participants?: Array<{
     name: string;
     role: string;
     isReady: boolean;
   }>;
-  onJoinCall: () => void;
+  onJoinCall?: () => void;
 }
 
 export const WaitingRoom: React.FC<WaitingRoomProps> = ({
-  callType,
-  scheduledTime,
-  participants,
-  onJoinCall,
+  userId,
+  userRole,
+  facilityId,
+  callType = 'standard',
+  scheduledTime = new Date().toISOString(),
+  participants = [],
+  onJoinCall = () => {},
 }) => {
   const toast = useToast();
 

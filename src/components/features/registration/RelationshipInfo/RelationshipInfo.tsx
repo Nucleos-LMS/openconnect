@@ -12,7 +12,9 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import type { UserType, ValidationError, Relationship } from '../types';
+import type { UserType, ValidationError, FamilyMemberInfo } from '../types';
+
+type Relationship = FamilyMemberInfo['relationships'][0];
 
 interface RelationshipInfoProps {
   userType: UserType;
