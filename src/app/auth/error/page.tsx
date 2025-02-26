@@ -19,7 +19,7 @@ function ErrorContent() {
       </Text>
       <Button
         colorScheme="blue"
-        onClick={() => router.push('/auth/login')}
+        onClick={() => router.push('/login')}
       >
         Back to Login
       </Button>
