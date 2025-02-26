@@ -15,8 +15,8 @@ const devUrls: UrlConfig = {
 // URL configuration for production
 const prodUrls: UrlConfig = {
   api: process.env.NEXT_PUBLIC_API_URL || 'https://openconnect-api.vercel.app',
-  auth: process.env.NEXTAUTH_URL || 'https://openconnect.vercel.app',
-  app: process.env.NEXT_PUBLIC_APP_URL || 'https://openconnect.vercel.app',
+  auth: process.env.NEXTAUTH_URL || 'https://openconnect-one.vercel.app',
+  app: process.env.NEXT_PUBLIC_APP_URL || 'https://openconnect-one.vercel.app',
 };
 
 // Export the appropriate URL configuration based on environment
