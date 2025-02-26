@@ -3,6 +3,7 @@ import { JWT } from '@auth/core/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 import { AdapterUser } from '@auth/core/adapters';
+import { urls } from '../config/urls';
 
 type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff';
 
