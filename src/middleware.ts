@@ -11,11 +11,11 @@ export default auth((req) => {
 
   // Handle root route
   if (req.nextUrl.pathname === '/' && !isLoggedIn) {
-    return NextResponse.redirect(new URL('/auth/login', req.url));
+    return NextResponse.redirect(new URL('/login', req.url));
   }
 
   if (!isLoggedIn && !isAuthRoute) {
-    const url = new URL('/auth/login', req.url);
+    const url = new URL('/login', req.url);
     url.searchParams.set('callbackUrl', req.url);
     return NextResponse.redirect(url);
   }
