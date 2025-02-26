@@ -1,6 +1,7 @@
 import { type DefaultSession, type NextAuthConfig, type User } from 'next-auth';
 import { type DefaultJWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { urls } from '../urls';
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -14,7 +15,7 @@ export const authConfig: NextAuthConfig = {
         if (!credentials?.email || !credentials?.password) return null;
         
         try {
-          const res = await fetch(`${process.env.BACKEND_URL}/api/login`, {
+          const res = await fetch(`${urls.api}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
