@@ -4,32 +4,26 @@ import type { NextRequest } from 'next/server';
 import type { AuthConfig } from '@auth/core/types';
 import type { NextMiddleware } from 'next/server';
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
+// Simplified middleware to isolate the issue
+export default function middleware(req: NextRequest) {
   const isApiRoute = req.nextUrl.pathname.startsWith('/api');
   const isAuthRoute = req.nextUrl.pathname.startsWith('/auth/') || req.nextUrl.pathname === '/login';
 
   // Handle root route
-  if (req.nextUrl.pathname === '/' && !isLoggedIn) {
+  if (req.nextUrl.pathname === '/') {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  if (!isLoggedIn && !isAuthRoute) {
-    const url = new URL('/login', req.url);
-    url.searchParams.set('callbackUrl', req.url);
-    return NextResponse.redirect(url);
+  // Allow access to login and API routes
+  if (isAuthRoute || isApiRoute) {
+    return NextResponse.next();
   }
 
-  if (isLoggedIn && isAuthRoute) {
-    return NextResponse.redirect(new URL('/calls/new', req.url));
-  }
-
-  if (isApiRoute && !isLoggedIn) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  return NextResponse.next();
-});
+  // For all other routes, redirect to login
+  const url = new URL('/login', req.url);
+  url.searchParams.set('callbackUrl', req.url);
+  return NextResponse.redirect(url);
+}
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
