@@ -37,9 +37,9 @@ export const authConfig: NextAuthConfig = {
       async authorize(credentials, request) {
         const { email, password } = credentials || {};
         
-        const client = createClient({
-          connectionString: process.env.POSTGRES_URL_NON_POOLING
-        });
+        // Use environment variables for database connection
+        // The @vercel/postgres client automatically uses POSTGRES_URL or POSTGRES_URL_NON_POOLING
+        const client = createClient();
         await client.connect();
         
         try {
