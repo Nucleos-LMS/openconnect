@@ -23,22 +23,37 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: true,
-      callbackUrl: '/',
-    });
+    // Get the callback URL from the URL parameters or default to '/'
+    const params = new URLSearchParams(window.location.search);
+    const callbackUrl = params.get('callbackUrl') || '/';
+    
+    // Prevent redirect loops by checking if the callback URL contains 'login'
+    const safeCallbackUrl = callbackUrl.includes('/login') ? '/' : callbackUrl;
+    
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
 
-    if (result?.error) {
+      if (result?.error) {
+        toast({
+          title: 'Error',
+          description: 'Invalid credentials',
+          status: 'error',
+          duration: 3000,
+        });
+      } else {
+        router.push(safeCallbackUrl);
+      }
+    } catch (error) {
       toast({
         title: 'Error',
-        description: 'Invalid credentials',
+        description: 'An error occurred during login',
         status: 'error',
         duration: 3000,
       });
-    } else {
-      router.push('/');
     }
   };
 
