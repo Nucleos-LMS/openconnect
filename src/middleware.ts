@@ -6,10 +6,12 @@ import { withDebugLogging } from './middleware.debug';
 function middleware(req: NextRequest) {
   const isApiRoute = req.nextUrl.pathname.startsWith('/api');
   const isAuthRoute = req.nextUrl.pathname === '/login' || req.nextUrl.pathname.startsWith('/auth/');
+  const isDashboardRoute = req.nextUrl.pathname === '/dashboard' || req.nextUrl.pathname.startsWith('/dashboard/');
 
   console.log('[MIDDLEWARE] Processing request:', req.nextUrl.pathname);
   console.log('[MIDDLEWARE] isApiRoute:', isApiRoute);
   console.log('[MIDDLEWARE] isAuthRoute:', isAuthRoute);
+  console.log('[MIDDLEWARE] isDashboardRoute:', isDashboardRoute);
 
   // Handle root route
   if (req.nextUrl.pathname === '/') {
@@ -21,6 +23,11 @@ function middleware(req: NextRequest) {
   if (isAuthRoute || isApiRoute) {
     console.log('[MIDDLEWARE] API or auth route, skipping auth check');
     return NextResponse.next();
+  }
+  
+  // For dashboard routes, ensure user is authenticated
+  if (isDashboardRoute) {
+    console.log('[MIDDLEWARE] Dashboard route, checking authentication');
   }
 
   // For all other routes, redirect to login if not authenticated
