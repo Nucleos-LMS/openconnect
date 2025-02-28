@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getToken, JWT } from 'next-auth/jwt';
 
 // This is a debug version of the middleware that logs detailed information
 // about the request, session, and authentication state
@@ -19,12 +19,13 @@ export async function debugMiddleware(req: NextRequest) {
     
     console.log('[MIDDLEWARE DEBUG] JWT token exists:', !!token);
     if (token) {
+      // Safely log token data with optional chaining
       console.log('[MIDDLEWARE DEBUG] JWT token data:', {
-        name: token.name,
-        email: token.email,
-        role: token.role,
-        exp: token.exp,
-        iat: token.iat,
+        name: token.name || null,
+        email: token.email || null,
+        role: (token as any).role || null,
+        exp: token.exp || null,
+        iat: token.iat || null,
       });
     }
   } catch (error) {
