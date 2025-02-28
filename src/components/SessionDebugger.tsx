@@ -23,12 +23,14 @@ export default function SessionDebugger() {
     console.log('[SESSION DEBUG] Status:', status);
     console.log('[SESSION DEBUG] Session:', session);
     
-    // Log session storage
-    try {
-      const sessionStorage = localStorage.getItem('next-auth.session-token');
-      console.log('[SESSION DEBUG] Session token exists:', !!sessionStorage);
-    } catch (e) {
-      console.error('[SESSION DEBUG] Error accessing localStorage:', e);
+    // Check if we're in a browser environment before accessing localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const sessionStorage = localStorage.getItem('next-auth.session-token');
+        console.log('[SESSION DEBUG] Session token exists:', !!sessionStorage);
+      } catch (e) {
+        console.error('[SESSION DEBUG] Error accessing localStorage:', e);
+      }
     }
   }, [session, status]);
   
