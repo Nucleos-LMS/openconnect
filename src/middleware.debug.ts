@@ -7,6 +7,8 @@ export async function debugMiddleware(req: NextRequest) {
   console.log('[MIDDLEWARE DEBUG] Request URL:', req.nextUrl.toString());
   console.log('[MIDDLEWARE DEBUG] Request pathname:', req.nextUrl.pathname);
   console.log('[MIDDLEWARE DEBUG] Request method:', req.method);
+  console.log('[MIDDLEWARE DEBUG] Request headers:', Object.fromEntries(req.headers.entries()));
+  console.log('[MIDDLEWARE DEBUG] Request cookies:', req.cookies);
   
   // Check for authentication token
   try {
@@ -21,6 +23,7 @@ export async function debugMiddleware(req: NextRequest) {
       console.log('[MIDDLEWARE DEBUG] JWT token data:', {
         name: token.name || null,
         email: token.email || null,
+        role: (token as any).role || null,
         exp: token.exp || null,
         iat: token.iat || null,
       });
@@ -45,6 +48,7 @@ export function withDebugLogging(middleware: (req: NextRequest) => NextResponse 
     
     // Log response details after middleware
     console.log('[MIDDLEWARE DEBUG] Response status:', response.status);
+    console.log('[MIDDLEWARE DEBUG] Response headers:', Object.fromEntries(response.headers.entries()));
     console.log('[MIDDLEWARE DEBUG] ===== Request End =====');
     
     return response;
