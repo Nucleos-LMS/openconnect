@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 // Simplified middleware to isolate the issue
 export default function middleware(req: NextRequest) {
   const isApiRoute = req.nextUrl.pathname.startsWith('/api');
-  const isAuthRoute = req.nextUrl.pathname.startsWith('/auth/') || req.nextUrl.pathname === '/login';
+  const isAuthRoute = req.nextUrl.pathname === '/login' || req.nextUrl.pathname.startsWith('/auth/');
 
   // Handle root route
   if (req.nextUrl.pathname === '/') {
