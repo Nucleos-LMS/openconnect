@@ -99,11 +99,11 @@ export default function SessionDebugger() {
         timestamp: new Date().toISOString(),
         status,
         session: session ? JSON.parse(JSON.stringify(session)) : null,
-        cookies: info?.cookies.reduce((acc, cookie) => {
+        cookies: info?.cookies.reduce<Record<string, string>>((acc, cookie) => {
           const [key, value] = cookie.split('=');
           if (key) acc[key] = value || '';
           return acc;
-        }, {} as Record<string, string>),
+        }, {}),
         localStorage: info?.localStorage,
         sessionStorage: info?.sessionStorage
       }
