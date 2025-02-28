@@ -32,6 +32,7 @@ declare module 'next-auth' {
 }
 
 export const authConfig: NextAuthConfig = {
+  debug: true, // Enable debug logging
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -41,9 +42,9 @@ export const authConfig: NextAuthConfig = {
       name: "next-auth.csrf-token",
       options: {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none", // Changed from "lax" to "none" to be more permissive
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: true, // Always use secure in production
       },
     },
   },
@@ -52,25 +53,34 @@ export const authConfig: NextAuthConfig = {
       async authorize(credentials, request) {
         const { email, password } = credentials || {};
         
+        console.log('[AUTH DEBUG] authorize() called with email:', email);
+        
         // Use environment variables for database connection
         // The @vercel/postgres client automatically uses POSTGRES_URL or POSTGRES_URL_NON_POOLING
         const client = createClient();
         await client.connect();
         
         try {
+          console.log('[AUTH DEBUG] Querying database for user:', email);
+          
           const { rows } = await client.query(
             'SELECT id, email, name, role, facility_id FROM users WHERE email = $1',
             [email]
           );
 
+          console.log('[AUTH DEBUG] Query result rows:', rows.length);
+          
           if (rows.length === 0) {
+            console.log('[AUTH DEBUG] No user found with email:', email);
             return null;
           }
 
           const user = rows[0];
+          console.log('[AUTH DEBUG] User found:', { id: user.id, email: user.email, role: user.role });
+          
           // In production, verify password hash here
           // For test users, allow any password
-          return {
+          const customUser = {
             id: user.id?.toString() || '',
             email: user.email?.toString() || '',
             name: user.name?.toString() || null,
@@ -79,6 +89,12 @@ export const authConfig: NextAuthConfig = {
             image: null,
             emailVerified: new Date()
           } satisfies CustomUser;
+          
+          console.log('[AUTH DEBUG] Returning user:', customUser);
+          return customUser;
+        } catch (error) {
+          console.error('[AUTH DEBUG] Error in authorize():', error);
+          throw error;
         } finally {
           await client.end();
         }
@@ -87,7 +103,10 @@ export const authConfig: NextAuthConfig = {
   ],
   callbacks: {
     async jwt({ token, user }) {
+      console.log('[AUTH DEBUG] jwt() callback called');
+      
       if (user) {
+        console.log('[AUTH DEBUG] jwt() adding user data to token');
         const customUser = user as CustomUser;
         return {
           ...token,
@@ -98,7 +117,10 @@ export const authConfig: NextAuthConfig = {
       return token;
     },
     async session({ session, token }) {
+      console.log('[AUTH DEBUG] session() callback called');
+      
       if (token && session.user) {
+        console.log('[AUTH DEBUG] session() adding token data to session');
         session.user = {
           ...session.user,
           role: (token.role || 'visitor') as UserRole,
@@ -110,5 +132,25 @@ export const authConfig: NextAuthConfig = {
   },
   pages: {
     signIn: '/login',
+  },
+  events: {
+    async signIn(message) {
+      console.log('[AUTH DEBUG] signIn event:', message);
+    },
+    async signOut(message) {
+      console.log('[AUTH DEBUG] signOut event:', message);
+    },
+    async createUser(message) {
+      console.log('[AUTH DEBUG] createUser event:', message);
+    },
+    async updateUser(message) {
+      console.log('[AUTH DEBUG] updateUser event:', message);
+    },
+    async linkAccount(message) {
+      console.log('[AUTH DEBUG] linkAccount event:', message);
+    },
+    async session(message) {
+      console.log('[AUTH DEBUG] session event:', message);
+    },
   },
 };
