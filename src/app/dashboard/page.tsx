@@ -23,11 +23,16 @@ export default function DashboardPage() {
     );
   }
 
+  // Get user data from session with proper type handling
+  const userName = session?.user?.name || null;
+  const userEmail = session?.user?.email || null;
+  const userRole = (session?.user as any)?.role || 'Resident';
+
   return (
     <Dashboard 
-      userName={session?.user?.name}
-      userEmail={session?.user?.email}
-      userRole={session?.user?.role || 'Resident'}
+      userName={userName}
+      userEmail={userEmail}
+      userRole={userRole}
     />
   );
 }

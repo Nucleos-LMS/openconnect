@@ -15,12 +15,23 @@ import {
   CardBody,
   CardHeader,
 } from '@chakra-ui/react';
-import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+
+// Define a type for the router instance
+interface RouterInstance {
+  push: (path: string) => void;
+  back: () => void;
+  forward: () => void;
+  refresh: () => void;
+  replace: (path: string) => void;
+  prefetch: (path: string) => Promise<void>;
+}
 
 // Conditionally import useRouter to avoid errors in Storybook
-let useRouter: () => AppRouterInstance;
+let useRouter: () => RouterInstance;
 try {
-  useRouter = require('next/navigation').useRouter;
+  // Dynamic import to avoid issues in Storybook
+  const nextNavigation = require('next/navigation');
+  useRouter = nextNavigation.useRouter;
 } catch (e) {
   // Mock router for Storybook environment
   useRouter = () => ({
@@ -75,6 +86,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
   // Only use router in non-Storybook environment
   const router = isStorybook ? null : useRouter();
   
+  // Type guard for router
+  const hasRouter = (router: any): router is RouterInstance => {
+    return router !== null;
+  };
+  
   // Determine user role for role-specific UI elements
   const isInmate = userRole === 'Resident';
   const isFamily = userRole === 'Family';
@@ -92,7 +108,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     
     if (onNewCall) {
       onNewCall();
-    } else if (router) {
+    } else if (hasRouter(router)) {
       router.push('/calls/new');
     } else {
       console.log('[Dashboard] Navigate to: /calls/new');
@@ -104,7 +120,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     
     if (onViewCalls) {
       onViewCalls();
-    } else if (router) {
+    } else if (hasRouter(router)) {
       router.push('/calls');
     } else {
       console.log('[Dashboard] Navigate to: /calls');
@@ -116,7 +132,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     
     if (onViewProfile) {
       onViewProfile();
-    } else if (router) {
+    } else if (hasRouter(router)) {
       router.push('/profile');
     } else {
       console.log('[Dashboard] Navigate to: /profile');
@@ -128,7 +144,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     
     if (onViewSchedule) {
       onViewSchedule();
-    } else if (router) {
+    } else if (hasRouter(router)) {
       router.push('/schedule');
     } else {
       console.log('[Dashboard] Navigate to: /schedule');
@@ -140,7 +156,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     
     if (onViewContacts) {
       onViewContacts();
-    } else if (router) {
+    } else if (hasRouter(router)) {
       router.push('/contacts');
     } else {
       console.log('[Dashboard] Navigate to: /contacts');
@@ -152,7 +168,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     
     if (onViewSettings) {
       onViewSettings();
-    } else if (router) {
+    } else if (hasRouter(router)) {
       router.push('/settings');
     } else {
       console.log('[Dashboard] Navigate to: /settings');

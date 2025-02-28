@@ -3,6 +3,7 @@ import { getSession } from 'next-auth/react';
 /**
  * Extended Error interface with additional properties
  */
+// Extended Error interface with additional properties
 interface ApiError extends Error {
   status?: number;
   data?: any;
