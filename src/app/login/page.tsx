@@ -58,9 +58,10 @@ export default function LoginPage() {
         isClosable: true,
       });
       
-      // Delay redirect to ensure session is established
+      // Redirect to dashboard instead of root to avoid circular redirection
+      console.log('[AUTH DEBUG] Redirecting authenticated user to dashboard');
       setTimeout(() => {
-        router.push('/');
+        router.push('/dashboard');
       }, 1000);
     } else if (status === 'unauthenticated') {
       toast({
@@ -171,7 +172,7 @@ export default function LoginPage() {
         // Success - delay redirect to ensure session is established
         toast({
           title: 'Login Successful',
-          description: 'Redirecting...',
+          description: 'Redirecting to dashboard...',
           status: 'success',
           duration: 3000,
           isClosable: true,
@@ -186,8 +187,8 @@ export default function LoginPage() {
         // Add a delay before redirect to ensure session is established
         console.log('[AUTH DEBUG] Setting timeout for redirect...');
         setTimeout(() => {
-          console.log('[AUTH DEBUG] Executing redirect to:', safeCallbackUrl);
-          router.push(safeCallbackUrl);
+          console.log('[AUTH DEBUG] Executing redirect to dashboard');
+          router.push('/dashboard');
         }, 2000);
       }
     } catch (error) {

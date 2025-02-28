@@ -9,8 +9,7 @@
     "NEXT_PUBLIC_API_URL": "https://openconnect-api.vercel.app",
     "NEXTAUTH_URL": "https://openconnect-one.vercel.app",
     "NEXT_PUBLIC_APP_URL": "https://openconnect-one.vercel.app",
-    "NEXTAUTH_SECRET": "dKPntuOaj26qQ0unshxDJCyOo+YxS0Aa0PuorhWYFz4=",
-    "NEON_DATABASE_BRANCH_CREATION": "false"
+    "NEXTAUTH_SECRET": "dKPntuOaj26qQ0unshxDJCyOo+YxS0Aa0PuorhWYFz4="
   },
   "public": true,
   "github": {
