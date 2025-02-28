@@ -15,6 +15,15 @@ import {
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 
+interface User {
+  name?: string;
+  email?: string;
+}
+
+interface Session {
+  user?: User;
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
