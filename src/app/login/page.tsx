@@ -41,7 +41,7 @@ export default function LoginPage() {
     console.log('[AUTH DEBUG] Session status changed:', status);
     console.log('[AUTH DEBUG] Session data:', session);
     
-    setDebugInfo((prev: DebugInfo) => ({
+    setDebugInfo((prev) => ({
       ...prev,
       sessionStatus: status,
       sessionData: session ? JSON.parse(JSON.stringify(session)) : null,
@@ -149,7 +149,7 @@ export default function LoginPage() {
       const sessionCookie = document.cookie.split(';').find(c => c.trim().startsWith('next-auth.session-token='));
       console.log('[AUTH DEBUG] Session token cookie exists after login:', !!sessionCookie);
       
-      setDebugInfo((prev: DebugInfo) => ({
+      setDebugInfo((prev) => ({
         ...prev,
         loginAttempts: (prev.loginAttempts || 0) + 1,
         error: result?.error,
@@ -201,7 +201,7 @@ export default function LoginPage() {
         isClosable: true,
       });
       
-      setDebugInfo((prev: DebugInfo) => ({
+      setDebugInfo((prev) => ({
         ...prev,
         error,
       }));
