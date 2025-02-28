@@ -41,7 +41,7 @@ export default function LoginPage() {
     console.log('[AUTH DEBUG] Session status changed:', status);
     console.log('[AUTH DEBUG] Session data:', session);
     
-    setDebugInfo((prev: DebugInfo) => ({
+    setDebugInfo((prev) => ({
       ...prev,
       sessionStatus: status,
       sessionData: session ? JSON.parse(JSON.stringify(session)) : null,
@@ -99,7 +99,40 @@ export default function LoginPage() {
     
     console.log('[AUTH DEBUG] Login attempt with:', { email, callbackUrl: safeCallbackUrl });
     
+    // Log current cookies before login attempt
+    console.log('[AUTH DEBUG] Cookies before login:', document.cookie);
+    
+    // Check for CSRF token in cookies or storage
+    const csrfCookie = document.cookie.split(';').find(c => c.trim().startsWith('next-auth.csrf-token='));
+    console.log('[AUTH DEBUG] CSRF token cookie exists:', !!csrfCookie);
+    
+    // Log localStorage and sessionStorage
     try {
+      const csrfLocalStorage = localStorage.getItem('next-auth.csrf-token');
+      const csrfSessionStorage = sessionStorage.getItem('next-auth.csrf-token');
+      console.log('[AUTH DEBUG] CSRF token in localStorage:', !!csrfLocalStorage);
+      console.log('[AUTH DEBUG] CSRF token in sessionStorage:', !!csrfSessionStorage);
+    } catch (e) {
+      console.error('[AUTH DEBUG] Error accessing storage:', e);
+    }
+    
+    // Fetch CSRF token explicitly before sign in
+    try {
+      console.log('[AUTH DEBUG] Fetching CSRF token before sign in...');
+      const csrfResponse = await fetch('/api/auth/csrf');
+      const csrfData = await csrfResponse.json();
+      console.log('[AUTH DEBUG] CSRF token response:', csrfData);
+      
+      // Check if CSRF token was set in cookies after fetch
+      console.log('[AUTH DEBUG] Cookies after CSRF fetch:', document.cookie);
+      const csrfCookieAfter = document.cookie.split(';').find(c => c.trim().startsWith('next-auth.csrf-token='));
+      console.log('[AUTH DEBUG] CSRF token cookie exists after fetch:', !!csrfCookieAfter);
+    } catch (e) {
+      console.error('[AUTH DEBUG] Error fetching CSRF token:', e);
+    }
+    
+    try {
+      console.log('[AUTH DEBUG] Calling signIn with credentials...');
       const result = await signIn('credentials', {
         redirect: false,
         email,
@@ -109,7 +142,14 @@ export default function LoginPage() {
       
       console.log('[AUTH DEBUG] Sign in result:', result);
       
-      setDebugInfo((prev: DebugInfo) => ({
+      // Log cookies after sign in attempt
+      console.log('[AUTH DEBUG] Cookies after login attempt:', document.cookie);
+      
+      // Check for session token after login
+      const sessionCookie = document.cookie.split(';').find(c => c.trim().startsWith('next-auth.session-token='));
+      console.log('[AUTH DEBUG] Session token cookie exists after login:', !!sessionCookie);
+      
+      setDebugInfo((prev) => ({
         ...prev,
         loginAttempts: (prev.loginAttempts || 0) + 1,
         error: result?.error,
@@ -117,6 +157,7 @@ export default function LoginPage() {
       }));
       
       if (result?.error) {
+        console.log('[AUTH DEBUG] Login error:', result.error);
         toast({
           title: 'Authentication Error',
           description: result.error,
@@ -125,6 +166,8 @@ export default function LoginPage() {
           isClosable: true,
         });
       } else if (result?.url) {
+        console.log('[AUTH DEBUG] Login successful, redirect URL:', result.url);
+        
         // Success - delay redirect to ensure session is established
         toast({
           title: 'Login Successful',
@@ -134,10 +177,18 @@ export default function LoginPage() {
           isClosable: true,
         });
         
+        // Check session before redirect
+        console.log('[AUTH DEBUG] Checking session before redirect...');
+        const sessionResponse = await fetch('/api/auth/session');
+        const sessionData = await sessionResponse.json();
+        console.log('[AUTH DEBUG] Session data before redirect:', sessionData);
+        
         // Add a delay before redirect to ensure session is established
+        console.log('[AUTH DEBUG] Setting timeout for redirect...');
         setTimeout(() => {
+          console.log('[AUTH DEBUG] Executing redirect to:', safeCallbackUrl);
           router.push(safeCallbackUrl);
-        }, 1500);
+        }, 2000);
       }
     } catch (error) {
       console.error('[AUTH DEBUG] Sign in error:', error);
@@ -150,7 +201,7 @@ export default function LoginPage() {
         isClosable: true,
       });
       
-      setDebugInfo((prev: DebugInfo) => ({
+      setDebugInfo((prev) => ({
         ...prev,
         error,
       }));
