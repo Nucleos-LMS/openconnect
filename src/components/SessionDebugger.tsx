@@ -4,10 +4,16 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Box, Text, Button } from '@chakra-ui/react';
 
+interface SessionHistoryEntry {
+  timestamp: string;
+  status: string;
+  session: any;
+}
+
 export default function SessionDebugger() {
   const { data: session, status } = useSession();
   const [visible, setVisible] = useState(false);
-  const [sessionHistory, setSessionHistory] = useState<any[]>([]);
+  const [sessionHistory, setSessionHistory] = useState<SessionHistoryEntry[]>([]);
   
   useEffect(() => {
     // Add to history when session changes

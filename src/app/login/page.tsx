@@ -18,11 +18,20 @@ import {
   AlertDescription,
 } from '@chakra-ui/react';
 
+interface DebugInfo {
+  sessionStatus?: string;
+  sessionData?: any;
+  timestamp?: string;
+  loginAttempts?: number;
+  error?: any;
+  callbackUrl?: string;
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>({});
+  const [debugInfo, setDebugInfo] = useState<DebugInfo>({});
   const router = useRouter();
   const toast = useToast();
   const { data: session, status } = useSession();
@@ -32,7 +41,7 @@ export default function LoginPage() {
     console.log('[AUTH DEBUG] Session status changed:', status);
     console.log('[AUTH DEBUG] Session data:', session);
     
-    setDebugInfo(prev => ({
+    setDebugInfo((prev: DebugInfo) => ({
       ...prev,
       sessionStatus: status,
       sessionData: session ? JSON.parse(JSON.stringify(session)) : null,
@@ -48,6 +57,11 @@ export default function LoginPage() {
         duration: 5000,
         isClosable: true,
       });
+      
+      // Delay redirect to ensure session is established
+      setTimeout(() => {
+        router.push('/');
+      }, 1000);
     } else if (status === 'unauthenticated') {
       toast({
         title: 'Session Unauthenticated',
@@ -57,153 +71,153 @@ export default function LoginPage() {
         isClosable: true,
       });
     }
-  }, [status, session, toast]);
+  }, [status, session, toast, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
     // Get the callback URL from the URL parameters or default to '/'
-    const params = new URLSearchParams(window.location.search);
-    const callbackUrl = params.get('callbackUrl') || '/';
+    let callbackUrl = '/';
+    let safeCallbackUrl = '/';
     
-    // Prevent redirect loops by checking if the callback URL contains 'login'
-    const safeCallbackUrl = callbackUrl.includes('/login') ? '/' : callbackUrl;
+    // Check if we're in a browser environment
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      callbackUrl = params.get('callbackUrl') || '/';
+      
+      // Validate callback URL to prevent open redirect
+      try {
+        const url = new URL(callbackUrl, window.location.origin);
+        if (url.origin === window.location.origin) {
+          safeCallbackUrl = callbackUrl;
+        }
+      } catch (e) {
+        console.error('[AUTH DEBUG] Invalid callback URL:', callbackUrl);
+      }
+    }
     
-    console.log('[AUTH DEBUG] Login attempt:', { email, callbackUrl, safeCallbackUrl });
+    console.log('[AUTH DEBUG] Login attempt with:', { email, callbackUrl: safeCallbackUrl });
     
     try {
       const result = await signIn('credentials', {
+        redirect: false,
         email,
         password,
-        redirect: false,
+        callbackUrl: safeCallbackUrl,
       });
-
-      console.log('[AUTH DEBUG] SignIn result:', result);
-      setDebugInfo(prev => ({
+      
+      console.log('[AUTH DEBUG] Sign in result:', result);
+      
+      setDebugInfo((prev: DebugInfo) => ({
         ...prev,
-        signInResult: result,
-        timestamp: new Date().toISOString()
+        loginAttempts: (prev.loginAttempts || 0) + 1,
+        error: result?.error,
+        callbackUrl: safeCallbackUrl,
       }));
-
+      
       if (result?.error) {
-        console.error('[AUTH DEBUG] Login error:', result.error);
         toast({
-          title: 'Error',
-          description: `Login failed: ${result.error}`,
+          title: 'Authentication Error',
+          description: result.error,
           status: 'error',
           duration: 5000,
           isClosable: true,
         });
-      } else {
-        console.log('[AUTH DEBUG] Login successful, redirecting to:', safeCallbackUrl);
+      } else if (result?.url) {
+        // Success - delay redirect to ensure session is established
         toast({
-          title: 'Success',
-          description: 'Login successful, redirecting...',
+          title: 'Login Successful',
+          description: 'Redirecting...',
           status: 'success',
           duration: 3000,
           isClosable: true,
         });
         
-        // Add a delay before redirecting to ensure the session is properly established
+        // Add a delay before redirect to ensure session is established
         setTimeout(() => {
           router.push(safeCallbackUrl);
-        }, 1000);
+        }, 1500);
       }
     } catch (error) {
-      console.error('[AUTH DEBUG] Unexpected error during login:', error);
-      setDebugInfo(prev => ({
-        ...prev,
-        unexpectedError: error,
-        timestamp: new Date().toISOString()
-      }));
+      console.error('[AUTH DEBUG] Sign in error:', error);
       
       toast({
-        title: 'Error',
-        description: 'An unexpected error occurred during login',
+        title: 'Authentication Error',
+        description: 'An unexpected error occurred',
         status: 'error',
         duration: 5000,
         isClosable: true,
       });
+      
+      setDebugInfo((prev: DebugInfo) => ({
+        ...prev,
+        error,
+      }));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box maxW="md" mx="auto" mt={8} p={6} borderWidth={1} borderRadius="lg">
-      <VStack as="form" onSubmit={handleSubmit} spacing={4}>
-        <Text fontSize="2xl" fontWeight="bold">Login</Text>
-        
-        {/* Session status indicator */}
-        {status === 'loading' && (
-          <Alert status="info">
-            <AlertIcon />
-            <AlertTitle>Loading session...</AlertTitle>
-          </Alert>
-        )}
-        
-        {status === 'authenticated' && (
-          <Alert status="success">
-            <AlertIcon />
-            <AlertTitle>Authenticated!</AlertTitle>
-            <AlertDescription>
-              Logged in as {session?.user?.email}
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        <FormControl>
-          <FormLabel>Email</FormLabel>
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </FormControl>
-
-        <FormControl>
-          <FormLabel>Password</FormLabel>
-          <Input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </FormControl>
-
-        <Button 
-          type="submit" 
-          colorScheme="blue" 
-          w="full"
-          isLoading={loading}
-          loadingText="Signing In"
-        >
-          Sign In
-        </Button>
-
-        <Text fontSize="sm" color="gray.600">
-          Test Users:
-          <br />
-          inmate@test.facility.com
-          <br />
-          family@test.facility.com
-          <br />
+    <Box maxW="md" mx="auto" mt={8} p={6} borderWidth={1} borderRadius="lg" boxShadow="lg">
+      <Text fontSize="2xl" fontWeight="bold" textAlign="center" mb={6}>
+        Login
+      </Text>
+      
+      <form onSubmit={handleSubmit}>
+        <VStack spacing={4}>
+          <FormControl id="email" isRequired>
+            <FormLabel>Email</FormLabel>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+            />
+          </FormControl>
+          
+          <FormControl id="password" isRequired>
+            <FormLabel>Password</FormLabel>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+            />
+          </FormControl>
+          
+          <Button
+            type="submit"
+            colorScheme="blue"
+            width="full"
+            mt={4}
+            isLoading={loading}
+          >
+            Sign In
+          </Button>
+        </VStack>
+      </form>
+      
+      <Box mt={4} textAlign="center">
+        <Text fontSize="sm">
+          Test Users:<br />
+          inmate@test.facility.com<br />
+          family@test.facility.com<br />
           staff@test.facility.com
         </Text>
-        
-        {/* Debug information section */}
-        <Box mt={4} p={4} borderWidth={1} borderRadius="md" w="full">
-          <Text fontSize="sm" fontWeight="bold">Debug Info:</Text>
-          <Text fontSize="xs" as="pre" overflowX="auto">
-            Session Status: {status}
-            {Object.keys(debugInfo).length > 0 && (
-              JSON.stringify(debugInfo, null, 2)
-            )}
-          </Text>
-        </Box>
-      </VStack>
+      </Box>
+      
+      {/* Debug information - only visible in development */}
+      {process.env.NODE_ENV === 'development' && debugInfo.error && (
+        <Alert status="error" mt={4}>
+          <AlertIcon />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {JSON.stringify(debugInfo.error, null, 2)}
+          </AlertDescription>
+        </Alert>
+      )}
     </Box>
   );
 }
