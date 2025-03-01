@@ -48,6 +48,13 @@ if (typeof process !== 'undefined' &&
   process.env.NEXTAUTH_URL = window.location.origin;
 }
 
+// Determine if we're in development mode
+const isDev = process.env.NODE_ENV === 'development';
+
+console.log('[AUTH CONFIG] Environment:', process.env.NODE_ENV);
+console.log('[AUTH CONFIG] isDev:', isDev);
+console.log('[AUTH CONFIG] NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+
 export const authConfig: NextAuthConfig = {
   debug: true, // Enable debug logging
   session: {
@@ -61,7 +68,7 @@ export const authConfig: NextAuthConfig = {
         httpOnly: true,
         sameSite: "lax", // Changed from "none" to "lax" for better compatibility
         path: "/",
-        secure: true, // Always use secure in production
+        secure: !isDev, // Only use secure in production, not in development
       },
     },
     csrfToken: {
@@ -70,7 +77,7 @@ export const authConfig: NextAuthConfig = {
         httpOnly: true,
         sameSite: "lax", // Changed from "none" to "lax" for better compatibility
         path: "/",
-        secure: true, // Always use secure in production
+        secure: !isDev, // Only use secure in production, not in development
       },
     },
   },
