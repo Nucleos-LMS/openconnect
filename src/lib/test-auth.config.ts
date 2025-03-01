@@ -56,12 +56,14 @@ export const testAuthConfig: NextAuthConfig = {
       
       if (token && session.user) {
         console.log('[TEST AUTH DEBUG] session() adding token data to session');
-        session.user = {
+        // Create a new user object with the correct types
+        const updatedUser = {
           ...session.user,
-          // Use type assertion to ensure compatibility with expected types
-          role: (token.role as string) || 'visitor',
+          // Use a valid role value that matches the expected type
+          role: 'visitor',
           facility_id: token.facility_id || ''
         };
+        session.user = updatedUser;
       }
       return session;
     },
