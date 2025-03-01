@@ -141,7 +141,7 @@ export default function LoginPage() {
     try {
       console.log('[AUTH DEBUG] Calling signIn with credentials...');
       const result = await signIn('credentials', {
-        redirect: false,  // Change to false to handle redirect manually
+        redirect: true,  // Change to true to use NextAuth's built-in redirect
         email,
         password,
         callbackUrl: '/dashboard',  // Always redirect to dashboard after login
@@ -185,32 +185,14 @@ export default function LoginPage() {
         });
         
         /**
-         * Enhanced Redirect Logic
+         * Simplified Redirect Logic
          * 
          * CHANGES:
-         * - Implemented redundant redirect methods for better reliability
-         * - Added error handling for router.push to prevent redirect failures
-         * - Increased timeout to ensure session is fully established
-         * - Added fallback redirect mechanism with window.location.href
+         * - Removed manual redirect to avoid conflicts with NextAuth's built-in redirect
+         * - Let NextAuth handle the redirect to dashboard after successful login
+         * - This ensures consistent behavior across different environments
          */
-        // Manual redirect to dashboard after successful login
-        console.log('[AUTH DEBUG] Manually redirecting to dashboard');
-        
-        // Add a delay before redirect to ensure session is established
-        setTimeout(() => {
-          console.log('[AUTH DEBUG] Executing redirect to dashboard');
-          // Use both methods for redundancy
-          try {
-            router.push('/dashboard');
-            // Fallback to window.location if router.push doesn't work
-            setTimeout(() => {
-              window.location.href = '/dashboard';
-            }, 500);
-          } catch (err) {
-            console.error('[AUTH DEBUG] Error redirecting with router:', err);
-            window.location.href = '/dashboard';
-          }
-        }, 2000);
+        console.log('[AUTH DEBUG] Login successful, letting NextAuth handle redirect');
       }
     } catch (error) {
       console.error('[AUTH DEBUG] Sign in error:', error);
