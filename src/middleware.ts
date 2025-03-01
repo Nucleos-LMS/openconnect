@@ -70,9 +70,13 @@ async function middleware(req: NextRequest) {
   // For protected routes (including dashboard), ensure user is authenticated
   if (!token) {
     console.log('[MIDDLEWARE] No token for protected route, redirecting to login');
-    const url = new URL('/login', req.url);
-    url.searchParams.set('callbackUrl', req.url);
-    return NextResponse.redirect(url);
+    
+    // Only redirect if not already on the login page to avoid redirect loops
+    if (!req.nextUrl.pathname.startsWith('/login')) {
+      const url = new URL('/login', req.url);
+      url.searchParams.set('callbackUrl', req.url);
+      return NextResponse.redirect(url);
+    }
   }
 
   // If we get here, user is authenticated and accessing a protected route
