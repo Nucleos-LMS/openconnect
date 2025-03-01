@@ -113,7 +113,8 @@ async function middleware(req: NextRequest) {
   }
   */
 
-  /* Original middleware code - temporarily disabled
+  // Original middleware code - temporarily disabled
+  /* 
   // If we get here, user is authenticated and accessing a protected route
   console.log('[MIDDLEWARE] Token found, allowing access to protected route');
   */
