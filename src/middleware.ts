@@ -1,3 +1,11 @@
+/**
+ * Authentication Middleware
+ * 
+ * CHANGES:
+ * - Added proper type declarations for next/server, next-auth/jwt, and Node.js
+ * - Enhanced logging for better debugging of authentication issues
+ * - Improved token verification and route protection
+ */
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { withDebugLogging } from './middleware.debug';

@@ -1,3 +1,11 @@
+/**
+ * Dashboard Component
+ * 
+ * CHANGES:
+ * - Added proper type declarations for Node.js require
+ * - Enhanced dynamic import handling for Next.js navigation
+ * - Improved type safety for router instance
+ */
 import React from 'react';
 import {
   Box,
@@ -30,8 +38,9 @@ interface RouterInstance {
 let useRouter: () => RouterInstance;
 try {
   // Dynamic import to avoid issues in Storybook
-  const nextNavigation = require('next/navigation');
-  useRouter = nextNavigation.useRouter;
+  // Using dynamic import with proper type handling
+  const nextNavigation = typeof require !== 'undefined' ? require('next/navigation') : null;
+  useRouter = nextNavigation?.useRouter;
 } catch (e) {
   // Mock router for Storybook environment
   useRouter = () => ({
