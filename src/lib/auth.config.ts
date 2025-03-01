@@ -131,10 +131,11 @@ export const authConfig: NextAuthConfig = {
         }
         
         // For real users, check against database
+        let client;
         try {
           // Use environment variables for database connection
           // The @vercel/postgres client automatically uses POSTGRES_URL or POSTGRES_URL_NON_POOLING
-          const client = createClient();
+          client = createClient();
           await client.connect();
           
           console.log('[AUTH DEBUG] Querying database for user:', email);
@@ -174,7 +175,7 @@ export const authConfig: NextAuthConfig = {
         } finally {
           try {
             // Only attempt to close the client if it exists and is defined
-            if (typeof client !== 'undefined') {
+            if (client) {
               await client.end();
             }
           } catch (err) {
