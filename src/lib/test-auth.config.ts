@@ -1,6 +1,9 @@
 import { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
+// Import UserRole type from auth.config.ts
+type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff';
+
 // Determine if we're in development mode
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -57,13 +60,12 @@ export const testAuthConfig: NextAuthConfig = {
       if (token && session.user) {
         console.log('[TEST AUTH DEBUG] session() adding token data to session');
         // Create a new user object with the correct types
-        const updatedUser = {
+        session.user = {
           ...session.user,
-          // Use a valid role value that matches the expected type
-          role: 'visitor',
+          // Use a valid role value that matches the expected UserRole type
+          role: 'visitor' as UserRole,
           facility_id: token.facility_id || ''
         };
-        session.user = updatedUser;
       }
       return session;
     },
