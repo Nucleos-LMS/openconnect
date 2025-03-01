@@ -58,7 +58,8 @@ export const testAuthConfig: NextAuthConfig = {
         console.log('[TEST AUTH DEBUG] session() adding token data to session');
         session.user = {
           ...session.user,
-          role: token.role || 'visitor',
+          // Use type assertion to ensure compatibility with expected types
+          role: (token.role as string) || 'visitor',
           facility_id: token.facility_id || ''
         };
       }
