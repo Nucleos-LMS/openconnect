@@ -1,5 +1,34 @@
 import { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { AdapterUser } from '@auth/core/adapters';
+
+// Define custom user type
+type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
+
+interface CustomUser {
+  id: string;
+  email: string;
+  name: string | null;
+  role: UserRole;
+  facility_id: string;
+  image: string | null;
+  emailVerified: Date | null;
+}
+
+// Declare module augmentations for next-auth
+declare module '@auth/core/jwt' {
+  interface JWT {
+    role?: UserRole;
+    facility_id?: string;
+  }
+}
+
+declare module 'next-auth' {
+  interface User extends CustomUser {}
+  interface Session {
+    user: CustomUser;
+  }
+}
 
 // Determine if we're in development mode
 const isDev = process.env.NODE_ENV === 'development';
@@ -17,7 +46,7 @@ export const testAuthConfig: NextAuthConfig = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: { email: { type: 'email' }, password: { type: 'password' } },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         console.log('[TEST AUTH DEBUG] authorize() called with email:', credentials?.email);
         
         // For test purposes, accept any credentials
@@ -26,11 +55,11 @@ export const testAuthConfig: NextAuthConfig = {
             id: '1', 
             email: credentials.email, 
             name: 'Test User',
-            role: 'visitor',
+            role: 'visitor' as UserRole,
             facility_id: '123',
             image: null,
             emailVerified: new Date()
-          };
+          } satisfies CustomUser;
         }
         return null;
       },
@@ -43,10 +72,11 @@ export const testAuthConfig: NextAuthConfig = {
       
       if (user) {
         console.log('[TEST AUTH DEBUG] jwt() adding user data to token');
+        const customUser = user as CustomUser;
         return {
           ...token,
-          role: user.role,
-          facility_id: user.facility_id
+          role: customUser.role,
+          facility_id: customUser.facility_id
         };
       }
       return token;
@@ -58,7 +88,7 @@ export const testAuthConfig: NextAuthConfig = {
         console.log('[TEST AUTH DEBUG] session() adding token data to session');
         session.user = {
           ...session.user,
-          role: token.role || 'visitor',
+          role: (token.role || 'visitor') as UserRole,
           facility_id: token.facility_id || ''
         };
       }
