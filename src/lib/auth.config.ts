@@ -55,11 +55,20 @@ export const authConfig: NextAuthConfig = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   cookies: {
+    sessionToken: {
+      name: "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax", // Changed from "none" to "lax" for better compatibility
+        path: "/",
+        secure: true, // Always use secure in production
+      },
+    },
     csrfToken: {
       name: "next-auth.csrf-token",
       options: {
         httpOnly: true,
-        sameSite: "none", // Changed from "lax" to "none" to be more permissive
+        sameSite: "lax", // Changed from "none" to "lax" for better compatibility
         path: "/",
         secure: true, // Always use secure in production
       },
