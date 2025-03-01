@@ -1,5 +1,14 @@
 'use client';
 
+/**
+ * Login Page Component
+ * 
+ * CHANGES:
+ * - Updated to use NextAuth's built-in redirect functionality
+ * - Removed manual redirects to avoid conflicts with NextAuth
+ * - Enhanced error handling and debugging for authentication flow
+ * - Improved user feedback with toast notifications
+ */
 import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -58,11 +67,8 @@ export default function LoginPage() {
         isClosable: true,
       });
       
-      // Redirect to dashboard instead of root to avoid circular redirection
-      console.log('[AUTH DEBUG] Redirecting authenticated user to dashboard');
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1000);
+      // Remove the manual redirect to avoid conflicts with NextAuth
+      console.log('[AUTH DEBUG] Session authenticated, NextAuth will handle redirect');
     } else if (status === 'unauthenticated') {
       toast({
         title: 'Session Unauthenticated',
@@ -135,10 +141,10 @@ export default function LoginPage() {
     try {
       console.log('[AUTH DEBUG] Calling signIn with credentials...');
       const result = await signIn('credentials', {
-        redirect: false,
+        redirect: true,  // Change from false to true to use NextAuth's redirect
         email,
         password,
-        callbackUrl: safeCallbackUrl,
+        callbackUrl: '/dashboard',  // Always redirect to dashboard after login
       });
       
       console.log('[AUTH DEBUG] Sign in result:', result);
@@ -169,7 +175,7 @@ export default function LoginPage() {
       } else if (result?.url) {
         console.log('[AUTH DEBUG] Login successful, redirect URL:', result.url);
         
-        // Success - delay redirect to ensure session is established
+        // Success - show toast notification
         toast({
           title: 'Login Successful',
           description: 'Redirecting to dashboard...',
@@ -178,18 +184,9 @@ export default function LoginPage() {
           isClosable: true,
         });
         
-        // Check session before redirect
-        console.log('[AUTH DEBUG] Checking session before redirect...');
-        const sessionResponse = await fetch('/api/auth/session');
-        const sessionData = await sessionResponse.json();
-        console.log('[AUTH DEBUG] Session data before redirect:', sessionData);
-        
-        // Add a delay before redirect to ensure session is established
-        console.log('[AUTH DEBUG] Setting timeout for redirect...');
-        setTimeout(() => {
-          console.log('[AUTH DEBUG] Executing redirect to dashboard');
-          router.push('/dashboard');
-        }, 2000);
+        // NextAuth will handle the redirect automatically
+        // No need for manual redirect with setTimeout
+        console.log('[AUTH DEBUG] NextAuth will handle redirect to dashboard');
       }
     } catch (error) {
       console.error('[AUTH DEBUG] Sign in error:', error);
