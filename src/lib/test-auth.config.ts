@@ -1,51 +1,5 @@
 import { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { AdapterUser } from '@auth/core/adapters';
-
-// Define custom user type
-type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
-
-interface CustomUser {
-  id: string;
-  email: string;
-  name: string | null;
-  role: UserRole;
-  facility_id: string;
-  image: string | null;
-  emailVerified: Date | null;
-}
-
-// Declare module augmentations for next-auth
-declare module 'next-auth/jwt' {
-  interface JWT {
-    role?: string;
-    facility_id?: string;
-  }
-}
-
-declare module 'next-auth' {
-  interface User {
-    id: string;
-    email: string;
-    name: string | null;
-    role: string;
-    facility_id: string;
-    image: string | null;
-    emailVerified: Date | null;
-  }
-  
-  interface Session {
-    user: {
-      id: string;
-      email: string;
-      name: string | null;
-      role: string;
-      facility_id: string;
-      image: string | null;
-      emailVerified: Date | null;
-    }
-  }
-}
 
 // Determine if we're in development mode
 const isDev = process.env.NODE_ENV === 'development';
@@ -63,7 +17,7 @@ export const testAuthConfig: NextAuthConfig = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: { email: { type: 'email' }, password: { type: 'password' } },
-      async authorize(credentials, request) {
+      async authorize(credentials) {
         console.log('[TEST AUTH DEBUG] authorize() called with email:', credentials?.email);
         
         // For test purposes, accept any credentials
@@ -89,11 +43,10 @@ export const testAuthConfig: NextAuthConfig = {
       
       if (user) {
         console.log('[TEST AUTH DEBUG] jwt() adding user data to token');
-        const customUser = user as CustomUser;
         return {
           ...token,
-          role: customUser.role,
-          facility_id: customUser.facility_id
+          role: user.role,
+          facility_id: user.facility_id
         };
       }
       return token;
