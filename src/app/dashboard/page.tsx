@@ -20,21 +20,45 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Enhanced logging for dashboard page
+  /**
+   * Enhanced Session Handling
+   * 
+   * CHANGES:
+   * - Improved session loading timeout handling with multiple fallbacks
+   * - Added error handling for session refresh operations
+   * - Implemented fallback to window.location.href for login redirect
+   * - Reduced dependency on session data to avoid unnecessary re-renders
+   */
   useEffect(() => {
     console.log('[DASHBOARD] Page loaded, session status:', status);
-    console.log('[DASHBOARD] Session data:', session);
     
     // Force refresh session if needed
     if (status === 'loading') {
       const checkTimeout = setTimeout(() => {
-        console.log('[DASHBOARD] Session still loading after timeout, forcing refresh');
-        router.refresh();
+        console.log('[DASHBOARD] Session still loading after timeout, checking session');
+        
+        try {
+          // If session is still loading after timeout, force refresh
+          router.refresh();
+          
+          // If refresh doesn't work, redirect to login after another timeout
+          const redirectTimeout = setTimeout(() => {
+            if (status === 'loading') {
+              console.log('[DASHBOARD] Session still loading after refresh, redirecting to login');
+              window.location.href = '/login';
+            }
+          }, 2000);
+          
+          return () => clearTimeout(redirectTimeout);
+        } catch (err) {
+          console.error('[DASHBOARD] Error refreshing session:', err);
+          window.location.href = '/login';
+        }
       }, 3000);
       
       return () => clearTimeout(checkTimeout);
     }
-  }, [status, session, router]);
+  }, [status, router]);
 
   // Handle redirect for unauthenticated users
   useEffect(() => {

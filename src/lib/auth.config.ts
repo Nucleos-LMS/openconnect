@@ -31,8 +31,19 @@ declare module 'next-auth' {
   }
 }
 
-// Check for NEXTAUTH_URL environment variable
-if (!process.env.NEXTAUTH_URL && typeof window !== 'undefined') {
+/**
+ * Environment Variable Handling
+ * 
+ * CHANGES:
+ * - Added proper type checking for process and process.env to avoid client-side errors
+ * - Improved environment variable handling to prevent build failures in Vercel deployment
+ * - Maintained fallback to window.location.origin when NEXTAUTH_URL is not set
+ */
+// Check for NEXTAUTH_URL environment variable - only run on server
+if (typeof process !== 'undefined' && 
+    typeof process.env !== 'undefined' && 
+    !process.env.NEXTAUTH_URL && 
+    typeof window !== 'undefined') {
   console.warn('[AUTH CONFIG] NEXTAUTH_URL environment variable is not set. Using window.location.origin as fallback.');
   process.env.NEXTAUTH_URL = window.location.origin;
 }

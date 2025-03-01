@@ -184,14 +184,33 @@ export default function LoginPage() {
           isClosable: true,
         });
         
+        /**
+         * Enhanced Redirect Logic
+         * 
+         * CHANGES:
+         * - Implemented redundant redirect methods for better reliability
+         * - Added error handling for router.push to prevent redirect failures
+         * - Increased timeout to ensure session is fully established
+         * - Added fallback redirect mechanism with window.location.href
+         */
         // Manual redirect to dashboard after successful login
         console.log('[AUTH DEBUG] Manually redirecting to dashboard');
         
         // Add a delay before redirect to ensure session is established
         setTimeout(() => {
           console.log('[AUTH DEBUG] Executing redirect to dashboard');
-          window.location.href = '/dashboard'; // Use window.location.href instead of router.push
-        }, 1500);
+          // Use both methods for redundancy
+          try {
+            router.push('/dashboard');
+            // Fallback to window.location if router.push doesn't work
+            setTimeout(() => {
+              window.location.href = '/dashboard';
+            }, 500);
+          } catch (err) {
+            console.error('[AUTH DEBUG] Error redirecting with router:', err);
+            window.location.href = '/dashboard';
+          }
+        }, 2000);
       }
     } catch (error) {
       console.error('[AUTH DEBUG] Sign in error:', error);

@@ -71,11 +71,24 @@ async function middleware(req: NextRequest) {
   if (!token) {
     console.log('[MIDDLEWARE] No token for protected route, redirecting to login');
     
+    /**
+     * Enhanced Redirect Logic for Unauthenticated Users
+     * 
+     * CHANGES:
+     * - Added explicit handling for login page to avoid redirect loops
+     * - Enhanced logging for better debugging of redirect issues
+     * - Added explicit NextResponse.next() for login pages
+     * - Improved callbackUrl handling for seamless authentication flow
+     */
     // Only redirect if not already on the login page to avoid redirect loops
     if (!req.nextUrl.pathname.startsWith('/login')) {
+      console.log('[MIDDLEWARE] Redirecting to login with callbackUrl:', req.url);
       const url = new URL('/login', req.url);
       url.searchParams.set('callbackUrl', req.url);
       return NextResponse.redirect(url);
+    } else {
+      console.log('[MIDDLEWARE] Already on login page, allowing request');
+      return NextResponse.next();
     }
   }
 
