@@ -1,5 +1,12 @@
 'use client';
 
+/**
+ * Root Page Component
+ * 
+ * CHANGES:
+ * - Added proper type declarations for next-auth/react and next/navigation
+ * - Enhanced logging for authentication status and redirects
+ */
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 
