@@ -172,8 +172,12 @@ export const authConfig: NextAuthConfig = {
           console.error('[AUTH DEBUG] Error in authorize():', error);
           throw error;
         } finally {
-          if (typeof client !== 'undefined') {
-            await client.end();
+          try {
+            if (client) {
+              await client.end();
+            }
+          } catch (err) {
+            console.error('[AUTH DEBUG] Error closing client:', err);
           }
         }
       },
