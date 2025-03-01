@@ -2,7 +2,7 @@ import { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 // Import UserRole type from auth.config.ts
-type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff';
+type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
 
 // Determine if we're in development mode
 const isDev = process.env.NODE_ENV === 'development';
