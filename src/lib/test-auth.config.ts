@@ -16,17 +16,34 @@ interface CustomUser {
 }
 
 // Declare module augmentations for next-auth
-declare module '@auth/core/jwt' {
+declare module 'next-auth/jwt' {
   interface JWT {
-    role?: UserRole;
+    role?: string;
     facility_id?: string;
   }
 }
 
 declare module 'next-auth' {
-  interface User extends CustomUser {}
+  interface User {
+    id: string;
+    email: string;
+    name: string | null;
+    role: string;
+    facility_id: string;
+    image: string | null;
+    emailVerified: Date | null;
+  }
+  
   interface Session {
-    user: CustomUser;
+    user: {
+      id: string;
+      email: string;
+      name: string | null;
+      role: string;
+      facility_id: string;
+      image: string | null;
+      emailVerified: Date | null;
+    }
   }
 }
 
@@ -53,13 +70,13 @@ export const testAuthConfig: NextAuthConfig = {
         if (credentials?.email) {
           return { 
             id: '1', 
-            email: credentials.email, 
+            email: credentials.email as string, 
             name: 'Test User',
-            role: 'visitor' as UserRole,
+            role: 'visitor',
             facility_id: '123',
             image: null,
             emailVerified: new Date()
-          } satisfies CustomUser;
+          };
         }
         return null;
       },
@@ -88,7 +105,7 @@ export const testAuthConfig: NextAuthConfig = {
         console.log('[TEST AUTH DEBUG] session() adding token data to session');
         session.user = {
           ...session.user,
-          role: (token.role || 'visitor') as UserRole,
+          role: token.role || 'visitor',
           facility_id: token.facility_id || ''
         };
       }

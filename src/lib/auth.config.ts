@@ -173,7 +173,8 @@ export const authConfig: NextAuthConfig = {
           throw error;
         } finally {
           try {
-            if (client) {
+            // Only attempt to close the client if it exists and is defined
+            if (typeof client !== 'undefined') {
               await client.end();
             }
           } catch (err) {
