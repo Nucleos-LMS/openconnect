@@ -5,6 +5,8 @@
  * - Added proper type declarations for next/server, next-auth/jwt, and Node.js
  * - Enhanced logging for better debugging of authentication issues
  * - Improved token verification and route protection
+ * - Ensured compatibility with NextAuth's redirect functionality
+ * - Properly configured callbackUrl for seamless authentication flow
  */
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';

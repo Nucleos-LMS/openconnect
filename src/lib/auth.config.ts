@@ -129,6 +129,27 @@ export const authConfig: NextAuthConfig = {
       }
       return session;
     },
+    // Add redirect callback to control redirects after authentication
+    async redirect({ url, baseUrl }) {
+      console.log('[AUTH DEBUG] redirect() callback called with:', { url, baseUrl });
+      
+      // If the URL is relative, prepend the base URL
+      if (url.startsWith('/')) {
+        const fullUrl = `${baseUrl}${url}`;
+        console.log('[AUTH DEBUG] Relative URL, redirecting to:', fullUrl);
+        return fullUrl;
+      }
+      
+      // If the URL is on the same site, allow it
+      if (url.startsWith(baseUrl)) {
+        console.log('[AUTH DEBUG] Same-site URL, redirecting to:', url);
+        return url;
+      }
+      
+      // Default to dashboard for authenticated users
+      console.log('[AUTH DEBUG] Default redirect to dashboard');
+      return `${baseUrl}/dashboard`;
+    },
   },
   pages: {
     signIn: '/login',
