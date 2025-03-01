@@ -89,13 +89,13 @@ export const authConfig: NextAuthConfig = {
         console.log('[AUTH DEBUG] authorize() called with email:', email);
         
         // For test users, allow any password
-        if (email?.endsWith('@test.facility.com')) {
+        if (typeof email === 'string' && email.endsWith('@test.facility.com')) {
           console.log('[AUTH DEBUG] Test user detected, bypassing database check');
           
           // Determine role based on email prefix
           let role: UserRole = 'visitor';
           if (email.startsWith('inmate@')) {
-            role = 'resident';
+            role = 'resident' as UserRole;
           } else if (email.startsWith('staff@')) {
             role = 'staff';
           } else if (email.startsWith('family@')) {
@@ -105,7 +105,7 @@ export const authConfig: NextAuthConfig = {
           const customUser = {
             id: '1',
             name: 'Test User',
-            email: email,
+            email: email as string,
             role,
             facility_id: '123',
             image: null,
@@ -117,7 +117,7 @@ export const authConfig: NextAuthConfig = {
         }
         
         // For local development, accept any credentials to simplify testing
-        if (isDev && !email?.endsWith('@test.facility.com')) {
+        if (isDev && typeof email === 'string' && !email.endsWith('@test.facility.com')) {
           console.log('[AUTH DEBUG] Development mode, accepting any credentials');
           return {
             id: '999',
@@ -172,7 +172,9 @@ export const authConfig: NextAuthConfig = {
           console.error('[AUTH DEBUG] Error in authorize():', error);
           throw error;
         } finally {
-          await client.end();
+          if (typeof client !== 'undefined') {
+            await client.end();
+          }
         }
       },
     }),
