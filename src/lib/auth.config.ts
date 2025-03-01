@@ -5,7 +5,7 @@ import { createClient } from '@vercel/postgres';
 import { AdapterUser } from '@auth/core/adapters';
 import { urls } from '../config/urls';
 
-type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff';
+type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
 
 interface CustomUser {
   id: string;
