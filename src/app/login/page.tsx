@@ -67,8 +67,13 @@ export default function LoginPage() {
         isClosable: true,
       });
       
-      // Remove the manual redirect to avoid conflicts with NextAuth
-      console.log('[AUTH DEBUG] Session authenticated, NextAuth will handle redirect');
+      // Redirect to dashboard when session becomes authenticated
+      console.log('[AUTH DEBUG] Session authenticated, redirecting to dashboard');
+      
+      // Add a delay before redirect to ensure session is fully established
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1000);
     } else if (status === 'unauthenticated') {
       toast({
         title: 'Session Unauthenticated',
@@ -141,7 +146,7 @@ export default function LoginPage() {
     try {
       console.log('[AUTH DEBUG] Calling signIn with credentials...');
       const result = await signIn('credentials', {
-        redirect: true,  // Change from false to true to use NextAuth's redirect
+        redirect: false,  // Change back to false to handle redirect manually
         email,
         password,
         callbackUrl: '/dashboard',  // Always redirect to dashboard after login
@@ -184,9 +189,14 @@ export default function LoginPage() {
           isClosable: true,
         });
         
-        // NextAuth will handle the redirect automatically
-        // No need for manual redirect with setTimeout
-        console.log('[AUTH DEBUG] NextAuth will handle redirect to dashboard');
+        // Manual redirect to dashboard after successful login
+        console.log('[AUTH DEBUG] Manually redirecting to dashboard');
+        
+        // Add a delay before redirect to ensure session is established
+        setTimeout(() => {
+          console.log('[AUTH DEBUG] Executing redirect to dashboard');
+          router.push('/dashboard');
+        }, 1000);
       }
     } catch (error) {
       console.error('[AUTH DEBUG] Sign in error:', error);

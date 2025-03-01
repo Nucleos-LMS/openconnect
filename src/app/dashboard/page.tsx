@@ -28,8 +28,27 @@ export default function DashboardPage() {
     // Force refresh session if needed
     if (status === 'loading') {
       const checkTimeout = setTimeout(() => {
-        console.log('[DASHBOARD] Session still loading after timeout, forcing refresh');
-        router.refresh();
+        console.log('[DASHBOARD] Session still loading after timeout, checking session');
+        
+        // If session is still loading after timeout, try to fetch it again
+        fetch('/api/auth/session')
+          .then(res => res.json())
+          .then(data => {
+            console.log('[DASHBOARD] Session data after timeout:', data);
+            
+            // If session exists but status is still loading, force refresh
+            if (data && data.user) {
+              console.log('[DASHBOARD] Session exists but status is still loading, forcing refresh');
+              router.refresh();
+            } else {
+              console.log('[DASHBOARD] No session after timeout, redirecting to login');
+              router.push('/login');
+            }
+          })
+          .catch(err => {
+            console.error('[DASHBOARD] Error fetching session:', err);
+            router.push('/login');
+          });
       }, 3000);
       
       return () => clearTimeout(checkTimeout);
