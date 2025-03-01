@@ -3,20 +3,25 @@ import type { NextRequest } from 'next/server';
 import { withDebugLogging } from './middleware.debug';
 import { getToken } from 'next-auth/jwt';
 
-// Enhanced middleware with proper token verification
+// Enhanced middleware with proper token verification and debug logging
 async function middleware(req: NextRequest) {
   const isApiRoute = req.nextUrl.pathname.startsWith('/api');
   const isAuthRoute = req.nextUrl.pathname === '/login' || req.nextUrl.pathname.startsWith('/auth/');
   const isDashboardRoute = req.nextUrl.pathname === '/dashboard' || req.nextUrl.pathname.startsWith('/dashboard/');
   const isStaticAsset = req.nextUrl.pathname.match(/\.(js|css|png|jpg|svg|ico)$/);
+  const isPublicRoute = req.nextUrl.pathname.startsWith('/_next') || 
+                        req.nextUrl.pathname === '/favicon.ico' ||
+                        req.nextUrl.pathname.startsWith('/images/');
 
   console.log('[MIDDLEWARE] Processing request:', req.nextUrl.pathname);
   console.log('[MIDDLEWARE] isApiRoute:', isApiRoute);
   console.log('[MIDDLEWARE] isAuthRoute:', isAuthRoute);
   console.log('[MIDDLEWARE] isDashboardRoute:', isDashboardRoute);
+  console.log('[MIDDLEWARE] isPublicRoute:', isPublicRoute);
   
-  // Skip middleware for static assets
-  if (isStaticAsset) {
+  // Skip middleware for static assets and public routes
+  if (isStaticAsset || isPublicRoute) {
+    console.log('[MIDDLEWARE] Static asset or public route, skipping middleware');
     return NextResponse.next();
   }
 
@@ -27,6 +32,11 @@ async function middleware(req: NextRequest) {
   });
   
   console.log('[MIDDLEWARE] Token exists:', !!token);
+  if (token) {
+    console.log('[MIDDLEWARE] Token user:', token.email);
+    console.log('[MIDDLEWARE] Token role:', token.role);
+    console.log('[MIDDLEWARE] Token expiry:', token.exp);
+  }
   
   // Handle root route
   if (req.nextUrl.pathname === '/') {
@@ -41,33 +51,22 @@ async function middleware(req: NextRequest) {
     }
   }
 
-  // Allow access to login and API routes
+  // Always allow access to login and API routes regardless of authentication status
   if (isAuthRoute || isApiRoute) {
     console.log('[MIDDLEWARE] API or auth route, skipping auth check');
     return NextResponse.next();
   }
   
-  // For dashboard routes, ensure user is authenticated
-  if (isDashboardRoute) {
-    console.log('[MIDDLEWARE] Dashboard route, checking authentication');
-    
-    if (!token) {
-      console.log('[MIDDLEWARE] No token, redirecting to login');
-      const url = new URL('/login', req.url);
-      url.searchParams.set('callbackUrl', req.url);
-      return NextResponse.redirect(url);
-    }
-  }
-
-  // For all other routes, redirect to login if not authenticated
+  // For protected routes (including dashboard), ensure user is authenticated
   if (!token) {
-    console.log('[MIDDLEWARE] No token, redirecting to login');
+    console.log('[MIDDLEWARE] No token for protected route, redirecting to login');
     const url = new URL('/login', req.url);
     url.searchParams.set('callbackUrl', req.url);
     return NextResponse.redirect(url);
   }
 
-  console.log('[MIDDLEWARE] Token found, allowing access');
+  // If we get here, user is authenticated and accessing a protected route
+  console.log('[MIDDLEWARE] Token found, allowing access to protected route');
   return NextResponse.next();
 }
 
