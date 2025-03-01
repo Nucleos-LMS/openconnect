@@ -40,12 +40,11 @@ declare module 'next-auth' {
  * - Maintained fallback to window.location.origin when NEXTAUTH_URL is not set
  */
 // Check for NEXTAUTH_URL environment variable - only run on server
+// Removed window.location.origin reference to avoid issues in Vercel deployment
 if (typeof process !== 'undefined' && 
     typeof process.env !== 'undefined' && 
-    !process.env.NEXTAUTH_URL && 
-    typeof window !== 'undefined') {
-  console.warn('[AUTH CONFIG] NEXTAUTH_URL environment variable is not set. Using window.location.origin as fallback.');
-  process.env.NEXTAUTH_URL = window.location.origin;
+    !process.env.NEXTAUTH_URL) {
+  console.warn('[AUTH CONFIG] NEXTAUTH_URL environment variable is not set.');
 }
 
 // Determine if we're in development mode
