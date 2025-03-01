@@ -36,14 +36,16 @@ export default function DashboardPage() {
     }
   }, [status, session, router]);
 
-  // Redirect to login if not authenticated
-  if (status === 'unauthenticated') {
-    console.log('[DASHBOARD] User is unauthenticated, redirecting to login');
-    // Use client-side navigation instead of server redirect
-    useEffect(() => {
+  // Handle redirect for unauthenticated users
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      console.log('[DASHBOARD] User is unauthenticated, redirecting to login');
       router.push('/login');
-    }, [router]);
-    
+    }
+  }, [status, router]);
+  
+  // Show loading spinner for unauthenticated users while redirecting
+  if (status === 'unauthenticated') {
     return (
       <Center h="100vh">
         <Spinner size="xl" color="blue.500" />
