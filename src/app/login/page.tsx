@@ -141,7 +141,7 @@ export default function LoginPage() {
     try {
       console.log('[AUTH DEBUG] Calling signIn with credentials...');
       const result = await signIn('credentials', {
-        redirect: true,  // Change to true to use NextAuth's built-in redirect
+        redirect: false,  // Change to false to handle redirect manually
         email,
         password,
         callbackUrl: '/dashboard',  // Always redirect to dashboard after login
@@ -185,37 +185,55 @@ export default function LoginPage() {
         });
         
         /**
-         * Enhanced Redirect Logic for Production
+         * Enhanced Redirect Logic for Local Development
          * 
          * CHANGES:
-         * - Let NextAuth handle the redirect with redirect: true
-         * - Added fallback redirect mechanism for production environment
-         * - Simplified redirect logic to avoid conflicts
+         * - Implemented immediate manual redirect for local development
+         * - Added multiple fallback mechanisms to ensure redirect works
+         * - Enhanced error handling and logging for better debugging
          */
-        console.log('[AUTH DEBUG] Login successful, letting NextAuth handle redirect');
+        console.log('[AUTH DEBUG] Login successful, manually redirecting to dashboard');
         
-        // Add a fallback redirect mechanism for production environment
-        // This will only execute if NextAuth's built-in redirect fails
+        // Show success toast notification
+        toast({
+          title: 'Login Successful',
+          description: 'Redirecting to dashboard...',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        
+        // Immediate redirect attempt with router.push
+        try {
+          console.log('[AUTH DEBUG] Attempting immediate redirect with router.push');
+          router.push('/dashboard');
+        } catch (err) {
+          console.error('[AUTH DEBUG] Error with immediate router.push:', err);
+        }
+        
+        // Fallback redirect mechanism with delay
         setTimeout(() => {
           console.log('[AUTH DEBUG] Checking if redirect happened');
           if (window.location.pathname !== '/dashboard') {
-            console.log('[AUTH DEBUG] NextAuth redirect didn\'t work, using fallback');
-            // Try router.push first
+            console.log('[AUTH DEBUG] Immediate redirect didn\'t work, using fallback');
+            
+            // Try router.replace as an alternative
             try {
-              router.push('/dashboard');
-              // Double fallback to window.location if router.push doesn't work
-              setTimeout(() => {
-                if (window.location.pathname !== '/dashboard') {
-                  console.log('[AUTH DEBUG] Router push didn\'t work, using window.location');
-                  window.location.href = '/dashboard';
-                }
-              }, 500);
+              console.log('[AUTH DEBUG] Attempting router.replace');
+              router.replace('/dashboard');
             } catch (err) {
-              console.error('[AUTH DEBUG] Error redirecting with router:', err);
-              window.location.href = '/dashboard';
+              console.error('[AUTH DEBUG] Error with router.replace:', err);
             }
+            
+            // Final fallback to window.location
+            setTimeout(() => {
+              if (window.location.pathname !== '/dashboard') {
+                console.log('[AUTH DEBUG] Router methods failed, using window.location');
+                window.location.href = '/dashboard';
+              }
+            }, 500);
           }
-        }, 2000);
+        }, 1000);
       }
     } catch (error) {
       console.error('[AUTH DEBUG] Sign in error:', error);
