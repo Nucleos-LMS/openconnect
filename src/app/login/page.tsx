@@ -141,7 +141,7 @@ export default function LoginPage() {
     try {
       console.log('[AUTH DEBUG] Calling signIn with credentials...');
       const result = await signIn('credentials', {
-        redirect: true,  // Change to true to use NextAuth's built-in redirect
+        redirect: false,  // Change to false to handle redirect manually
         email,
         password,
         callbackUrl: '/dashboard',  // Always redirect to dashboard after login
@@ -185,14 +185,32 @@ export default function LoginPage() {
         });
         
         /**
-         * Simplified Redirect Logic
+         * Enhanced Redirect Logic
          * 
          * CHANGES:
-         * - Removed manual redirect to avoid conflicts with NextAuth's built-in redirect
-         * - Let NextAuth handle the redirect to dashboard after successful login
-         * - This ensures consistent behavior across different environments
+         * - Implemented manual redirect to ensure consistent behavior
+         * - Added error handling for router.push to prevent redirect failures
+         * - Added fallback redirect mechanism with window.location.href
          */
-        console.log('[AUTH DEBUG] Login successful, letting NextAuth handle redirect');
+        console.log('[AUTH DEBUG] Login successful, manually redirecting to dashboard');
+        
+        // Add a delay before redirect to ensure session is established
+        setTimeout(() => {
+          console.log('[AUTH DEBUG] Executing redirect to dashboard');
+          try {
+            router.push('/dashboard');
+            // Fallback to window.location if router.push doesn't work
+            setTimeout(() => {
+              if (window.location.pathname !== '/dashboard') {
+                console.log('[AUTH DEBUG] Router push didn\'t work, using window.location');
+                window.location.href = '/dashboard';
+              }
+            }, 1000);
+          } catch (err) {
+            console.error('[AUTH DEBUG] Error redirecting with router:', err);
+            window.location.href = '/dashboard';
+          }
+        }, 1000);
       }
     } catch (error) {
       console.error('[AUTH DEBUG] Sign in error:', error);
