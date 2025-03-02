@@ -141,7 +141,7 @@ export default function LoginPage() {
     try {
       console.log('[AUTH DEBUG] Calling signIn with credentials...');
       const result = await signIn('credentials', {
-        redirect: false,  // Change to false to handle redirect manually
+        redirect: true,  // Change to true to use NextAuth's built-in redirect
         email,
         password,
         callbackUrl: '/dashboard',  // Always redirect to dashboard after login
@@ -185,32 +185,37 @@ export default function LoginPage() {
         });
         
         /**
-         * Enhanced Redirect Logic
+         * Enhanced Redirect Logic for Production
          * 
          * CHANGES:
-         * - Implemented manual redirect to ensure consistent behavior
-         * - Added error handling for router.push to prevent redirect failures
-         * - Added fallback redirect mechanism with window.location.href
+         * - Let NextAuth handle the redirect with redirect: true
+         * - Added fallback redirect mechanism for production environment
+         * - Simplified redirect logic to avoid conflicts
          */
-        console.log('[AUTH DEBUG] Login successful, manually redirecting to dashboard');
+        console.log('[AUTH DEBUG] Login successful, letting NextAuth handle redirect');
         
-        // Add a delay before redirect to ensure session is established
+        // Add a fallback redirect mechanism for production environment
+        // This will only execute if NextAuth's built-in redirect fails
         setTimeout(() => {
-          console.log('[AUTH DEBUG] Executing redirect to dashboard');
-          try {
-            router.push('/dashboard');
-            // Fallback to window.location if router.push doesn't work
-            setTimeout(() => {
-              if (window.location.pathname !== '/dashboard') {
-                console.log('[AUTH DEBUG] Router push didn\'t work, using window.location');
-                window.location.href = '/dashboard';
-              }
-            }, 1000);
-          } catch (err) {
-            console.error('[AUTH DEBUG] Error redirecting with router:', err);
-            window.location.href = '/dashboard';
+          console.log('[AUTH DEBUG] Checking if redirect happened');
+          if (window.location.pathname !== '/dashboard') {
+            console.log('[AUTH DEBUG] NextAuth redirect didn\'t work, using fallback');
+            // Try router.push first
+            try {
+              router.push('/dashboard');
+              // Double fallback to window.location if router.push doesn't work
+              setTimeout(() => {
+                if (window.location.pathname !== '/dashboard') {
+                  console.log('[AUTH DEBUG] Router push didn\'t work, using window.location');
+                  window.location.href = '/dashboard';
+                }
+              }, 500);
+            } catch (err) {
+              console.error('[AUTH DEBUG] Error redirecting with router:', err);
+              window.location.href = '/dashboard';
+            }
           }
-        }, 1000);
+        }, 2000);
       }
     } catch (error) {
       console.error('[AUTH DEBUG] Sign in error:', error);
