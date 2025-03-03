@@ -80,7 +80,7 @@ export const authConfig: NextAuthConfig = {
         httpOnly: true,
         sameSite: "lax", // Using "lax" for better compatibility across browsers
         path: "/",
-        secure: !isDev, // Only use secure in production, not in development
+        secure: true, // Always use secure cookies for better security
         maxAge: 30 * 24 * 60 * 60, // 30 days to match session maxAge
       },
     },
@@ -90,7 +90,7 @@ export const authConfig: NextAuthConfig = {
         httpOnly: true,
         sameSite: "lax", // Using "lax" for better compatibility across browsers
         path: "/",
-        secure: !isDev, // Only use secure in production, not in development
+        secure: true, // Always use secure cookies for better security
       },
     },
     callbackUrl: {
@@ -99,7 +99,7 @@ export const authConfig: NextAuthConfig = {
         httpOnly: true,
         sameSite: "lax", // Using "lax" for better compatibility across browsers
         path: "/",
-        secure: !isDev, // Only use secure in production, not in development
+        secure: true, // Always use secure cookies for better security
       },
     },
   },
