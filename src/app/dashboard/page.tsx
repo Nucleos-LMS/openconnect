@@ -60,10 +60,39 @@ export default function DashboardPage() {
     }
   }, [status, router]);
 
-  // Handle redirect for unauthenticated users
+  // Handle redirect for unauthenticated users with fallback mechanism
   useEffect(() => {
     if (status === 'unauthenticated') {
-      console.log('[DASHBOARD] User is unauthenticated, redirecting to login');
+      console.log('[DASHBOARD] User is unauthenticated, checking localStorage fallback');
+      
+      // Check for fallback authentication state in localStorage
+      try {
+        const authState = localStorage.getItem('openconnect_auth_state');
+        if (authState) {
+          const parsedState = JSON.parse(authState);
+          const timestamp = new Date(parsedState.timestamp);
+          const now = new Date();
+          const timeDiff = now.getTime() - timestamp.getTime();
+          const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+          
+          console.log('[DASHBOARD] Found localStorage auth state:', parsedState);
+          console.log('[DASHBOARD] Auth state age:', timeDiff / 1000 / 60, 'minutes');
+          
+          // If the auth state is still valid (less than maxAge), allow access
+          if (parsedState.isAuthenticated && timeDiff < maxAge) {
+            console.log('[DASHBOARD] Using localStorage fallback for authentication');
+            return; // Skip redirect to login
+          } else {
+            console.log('[DASHBOARD] Auth state expired or invalid, clearing');
+            localStorage.removeItem('openconnect_auth_state');
+          }
+        }
+      } catch (e) {
+        console.error('[DASHBOARD] Error checking localStorage auth state:', e);
+      }
+      
+      // If no valid fallback found, redirect to login
+      console.log('[DASHBOARD] No valid fallback found, redirecting to login');
       router.push('/login');
     }
   }, [status, router]);
