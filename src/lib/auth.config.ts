@@ -37,19 +37,18 @@ declare module 'next-auth' {
  * CHANGES:
  * - Added proper type checking for process and process.env to avoid client-side errors
  * - Improved environment variable handling to prevent build failures in Vercel deployment
- * - Added fallback for production environment when NEXTAUTH_URL is not set
+ * - Added safer environment variable handling for production
  */
 // Check for NEXTAUTH_URL environment variable - only run on server
 if (typeof process !== 'undefined' && 
     typeof process.env !== 'undefined') {
   
-  // For production environment, ensure NEXTAUTH_URL is set to the production URL
-  if (process.env.NODE_ENV === 'production' && !process.env.NEXTAUTH_URL) {
-    console.warn('[AUTH CONFIG] NEXTAUTH_URL environment variable is not set in production.');
-    // Set a fallback for production environment
-    process.env.NEXTAUTH_URL = 'https://openconnect-one.vercel.app';
-    console.log('[AUTH CONFIG] Setting fallback NEXTAUTH_URL for production:', process.env.NEXTAUTH_URL);
-  } else if (!process.env.NEXTAUTH_URL) {
+  // Log environment information for debugging
+  console.log('[AUTH CONFIG] Environment:', process.env.NODE_ENV);
+  console.log('[AUTH CONFIG] NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+  
+  // Only log a warning if NEXTAUTH_URL is not set
+  if (!process.env.NEXTAUTH_URL) {
     console.warn('[AUTH CONFIG] NEXTAUTH_URL environment variable is not set.');
   }
 }
