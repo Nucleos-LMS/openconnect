@@ -2,7 +2,7 @@
  * Authentication Middleware
  * 
  * CHANGES:
- * - Added proper type declarations for next/server, next-auth/jwt, and Node.js
+ * - Temporarily disabled middleware for local development to test dashboard redirect
  * - Enhanced logging for better debugging of authentication issues
  * - Improved token verification and route protection
  * - Ensured compatibility with NextAuth's redirect functionality
@@ -15,11 +15,6 @@ import { getToken } from 'next-auth/jwt';
 
 // Enhanced middleware with proper token verification and debug logging
 async function middleware(req: NextRequest) {
-  // TEMPORARILY DISABLED for local development testing
-  console.log('[MIDDLEWARE] Temporarily disabled for testing');
-  return NextResponse.next();
-  
-  /* Original middleware code - temporarily disabled
   const isApiRoute = req.nextUrl.pathname.startsWith('/api');
   const isAuthRoute = req.nextUrl.pathname === '/login' || req.nextUrl.pathname.startsWith('/auth/');
   const isDashboardRoute = req.nextUrl.pathname === '/dashboard' || req.nextUrl.pathname.startsWith('/dashboard/');
@@ -33,37 +28,26 @@ async function middleware(req: NextRequest) {
   console.log('[MIDDLEWARE] isAuthRoute:', isAuthRoute);
   console.log('[MIDDLEWARE] isDashboardRoute:', isDashboardRoute);
   console.log('[MIDDLEWARE] isPublicRoute:', isPublicRoute);
-  */
   
-  /* Original middleware code - temporarily disabled
   // Skip middleware for static assets and public routes
   if (isStaticAsset || isPublicRoute) {
     console.log('[MIDDLEWARE] Static asset or public route, skipping middleware');
     return NextResponse.next();
   }
-  */
 
-  /* Original middleware code - temporarily disabled
   // Get the token using next-auth/jwt which handles different environments correctly
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
   });
-  */
   
-  // Temporary token for disabled middleware
-  const token = null;
-  
-  /* Original middleware code - temporarily disabled
   console.log('[MIDDLEWARE] Token exists:', !!token);
   if (token) {
     console.log('[MIDDLEWARE] Token user:', token.email);
     console.log('[MIDDLEWARE] Token role:', token.role);
     console.log('[MIDDLEWARE] Token expiry:', token.exp);
   }
-  */
   
-  /* Original middleware code - temporarily disabled
   // Handle root route
   if (req.nextUrl.pathname === '/') {
     console.log('[MIDDLEWARE] Root route, checking for token');
@@ -76,17 +60,13 @@ async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/login', req.url));
     }
   }
-  */
 
-  /* Original middleware code - temporarily disabled
   // Always allow access to login and API routes regardless of authentication status
   if (isAuthRoute || isApiRoute) {
     console.log('[MIDDLEWARE] API or auth route, skipping auth check');
     return NextResponse.next();
   }
-  */
   
-  /* Original middleware code - temporarily disabled
   // For protected routes (including dashboard), ensure user is authenticated
   if (!token) {
     console.log('[MIDDLEWARE] No token for protected route, redirecting to login');
@@ -106,14 +86,18 @@ async function middleware(req: NextRequest) {
   
   // If we get here, user is authenticated and accessing a protected route
   console.log('[MIDDLEWARE] Token found, allowing access to protected route');
-  */
-  
-  // Always allow access when middleware is disabled
   return NextResponse.next();
 }
 
 // Export the middleware with debug logging wrapper
-export default withDebugLogging(middleware);
+// Temporarily disable middleware for local development to test dashboard redirect
+// export default withDebugLogging(middleware);
+
+// Export a dummy middleware that allows all requests for local testing
+export default function(req: NextRequest) {
+  console.log('[MIDDLEWARE] Middleware temporarily disabled for local testing');
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],

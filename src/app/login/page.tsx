@@ -185,30 +185,53 @@ export default function LoginPage() {
         });
         
         /**
-         * Enhanced Redirect Logic
+         * Enhanced Redirect Logic for Local Development
          * 
          * CHANGES:
-         * - Implemented manual redirect to ensure consistent behavior
-         * - Added error handling for router.push to prevent redirect failures
-         * - Added fallback redirect mechanism with window.location.href
+         * - Implemented immediate manual redirect for local development
+         * - Added multiple fallback mechanisms to ensure redirect works
+         * - Enhanced error handling and logging for better debugging
          */
         console.log('[AUTH DEBUG] Login successful, manually redirecting to dashboard');
         
-        // Add a delay before redirect to ensure session is established
+        // Show success toast notification
+        toast({
+          title: 'Login Successful',
+          description: 'Redirecting to dashboard...',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        
+        // Immediate redirect attempt with router.push
+        try {
+          console.log('[AUTH DEBUG] Attempting immediate redirect with router.push');
+          router.push('/dashboard');
+        } catch (err) {
+          console.error('[AUTH DEBUG] Error with immediate router.push:', err);
+        }
+        
+        // Fallback redirect mechanism with delay
         setTimeout(() => {
-          console.log('[AUTH DEBUG] Executing redirect to dashboard');
-          try {
-            router.push('/dashboard');
-            // Fallback to window.location if router.push doesn't work
+          console.log('[AUTH DEBUG] Checking if redirect happened');
+          if (window.location.pathname !== '/dashboard') {
+            console.log('[AUTH DEBUG] Immediate redirect didn\'t work, using fallback');
+            
+            // Try router.replace as an alternative
+            try {
+              console.log('[AUTH DEBUG] Attempting router.replace');
+              router.replace('/dashboard');
+            } catch (err) {
+              console.error('[AUTH DEBUG] Error with router.replace:', err);
+            }
+            
+            // Final fallback to window.location
             setTimeout(() => {
               if (window.location.pathname !== '/dashboard') {
-                console.log('[AUTH DEBUG] Router push didn\'t work, using window.location');
+                console.log('[AUTH DEBUG] Router methods failed, using window.location');
                 window.location.href = '/dashboard';
               }
-            }, 1000);
-          } catch (err) {
-            console.error('[AUTH DEBUG] Error redirecting with router:', err);
-            window.location.href = '/dashboard';
+            }, 500);
           }
         }, 1000);
       }
