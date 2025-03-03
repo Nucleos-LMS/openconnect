@@ -61,14 +61,9 @@ async function middleware(req: NextRequest) {
     console.log('[MIDDLEWARE] Session cookie exists:', !!sessionCookie);
     if (sessionCookie) {
       console.log('[MIDDLEWARE] Session cookie value length:', sessionCookie.value.length);
-      console.log('[MIDDLEWARE] Session cookie options:', JSON.stringify({
-        path: sessionCookie.path,
-        domain: sessionCookie.domain,
-        expires: sessionCookie.expires,
-        httpOnly: sessionCookie.httpOnly,
-        secure: sessionCookie.secure,
-        sameSite: sessionCookie.sameSite
-      }, null, 2));
+      // RequestCookie only has name and value properties in Next.js middleware
+      console.log('[MIDDLEWARE] Session cookie name:', sessionCookie.name);
+      console.log('[MIDDLEWARE] Session cookie value:', sessionCookie.value.substring(0, 20) + '...');
     }
   }
   
@@ -97,6 +92,12 @@ async function middleware(req: NextRequest) {
     
     // Check for session cookie even if token is not found
     const sessionCookie = req.cookies.get('next-auth.session-token');
+    
+    // Log session cookie details
+    if (sessionCookie) {
+      console.log('[MIDDLEWARE] Session cookie found:', sessionCookie.name);
+      console.log('[MIDDLEWARE] Session cookie value length:', sessionCookie.value.length);
+    }
     
     // TEMPORARY FIX: Allow dashboard access if session cookie exists
     // This helps us determine if the issue is with token verification or redirect logic
