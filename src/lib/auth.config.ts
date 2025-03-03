@@ -37,22 +37,35 @@ declare module 'next-auth' {
  * CHANGES:
  * - Added proper type checking for process and process.env to avoid client-side errors
  * - Improved environment variable handling to prevent build failures in Vercel deployment
- * - Maintained fallback to window.location.origin when NEXTAUTH_URL is not set
+ * - Added safer environment variable handling for production
  */
 // Check for NEXTAUTH_URL environment variable - only run on server
-// Removed window.location.origin reference to avoid issues in Vercel deployment
 if (typeof process !== 'undefined' && 
-    typeof process.env !== 'undefined' && 
-    !process.env.NEXTAUTH_URL) {
-  console.warn('[AUTH CONFIG] NEXTAUTH_URL environment variable is not set.');
+    typeof process.env !== 'undefined') {
+  
+  // Log environment information for debugging
+  console.log('[AUTH CONFIG] Environment:', process.env.NODE_ENV);
+  console.log('[AUTH CONFIG] NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+  
+  // Only log a warning if NEXTAUTH_URL is not set
+  if (!process.env.NEXTAUTH_URL) {
+    console.warn('[AUTH CONFIG] NEXTAUTH_URL environment variable is not set.');
+  }
 }
 
-// Determine if we're in development mode
-const isDev = process.env.NODE_ENV === 'development';
+// Determine if we're in development mode - safely check environment
+// Use a function to avoid client-side reference errors
+const getIsDev = () => {
+  try {
+    return typeof process !== 'undefined' && 
+           typeof process.env !== 'undefined' && 
+           process.env.NODE_ENV === 'development';
+  } catch (e) {
+    return false;
+  }
+};
 
-console.log('[AUTH CONFIG] Environment:', process.env.NODE_ENV);
-console.log('[AUTH CONFIG] isDev:', isDev);
-console.log('[AUTH CONFIG] NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+const isDev = getIsDev();
 
 export const authConfig: NextAuthConfig = {
   debug: true, // Enable debug logging
@@ -65,18 +78,28 @@ export const authConfig: NextAuthConfig = {
       name: "next-auth.session-token",
       options: {
         httpOnly: true,
-        sameSite: "lax", // Changed from "none" to "lax" for better compatibility
+        sameSite: "lax", // Using "lax" for better compatibility across browsers
         path: "/",
-        secure: !isDev, // Only use secure in production, not in development
+        secure: true, // Always use secure cookies for better security
+        maxAge: 30 * 24 * 60 * 60, // 30 days to match session maxAge
       },
     },
     csrfToken: {
       name: "next-auth.csrf-token",
       options: {
         httpOnly: true,
-        sameSite: "lax", // Changed from "none" to "lax" for better compatibility
+        sameSite: "lax", // Using "lax" for better compatibility across browsers
         path: "/",
-        secure: !isDev, // Only use secure in production, not in development
+        secure: true, // Always use secure cookies for better security
+      },
+    },
+    callbackUrl: {
+      name: "next-auth.callback-url",
+      options: {
+        httpOnly: true,
+        sameSite: "lax", // Using "lax" for better compatibility across browsers
+        path: "/",
+        secure: true, // Always use secure cookies for better security
       },
     },
   },

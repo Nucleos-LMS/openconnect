@@ -90,14 +90,8 @@ async function middleware(req: NextRequest) {
 }
 
 // Export the middleware with debug logging wrapper
-// Temporarily disable middleware for local development to test dashboard redirect
-// export default withDebugLogging(middleware);
-
-// Export a dummy middleware that allows all requests for local testing
-export default function(req: NextRequest) {
-  console.log('[MIDDLEWARE] Middleware temporarily disabled for local testing');
-  return NextResponse.next();
-}
+// Re-enable middleware for production environment
+export default withDebugLogging(middleware);
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
