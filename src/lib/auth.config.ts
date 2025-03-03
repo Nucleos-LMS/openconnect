@@ -53,12 +53,19 @@ if (typeof process !== 'undefined' &&
   }
 }
 
-// Determine if we're in development mode
-const isDev = process.env.NODE_ENV === 'development';
+// Determine if we're in development mode - safely check environment
+// Use a function to avoid client-side reference errors
+const getIsDev = () => {
+  try {
+    return typeof process !== 'undefined' && 
+           typeof process.env !== 'undefined' && 
+           process.env.NODE_ENV === 'development';
+  } catch (e) {
+    return false;
+  }
+};
 
-console.log('[AUTH CONFIG] Environment:', process.env.NODE_ENV);
-console.log('[AUTH CONFIG] isDev:', isDev);
-console.log('[AUTH CONFIG] NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+const isDev = getIsDev();
 
 export const authConfig: NextAuthConfig = {
   debug: true, // Enable debug logging
