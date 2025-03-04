@@ -235,9 +235,22 @@ export const authConfig: NextAuthConfig = {
       }
       return session;
     },
-    // Add redirect callback to control redirects after authentication
+    // Enhanced redirect callback with improved server-side redirect handling
     async redirect({ url, baseUrl }) {
       console.log('[AUTH DEBUG] redirect() callback called with:', { url, baseUrl });
+      console.log('[AUTH DEBUG] Current NODE_ENV:', process.env.NODE_ENV);
+      
+      // For production environment, always redirect to dashboard after login
+      if (process.env.NODE_ENV === 'production' && url.includes('/login')) {
+        console.log('[AUTH DEBUG] Production login detected, forcing dashboard redirect');
+        return `${baseUrl}/dashboard`;
+      }
+      
+      // For dashboard URLs, ensure they're properly formed
+      if (url.includes('/dashboard')) {
+        console.log('[AUTH DEBUG] Dashboard URL detected, ensuring proper format');
+        return `${baseUrl}/dashboard`;
+      }
       
       // If the URL is relative, prepend the base URL
       if (url.startsWith('/')) {

@@ -59,6 +59,18 @@ export default function LoginPage() {
     
     // Log to UI when session state changes
     if (status === 'authenticated') {
+      // Store authentication state in localStorage as fallback mechanism
+      try {
+        localStorage.setItem('openconnect_auth_state', JSON.stringify({
+          isAuthenticated: true,
+          email: session?.user?.email,
+          timestamp: new Date().toISOString()
+        }));
+        console.log('[AUTH DEBUG] Stored authentication state in localStorage');
+      } catch (e) {
+        console.error('[AUTH DEBUG] Error storing auth state in localStorage:', e);
+      }
+      
       toast({
         title: 'Session Authenticated',
         description: `User: ${session?.user?.email}`,
@@ -67,9 +79,22 @@ export default function LoginPage() {
         isClosable: true,
       });
       
-      // Remove the manual redirect to avoid conflicts with NextAuth
-      console.log('[AUTH DEBUG] Session authenticated, NextAuth will handle redirect');
+      // Check if we need to redirect to dashboard
+      if (window.location.pathname === '/login') {
+        console.log('[AUTH DEBUG] On login page with authenticated session, redirecting to dashboard');
+        router.push('/dashboard');
+      } else {
+        console.log('[AUTH DEBUG] Session authenticated, NextAuth will handle redirect');
+      }
     } else if (status === 'unauthenticated') {
+      // Clear authentication state from localStorage
+      try {
+        localStorage.removeItem('openconnect_auth_state');
+        console.log('[AUTH DEBUG] Cleared authentication state from localStorage');
+      } catch (e) {
+        console.error('[AUTH DEBUG] Error clearing auth state from localStorage:', e);
+      }
+      
       toast({
         title: 'Session Unauthenticated',
         description: 'No active session',
@@ -140,8 +165,9 @@ export default function LoginPage() {
     
     try {
       console.log('[AUTH DEBUG] Calling signIn with credentials...');
+      // Enhanced signIn call with environment-specific redirect behavior
       const result = await signIn('credentials', {
-        redirect: true,  // Use NextAuth's built-in redirect functionality for production
+        redirect: process.env.NODE_ENV === 'production',  // Use built-in redirect in production
         email,
         password,
         callbackUrl: '/dashboard',  // Always redirect to dashboard after login
