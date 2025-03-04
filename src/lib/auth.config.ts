@@ -1,4 +1,4 @@
-import { type NextAuthConfig } from 'next-auth';
+import { type NextAuthConfig, DefaultSession } from 'next-auth';
 import { JWT } from '@auth/core/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
@@ -26,8 +26,8 @@ declare module '@auth/core/jwt' {
 
 declare module 'next-auth' {
   interface User extends CustomUser {}
-  interface Session {
-    user: CustomUser & { name?: string | null; email?: string | null; image?: string | null };
+  interface Session extends DefaultSession {
+    user: CustomUser & DefaultSession['user'];
   }
 }
 
