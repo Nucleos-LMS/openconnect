@@ -7,7 +7,7 @@
  * - Added proper module augmentation for next-auth
  */
 import { type DefaultSession } from 'next-auth';
-import type { CustomUser } from './shared';
+import type { CustomUser } from '../types/shared';
 
 declare module 'next-auth' {
   interface User extends CustomUser {}
