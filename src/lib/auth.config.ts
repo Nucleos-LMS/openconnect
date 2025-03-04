@@ -4,7 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 import { AdapterUser } from '@auth/core/adapters';
 import { urls } from '../config/urls';
-import { type CustomUser, type UserRole } from './types/shared.js';
+import type { CustomUser, type UserRole } from './types/shared';
 
 declare module '@auth/core/jwt' {
   interface JWT {
