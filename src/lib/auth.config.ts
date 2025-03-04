@@ -4,30 +4,12 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 import { AdapterUser } from '@auth/core/adapters';
 import { urls } from '../config/urls';
-
-type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
-
-interface CustomUser {
-  id: string;
-  email: string;
-  name: string | null;
-  role: UserRole;
-  facility_id: string;
-  image: string | null;
-  emailVerified: Date | null;
-}
+import { type CustomUser, type UserRole } from './types/shared';
 
 declare module '@auth/core/jwt' {
   interface JWT {
     role?: UserRole;
     facility_id?: string;
-  }
-}
-
-declare module 'next-auth' {
-  interface User extends CustomUser {}
-  interface Session extends DefaultSession {
-    user: CustomUser & DefaultSession['user'];
   }
 }
 

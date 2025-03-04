@@ -7,26 +7,11 @@
  * - Added proper module augmentation for next-auth
  */
 import { type DefaultSession } from 'next-auth';
+import { type CustomUser } from './shared';
 
-// Re-export the UserRole type from auth.config.ts to ensure consistency
-type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
-
-// Define the CustomUser interface without exporting it
-// This avoids conflicts with the same interface in auth.config.ts
-interface CustomUser {
-  id: string;
-  email: string;
-  name: string | null;
-  role: UserRole;
-  facility_id: string;
-  image: string | null;
-  emailVerified: Date | null;
-}
-
-// Use module augmentation to extend the next-auth types
 declare module 'next-auth' {
-  // Extend the User interface
   interface User extends CustomUser {}
+  interface Session extends DefaultSession {
+    user: CustomUser & DefaultSession['user'];
+  }
 }
-
-// No need to redefine Session interface here as it's already defined in auth.config.ts
