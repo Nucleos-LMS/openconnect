@@ -1,7 +1,17 @@
+/**
+ * NextAuth Type Declarations
+ * 
+ * CHANGES:
+ * - Fixed TypeScript error with Session.user property
+ * - Improved type declarations to avoid conflicts
+ * - Added proper module augmentation for next-auth
+ */
 import { type DefaultSession } from 'next-auth';
 
-type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff';
+// Define the UserRole type directly to avoid circular imports
+type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
 
+// Define the CustomUser interface directly to avoid circular imports
 interface CustomUser {
   id: string;
   email: string;
@@ -13,8 +23,8 @@ interface CustomUser {
 }
 
 declare module 'next-auth' {
-  interface Session extends DefaultSession {
-    user: CustomUser;
-  }
   interface User extends CustomUser {}
+  interface Session extends DefaultSession {
+    user: CustomUser & DefaultSession['user'];
+  }
 }

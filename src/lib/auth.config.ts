@@ -1,12 +1,13 @@
-import { type NextAuthConfig } from 'next-auth';
+import { type NextAuthConfig, DefaultSession } from 'next-auth';
 import { JWT } from '@auth/core/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 import { AdapterUser } from '@auth/core/adapters';
 import { urls } from '../config/urls';
-
+// Define the UserRole type directly to avoid circular imports
 type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
 
+// Define the CustomUser interface directly to avoid circular imports
 interface CustomUser {
   id: string;
   email: string;
@@ -21,13 +22,6 @@ declare module '@auth/core/jwt' {
   interface JWT {
     role?: UserRole;
     facility_id?: string;
-  }
-}
-
-declare module 'next-auth' {
-  interface User extends CustomUser {}
-  interface Session {
-    user: CustomUser;
   }
 }
 
@@ -75,31 +69,40 @@ export const authConfig: NextAuthConfig = {
   },
   cookies: {
     sessionToken: {
-      name: "next-auth.session-token",
+      name: process.env.NODE_ENV === 'production' 
+        ? "__Secure-next-auth.session-token" 
+        : "next-auth.session-token",
       options: {
         httpOnly: true,
-        sameSite: "lax", // Using "lax" for better compatibility across browsers
+        sameSite: "lax",
         path: "/",
-        secure: true, // Always use secure cookies for better security
-        maxAge: 30 * 24 * 60 * 60, // 30 days to match session maxAge
+        secure: true,
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        domain: process.env.NODE_ENV === 'production' 
+          ? ".vercel.app" // Use your production domain
+          : undefined,
       },
     },
     csrfToken: {
-      name: "next-auth.csrf-token",
+      name: process.env.NODE_ENV === 'production' 
+        ? "__Secure-next-auth.csrf-token" 
+        : "next-auth.csrf-token",
       options: {
         httpOnly: true,
-        sameSite: "lax", // Using "lax" for better compatibility across browsers
+        sameSite: "lax",
         path: "/",
-        secure: true, // Always use secure cookies for better security
+        secure: true,
       },
     },
     callbackUrl: {
-      name: "next-auth.callback-url",
+      name: process.env.NODE_ENV === 'production' 
+        ? "__Secure-next-auth.callback-url" 
+        : "next-auth.callback-url",
       options: {
         httpOnly: true,
-        sameSite: "lax", // Using "lax" for better compatibility across browsers
+        sameSite: "lax",
         path: "/",
-        secure: true, // Always use secure cookies for better security
+        secure: true,
       },
     },
   },
@@ -235,9 +238,22 @@ export const authConfig: NextAuthConfig = {
       }
       return session;
     },
-    // Add redirect callback to control redirects after authentication
+    // Enhanced redirect callback with improved server-side redirect handling
     async redirect({ url, baseUrl }) {
       console.log('[AUTH DEBUG] redirect() callback called with:', { url, baseUrl });
+      console.log('[AUTH DEBUG] Current NODE_ENV:', process.env.NODE_ENV);
+      
+      // For production environment, always redirect to dashboard after login
+      if (process.env.NODE_ENV === 'production' && url.includes('/login')) {
+        console.log('[AUTH DEBUG] Production login detected, forcing dashboard redirect');
+        return `${baseUrl}/dashboard`;
+      }
+      
+      // For dashboard URLs, ensure they're properly formed
+      if (url.includes('/dashboard')) {
+        console.log('[AUTH DEBUG] Dashboard URL detected, ensuring proper format');
+        return `${baseUrl}/dashboard`;
+      }
       
       // If the URL is relative, prepend the base URL
       if (url.startsWith('/')) {

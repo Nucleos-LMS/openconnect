@@ -45,7 +45,7 @@ export default function LoginPage() {
   const toast = useToast();
   const { data: session, status } = useSession();
 
-  // Debug logging for session state changes
+  // Enhanced session state monitoring with improved redirect handling
   useEffect(() => {
     console.log('[AUTH DEBUG] Session status changed:', status);
     console.log('[AUTH DEBUG] Session data:', session);
@@ -59,6 +59,19 @@ export default function LoginPage() {
     
     // Log to UI when session state changes
     if (status === 'authenticated') {
+      // Store authentication state in localStorage as fallback mechanism
+      try {
+        localStorage.setItem('openconnect_auth_state', JSON.stringify({
+          isAuthenticated: true,
+          email: session?.user?.email,
+          role: (session?.user as any)?.role || 'visitor',
+          timestamp: new Date().toISOString()
+        }));
+        console.log('[AUTH DEBUG] Stored authentication state in localStorage');
+      } catch (e) {
+        console.error('[AUTH DEBUG] Error storing auth state in localStorage:', e);
+      }
+      
       toast({
         title: 'Session Authenticated',
         description: `User: ${session?.user?.email}`,
@@ -67,9 +80,38 @@ export default function LoginPage() {
         isClosable: true,
       });
       
-      // Remove the manual redirect to avoid conflicts with NextAuth
-      console.log('[AUTH DEBUG] Session authenticated, NextAuth will handle redirect');
+      // Enhanced redirect logic for authenticated users
+      if (window.location.pathname === '/login') {
+        console.log('[AUTH DEBUG] On login page with authenticated session, redirecting to dashboard');
+        
+        // Try both router.push and window.location for maximum compatibility
+        try {
+          router.push('/dashboard');
+          console.log('[AUTH DEBUG] Used router.push for dashboard redirect');
+          
+          // Fallback to window.location after a short delay if router.push doesn't work
+          setTimeout(() => {
+            if (window.location.pathname !== '/dashboard') {
+              console.log('[AUTH DEBUG] Router redirect didn\'t work, using window.location');
+              window.location.href = '/dashboard';
+            }
+          }, 1000);
+        } catch (e) {
+          console.error('[AUTH DEBUG] Error with router.push:', e);
+          window.location.href = '/dashboard';
+        }
+      } else {
+        console.log('[AUTH DEBUG] Not on login page, letting NextAuth handle redirect');
+      }
     } else if (status === 'unauthenticated') {
+      // Clear authentication state from localStorage
+      try {
+        localStorage.removeItem('openconnect_auth_state');
+        console.log('[AUTH DEBUG] Cleared authentication state from localStorage');
+      } catch (e) {
+        console.error('[AUTH DEBUG] Error clearing auth state from localStorage:', e);
+      }
+      
       toast({
         title: 'Session Unauthenticated',
         description: 'No active session',
