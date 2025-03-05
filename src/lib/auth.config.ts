@@ -39,17 +39,27 @@ declare module 'next-auth' {
  * - Improved environment variable handling to prevent build failures in Vercel deployment
  * - Added safer environment variable handling for production
  */
-// Check for NEXTAUTH_URL environment variable - only run on server
+// Check for NEXTAUTH_URL and NEXTAUTH_SECRET environment variables - only run on server
 if (typeof process !== 'undefined' && 
     typeof process.env !== 'undefined') {
   
   // Log environment information for debugging
   console.log('[AUTH CONFIG] Environment:', process.env.NODE_ENV);
   console.log('[AUTH CONFIG] NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+  console.log('[AUTH CONFIG] NEXTAUTH_SECRET exists:', !!process.env.NEXTAUTH_SECRET);
   
-  // Only log a warning if NEXTAUTH_URL is not set
+  // Log warnings for missing environment variables
   if (!process.env.NEXTAUTH_URL) {
     console.warn('[AUTH CONFIG] NEXTAUTH_URL environment variable is not set.');
+  }
+  
+  if (!process.env.NEXTAUTH_SECRET) {
+    console.warn('[AUTH CONFIG] NEXTAUTH_SECRET environment variable is not set.');
+    // Set a default secret for development environment
+    if (process.env.NODE_ENV === 'development') {
+      process.env.NEXTAUTH_SECRET = 'development-secret-key-do-not-use-in-production';
+      console.log('[AUTH CONFIG] Set default NEXTAUTH_SECRET for development environment');
+    }
   }
 }
 
@@ -69,6 +79,7 @@ const isDev = getIsDev();
 
 export const authConfig: NextAuthConfig = {
   debug: true, // Enable debug logging
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
