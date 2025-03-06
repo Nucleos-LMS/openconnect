@@ -182,8 +182,9 @@ export default function LoginPage() {
     
     try {
       console.log('[AUTH DEBUG] Calling signIn with credentials...');
+      // Enhanced signIn call with environment-specific redirect behavior
       const result = await signIn('credentials', {
-        redirect: true,  // Use NextAuth's built-in redirect functionality for production
+        redirect: process.env.NODE_ENV === 'production',  // Use built-in redirect in production
         email,
         password,
         callbackUrl: '/dashboard',  // Always redirect to dashboard after login

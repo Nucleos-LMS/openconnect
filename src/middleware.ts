@@ -7,7 +7,9 @@
  * - Added fallback mechanism for session cookie verification
  * - Improved redirect logic for authenticated and unauthenticated users
  * - Added debug headers to help diagnose authentication issues
- * - Simplified cookie handling to avoid TypeScript errors
+ * - Enhanced cookie inspection for better session tracking
+ * - Improved token verification with comprehensive logging
+ * - Added cookieName parameter for better compatibility
  */
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
@@ -42,10 +44,17 @@ async function middleware(req: NextRequest) {
   console.log('[MIDDLEWARE] NODE_ENV:', process.env.NODE_ENV);
   
   // Get the token using next-auth/jwt which handles different environments correctly
+  console.log('[MIDDLEWARE] Cookies:', JSON.stringify(req.cookies.getAll(), null, 2));
+  console.log('[MIDDLEWARE] NEXTAUTH_SECRET exists:', !!process.env.NEXTAUTH_SECRET);
+  console.log('[MIDDLEWARE] NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+  console.log('[MIDDLEWARE] NODE_ENV:', process.env.NODE_ENV);
+  
+  // Enhanced token verification with detailed logging
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
     secureCookie: process.env.NODE_ENV === 'production',
+    cookieName: 'next-auth.session-token',
   });
   
   console.log('[MIDDLEWARE] Token exists:', !!token);
@@ -53,6 +62,17 @@ async function middleware(req: NextRequest) {
     console.log('[MIDDLEWARE] Token user:', token.email);
     console.log('[MIDDLEWARE] Token role:', token.role);
     console.log('[MIDDLEWARE] Token expiry:', token.exp);
+    console.log('[MIDDLEWARE] Token full:', JSON.stringify(token, null, 2));
+  } else {
+    // Check for session cookie even if token is not found
+    const sessionCookie = req.cookies.get('next-auth.session-token');
+    console.log('[MIDDLEWARE] Session cookie exists:', !!sessionCookie);
+    if (sessionCookie) {
+      console.log('[MIDDLEWARE] Session cookie value length:', sessionCookie.value.length);
+      // RequestCookie only has name and value properties in Next.js middleware
+      console.log('[MIDDLEWARE] Session cookie name:', sessionCookie.name);
+      console.log('[MIDDLEWARE] Session cookie value:', sessionCookie.value.substring(0, 20) + '...');
+    }
   }
   
   // Check for session cookie - simplified to avoid TypeScript errors
@@ -81,6 +101,15 @@ async function middleware(req: NextRequest) {
   // For protected routes (including dashboard), ensure user is authenticated
   if (!token) {
     console.log('[MIDDLEWARE] No token for protected route, checking for session cookie');
+    
+    // Check for session cookie even if token is not found
+    const sessionCookie = req.cookies.get('next-auth.session-token');
+    
+    // Log session cookie details
+    if (sessionCookie) {
+      console.log('[MIDDLEWARE] Session cookie found:', sessionCookie.name);
+      console.log('[MIDDLEWARE] Session cookie value length:', sessionCookie.value.length);
+    }
     
     // TEMPORARY FIX: Allow dashboard access if session cookie exists
     // This helps us determine if the issue is with token verification or redirect logic
