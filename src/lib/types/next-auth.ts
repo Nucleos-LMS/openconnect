@@ -1,8 +1,8 @@
 import { type DefaultSession } from 'next-auth';
 
-type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
+export type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
 
-interface CustomUser {
+export interface CustomUser {
   id: string;
   email: string;
   name: string | null;
@@ -10,6 +10,13 @@ interface CustomUser {
   facility_id: string;
   image: string | null;
   emailVerified: Date | null;
+}
+
+declare module '@auth/core/jwt' {
+  interface JWT {
+    role?: UserRole;
+    facility_id?: string;
+  }
 }
 
 declare module 'next-auth' {
