@@ -111,3 +111,22 @@ jobs:
 - If you encounter permission issues, ensure you have the correct team and project selected
 - If the CLI is not authenticated, run `vercel login` to authenticate
 - If you need to force remove a deployment, use the `--yes` flag
+
+## Non-Interactive Authentication
+To authenticate with Vercel CLI non-interactively (e.g., in CI/CD pipelines):
+
+1. Generate a Vercel token from the Vercel dashboard:
+   - Go to Settings > Tokens
+   - Create a new token with appropriate permissions
+   - Copy the token
+
+2. Authenticate using the token:
+   ```bash
+   vercel login --token YOUR_VERCEL_TOKEN
+   ```
+
+3. For GitHub Actions, add the token as a secret:
+   - Go to your repository settings
+   - Navigate to Secrets > Actions
+   - Add a new secret named VERCEL_TOKEN
+   - Use the secret in your GitHub Actions workflow as shown in the example above
