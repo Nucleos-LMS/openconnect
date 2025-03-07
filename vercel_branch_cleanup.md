@@ -1,7 +1,28 @@
-# Vercel Branch Cleanup Process
+# Vercel Branch Management and Cleanup Process
 
 ## Overview
-This document outlines the process for cleaning up old and unused deployment branches in Vercel using the Vercel CLI.
+This document outlines the process for managing branch deployments and cleaning up old and unused deployment branches in Vercel using the Vercel CLI.
+
+## Branch Naming Convention
+To optimize Vercel deployments and prevent hitting branch limits, we've implemented a selective deployment strategy using the `ignoreCommand` in vercel.json:
+
+```json
+"ignoreCommand": "if [[ \"$VERCEL_GIT_COMMIT_REF\" =~ ^(dependabot/|temp-|cleanup-|docs-|chore-) ]]; then exit 0; else exit 1; fi"
+```
+
+### Branch Naming Guidelines:
+- **Branches that WILL be deployed to Vercel:**
+  - `feature-*` - New features
+  - `fix-*` - Bug fixes
+  - `test-*` - Test branches
+  - `main` - Production branch
+
+- **Branches that will NOT be deployed to Vercel:**
+  - `dependabot/*` - Automated dependency updates
+  - `temp-*` - Temporary branches
+  - `cleanup-*` - Cleanup/refactoring branches
+  - `docs-*` - Documentation-only changes
+  - `chore-*` - Maintenance tasks
 
 ## Prerequisites
 - Vercel CLI installed (`npm i -g vercel`)
