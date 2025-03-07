@@ -1,35 +1,7 @@
 import { type NextAuthConfig } from 'next-auth';
-import { JWT } from '@auth/core/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
-import { AdapterUser } from '@auth/core/adapters';
-import { urls } from '../config/urls';
-
-type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
-
-interface CustomUser {
-  id: string;
-  email: string;
-  name: string | null;
-  role: UserRole;
-  facility_id: string;
-  image: string | null;
-  emailVerified: Date | null;
-}
-
-declare module '@auth/core/jwt' {
-  interface JWT {
-    role?: UserRole;
-    facility_id?: string;
-  }
-}
-
-declare module 'next-auth' {
-  interface User extends CustomUser {}
-  interface Session {
-    user: CustomUser;
-  }
-}
+import { type UserRole, type CustomUser } from './types/next-auth';
 
 /**
  * Environment Variable Handling
@@ -70,7 +42,7 @@ const getIsDev = () => {
     return typeof process !== 'undefined' && 
            typeof process.env !== 'undefined' && 
            process.env.NODE_ENV === 'development';
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -116,8 +88,8 @@ export const authConfig: NextAuthConfig = {
   },
   providers: [
     CredentialsProvider({
-      async authorize(credentials, request) {
-        const { email, password } = credentials || {};
+      async authorize (credentials) {
+        const { email } = credentials || {};
         
         console.log('[AUTH DEBUG] authorize() called with email:', email);
         
@@ -219,7 +191,7 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt ({ token, user }) {
       console.log('[AUTH DEBUG] jwt() callback called');
       
       if (user) {
@@ -233,7 +205,7 @@ export const authConfig: NextAuthConfig = {
       }
       return token;
     },
-    async session({ session, token }) {
+    async session ({ session, token }) {
       console.log('[AUTH DEBUG] session() callback called');
       
       if (token && session.user) {
@@ -241,13 +213,13 @@ export const authConfig: NextAuthConfig = {
         session.user = {
           ...session.user,
           role: (token.role || 'visitor') as UserRole,
-          facility_id: token.facility_id || ''
+          facility_id: (token.facility_id || '') as string
         };
       }
       return session;
     },
     // Enhanced redirect callback with improved server-side redirect handling
-    async redirect({ url, baseUrl }) {
+    async redirect ({ url, baseUrl }) {
       console.log('[AUTH DEBUG] redirect() callback called with:', { url, baseUrl });
       console.log('[AUTH DEBUG] Current NODE_ENV:', process.env.NODE_ENV);
       
@@ -285,22 +257,22 @@ export const authConfig: NextAuthConfig = {
     signIn: '/login',
   },
   events: {
-    async signIn(message) {
+    async signIn (message) {
       console.log('[AUTH DEBUG] signIn event:', message);
     },
-    async signOut(message) {
+    async signOut (message) {
       console.log('[AUTH DEBUG] signOut event:', message);
     },
-    async createUser(message) {
+    async createUser (message) {
       console.log('[AUTH DEBUG] createUser event:', message);
     },
-    async updateUser(message) {
+    async updateUser (message) {
       console.log('[AUTH DEBUG] updateUser event:', message);
     },
-    async linkAccount(message) {
+    async linkAccount (message) {
       console.log('[AUTH DEBUG] linkAccount event:', message);
     },
-    async session(message) {
+    async session (message) {
       console.log('[AUTH DEBUG] session event:', message);
     },
   },
