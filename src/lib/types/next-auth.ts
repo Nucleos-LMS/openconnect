@@ -1,6 +1,6 @@
 import { type DefaultSession } from 'next-auth';
 
-type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff';
+type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
 
 interface CustomUser {
   id: string;
@@ -16,5 +16,8 @@ declare module 'next-auth' {
   interface Session extends DefaultSession {
     user: CustomUser;
   }
-  interface User extends CustomUser {}
+  interface User extends CustomUser {
+    // Add a property to satisfy ESLint no-empty-interface rule
+    _userType?: 'nextauth';
+  }
 }
