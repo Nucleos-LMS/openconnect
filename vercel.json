@@ -9,7 +9,9 @@
     "NEXT_PUBLIC_API_URL": "https://openconnect-api.vercel.app",
     "NEXTAUTH_URL": "https://openconnect-one.vercel.app",
     "NEXT_PUBLIC_APP_URL": "https://openconnect-one.vercel.app",
-    "NEXTAUTH_SECRET": "dKPntuOaj26qQ0unshxDJCyOo+YxS0Aa0PuorhWYFz4="
+    "NEXTAUTH_SECRET": "dKPntuOaj26qQ0unshxDJCyOo+YxS0Aa0PuorhWYFz4=",
+    "POSTGRES_URL": "postgres://neondb_owner:npg_5ZfzoBJD1Pmu@ep-damp-violet-a5cdx8an-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require",
+    "POSTGRES_URL_NON_POOLING": "postgres://neondb_owner:npg_5ZfzoBJD1Pmu@ep-damp-violet-a5cdx8an.us-east-2.aws.neon.tech/neondb?sslmode=require"
   },
   "public": true,
   "github": {
