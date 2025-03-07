@@ -1,0 +1,31 @@
+name: Cleanup Vercel Deployments
+
+on:
+  schedule:
+    # Run weekly on Sunday at midnight
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+      
+      - name: Authenticate with Vercel
+        run: vercel login --token ${{ secrets.VERCEL_TOKEN }}
+      
+      - name: Run cleanup script
+        run: |
+          chmod +x cleanup_vercel_deployments.sh
+          ./cleanup_vercel_deployments.sh 30
