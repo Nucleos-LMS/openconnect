@@ -12,7 +12,7 @@ export interface CustomUser {
   emailVerified: Date | null;
 }
 
-declare module '@auth/core/jwt' {
+declare module 'next-auth/jwt' {
   interface JWT {
     role?: UserRole;
     facility_id?: string;
