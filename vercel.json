@@ -9,12 +9,17 @@
     "NEXT_PUBLIC_API_URL": "https://openconnect-api.vercel.app",
     "NEXTAUTH_URL": "https://openconnect-one.vercel.app",
     "NEXT_PUBLIC_APP_URL": "https://openconnect-one.vercel.app",
-    "NEXTAUTH_SECRET": "dKPntuOaj26qQ0unshxDJCyOo+YxS0Aa0PuorhWYFz4="
+    "NEXTAUTH_SECRET": "dKPntuOaj26qQ0unshxDJCyOo+YxS0Aa0PuorhWYFz4=",
+    "NEON_DATABASE_BRANCH_CREATION": "false",
+    "POSTGRES_URL": "${POSTGRES_URL}",
+    "POSTGRES_URL_NON_POOLING": "${POSTGRES_URL_NON_POOLING}"
   },
   "public": true,
   "github": {
-    "silent": true
+    "silent": true,
+    "autoJobCancelation": true
   },
+  "ignoreCommand": "if [[ \"$VERCEL_GIT_COMMIT_REF\" =~ ^(dependabot/|temp-|cleanup-|docs-|chore-) ]]; then exit 0; else exit 1; fi",
   "headers": [
     {
       "source": "/(.*)",
