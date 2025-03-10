@@ -1,0 +1,34 @@
+Branches that can be safely deleted (already merged into main):
+  origin/devin/1709500662-fix-dashboard-redirect
+  origin/devin/1709500662-fix-vercel-deployment
+  origin/devin/1740196427-add-readme-period
+  origin/devin/1740271416-add-provider-config
+  origin/devin/1740271627-add-participant-management
+  origin/devin/1740272643-implement-twilio-provider
+  origin/devin/1740273852-add-registration-components
+  origin/devin/1740282953-add-backend-implementation
+  origin/devin/1740346811-add-documentation
+  origin/devin/1740799695-fix-dashboard-redirect
+  origin/devin/1740804837-fix-dashboard-redirect-navigation
+  origin/devin/1740814415-fix-dashboard-redirect-cookie-config
+  origin/devin/1740815673-fix-dashboard-redirect-middleware
+  origin/devin/1740881399-fix-dashboard-redirect-production
+  origin/devin/1740988798-fix-dashboard-redirect-production
+  origin/feat/vercel-deployment
+  origin/fix/add-auth-debug-logging
+  origin/fix/add-server-side-logging
+  origin/fix/auth-config
+  origin/fix/auth-config-types
+  origin/fix/login-redirection
+  origin/fix/nextauth-session-provider
+  origin/fix/simplified-auth-debugging
+  origin/fix/typescript-errors
+  origin/fix/url-config
+  origin/fix/vercel-env-variables
+
+Older branches (created before February 23, 2025):
+2025-02-22 origin/devin/1740193686-fix-storybook-deps
+2025-02-22 origin/devin/1740194016-add-waiting-room
+2025-02-22 origin/devin/1740196427-add-readme-period
+2025-02-22 origin/devin/1740197386-fix-storybook-config
+2025-02-22 origin/devin/1740198208-add-waiting-room-component
