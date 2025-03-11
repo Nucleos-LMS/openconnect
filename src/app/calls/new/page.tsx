@@ -30,7 +30,9 @@ export default function NewCallPage() {
   const toast = useToast();
   const [isCreatingCall, setIsCreatingCall] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedProvider, setSelectedProvider] = useState<'twilio' | 'google-meet'>('twilio');
+  const [selectedProvider, setSelectedProvider] = useState<'twilio' | 'google-meet'>(
+    (typeof window !== 'undefined' && window.localStorage.getItem('preferred_provider') as 'twilio' | 'google-meet') || 'twilio'
+  );
 
   // This function will be called when the user is ready to join the call
   const handleJoinCall = async (selectedParticipants: string[] = []) => {
@@ -137,7 +139,14 @@ export default function NewCallPage() {
         
         <Box mb={4}>
           <Heading as="h3" size="md" mb={2}>Select Video Provider</Heading>
-          <RadioGroup onChange={(value) => setSelectedProvider(value as 'twilio' | 'google-meet')} value={selectedProvider}>
+          <RadioGroup onChange={(value) => {
+            const provider = value as 'twilio' | 'google-meet';
+            setSelectedProvider(provider);
+            // Save preference to localStorage
+            if (typeof window !== 'undefined') {
+              window.localStorage.setItem('preferred_provider', provider);
+            }
+          }} value={selectedProvider}>
             <Stack direction="row">
               <Radio value="twilio">Twilio</Radio>
               <Radio value="google-meet">Google Meet</Radio>

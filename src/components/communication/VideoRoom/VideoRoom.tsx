@@ -43,7 +43,11 @@ export const VideoRoom = ({
   useEffect(() => {
     const joinCall = async () => {
       try {
-        providerRef.current = await createVideoProvider(provider || 'twilio', {
+        // Safely access environment variable with fallback
+        const defaultProvider = (typeof process !== 'undefined' && 
+          process.env.NEXT_PUBLIC_DEFAULT_VIDEO_PROVIDER as 'twilio' | 'google-meet') || 'twilio';
+        
+        providerRef.current = await createVideoProvider(provider || defaultProvider, {
           userId,
           userRole,
           facilityId
@@ -70,6 +74,7 @@ export const VideoRoom = ({
         setIsConnecting(false);
       } catch (err: any) {
         const errorMessage = err.message || 'Error joining call';
+        console.error('Error joining call:', err);
         setError(errorMessage);
         
         // Call the onError callback if provided
@@ -77,11 +82,18 @@ export const VideoRoom = ({
           onError(errorMessage);
         }
         
+        // Check if error is related to missing environment variables
+        const isMissingEnvVars = errorMessage.includes('requires apiKey') || 
+                                errorMessage.includes('Missing environment');
+        
         toast({
           title: 'Error joining call',
-          description: errorMessage,
+          description: isMissingEnvVars 
+            ? 'Missing video provider configuration. Please contact support.' 
+            : errorMessage,
           status: 'error',
-          duration: 5000
+          duration: 5000,
+          isClosable: true
         });
       }
     };
