@@ -1,9 +1,10 @@
-import { type DefaultSession, type NextAuthConfig, type User } from 'next-auth';
-import { type DefaultJWT } from 'next-auth/jwt';
+import type { NextAuthConfig as AuthConfig } from 'next-auth';
+import type { DefaultJWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { urls } from '../urls';
+import type { CustomUser } from '../../lib/types/next-auth';
 
-export const authConfig: NextAuthConfig = {
+export const authConfig: AuthConfig = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -11,7 +12,7 @@ export const authConfig: NextAuthConfig = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials, request): Promise<User | null> {
+      async authorize(credentials, request): Promise<CustomUser | null> {
         if (!credentials?.email || !credentials?.password) return null;
         
         try {
@@ -49,7 +50,7 @@ export const authConfig: NextAuthConfig = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user }: { token: any; user: User | null }) {
+    async jwt({ token, user }: { token: any; user: CustomUser | null }) {
       if (user) {
         return {
           ...token,

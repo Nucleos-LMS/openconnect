@@ -1,4 +1,5 @@
-import { type DefaultSession } from 'next-auth';
+// Import types from next-auth
+import type { Session as NextAuthSession } from 'next-auth';
 
 export type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
 
@@ -20,7 +21,7 @@ declare module 'next-auth/jwt' {
 }
 
 declare module 'next-auth' {
-  interface Session extends DefaultSession {
+  interface Session extends NextAuthSession {
     user: CustomUser;
   }
   interface User extends CustomUser {
