@@ -19,6 +19,7 @@ interface VideoRoomProps {
   userRole: 'resident' | 'visitor' | 'attorney' | 'staff';
   facilityId: string;
   userName?: string;
+  onError?: (errorMessage: string) => void;
 }
 
 export const VideoRoom = ({
@@ -26,7 +27,8 @@ export const VideoRoom = ({
   userId,
   userRole,
   facilityId,
-  userName
+  userName,
+  onError
 }: VideoRoomProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,10 +67,17 @@ export const VideoRoom = ({
         }
         setIsConnecting(false);
       } catch (err: any) {
-        setError(err.message);
+        const errorMessage = err.message || 'Error joining call';
+        setError(errorMessage);
+        
+        // Call the onError callback if provided
+        if (onError) {
+          onError(errorMessage);
+        }
+        
         toast({
           title: 'Error joining call',
-          description: err.message,
+          description: errorMessage,
           status: 'error',
           duration: 5000
         });

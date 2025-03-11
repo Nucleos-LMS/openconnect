@@ -4,20 +4,24 @@ import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { WaitingRoom } from '@/components/communication/WaitingRoom/WaitingRoom';
-import { Box, Container, Heading, Text, useToast } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, useToast, Button } from '@chakra-ui/react';
 
 export default function NewCallPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const toast = useToast();
   const [isCreatingCall, setIsCreatingCall] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // This function will be called when the user is ready to join the call
-  const handleJoinCall = async () => {
+  const handleJoinCall = async (selectedParticipants: string[] = []) => {
     if (!session?.user) return;
     
     try {
       setIsCreatingCall(true);
+      setError(null);
+      
+      console.log('Creating call with participants:', selectedParticipants);
       
       // Create a new call in the database
       const response = await fetch('/api/calls', {
@@ -28,20 +32,29 @@ export default function NewCallPage() {
         body: JSON.stringify({
           facilityId: session.user.facility_id || '123',
           scheduledStart: new Date().toISOString(),
+          participants: selectedParticipants,
         }),
       });
       
       if (!response.ok) {
-        throw new Error('Failed to create call');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create call');
       }
       
       const data = await response.json();
-      router.push(`/calls/${data.id}`);
-    } catch (error) {
+      console.log('Call created successfully:', data);
+      
+      // For testing purposes, use a mock call ID if the API returns a mock ID
+      const callId = data.id || `mock-${Date.now()}`;
+      
+      // Navigate to the call page
+      router.push(`/calls/${callId}`);
+    } catch (error: any) {
       console.error('Error creating call:', error);
+      setError(error.message || 'There was an error creating your call');
       toast({
         title: 'Error creating call',
-        description: 'There was an error creating your call. Please try again.',
+        description: error.message || 'There was an error creating your call. Please try again.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -51,10 +64,15 @@ export default function NewCallPage() {
     }
   };
 
-  if (status === 'loading') {
+  // Handle retry after error
+  const handleRetry = () => {
+    setError(null);
+  };
+
+  if (status === 'loading' || isCreatingCall) {
     return (
       <Container maxW="container.md" py={8}>
-        <Text>Loading...</Text>
+        <Text>{isCreatingCall ? 'Creating your call...' : 'Loading...'}</Text>
       </Container>
     );
   }
@@ -62,6 +80,30 @@ export default function NewCallPage() {
   if (!session?.user) {
     router.push('/login?callbackUrl=/calls/new');
     return null;
+  }
+  
+  if (error) {
+    return (
+      <Container maxW="container.md" py={8}>
+        <Heading as="h2" size="lg" color="red.500">Error Creating Call</Heading>
+        <Text mt={4}>{error}</Text>
+        <Button 
+          mt={6} 
+          colorScheme="blue" 
+          onClick={handleRetry}
+        >
+          Try Again
+        </Button>
+        <Button 
+          mt={6} 
+          ml={4} 
+          variant="outline" 
+          onClick={() => router.push('/dashboard')}
+        >
+          Return to Dashboard
+        </Button>
+      </Container>
+    );
   }
   
   return (
@@ -81,27 +123,6 @@ export default function NewCallPage() {
         scheduledTime={new Date().toISOString()}
         participants={[]}
         onJoinCall={handleJoinCall}
-      />
-    </Container>
-  );
-
-  return (
-    <Container maxW="container.xl" py={8}>
-      <Box mb={8}>
-        <Heading size="lg">Start Video Call</Heading>
-        <Text mt={2} color="gray.600">
-          Set up your devices and prepare for your call
-        </Text>
-      </Box>
-
-      <WaitingRoom
-        userId={session.user.id ?? ''}
-        userRole={session.user.role ?? 'visitor'}
-        facilityId={session.user.facility_id ?? ''}
-        callType="standard"
-        scheduledTime={new Date().toISOString()}
-        participants={[]}
-        onJoinCall={() => {}}
       />
     </Container>
   );

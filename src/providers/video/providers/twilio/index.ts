@@ -17,17 +17,25 @@ export class TwilioProvider extends BaseVideoProvider {
     // Use environment variables if config values are not provided
     const apiKey = config.apiKey || process.env.TWILIO_API_KEY_SID;
     const apiSecret = config.apiSecret || process.env.TWILIO_API_KEY_SECRET;
+    const mockEnabled = process.env.NEXT_PUBLIC_MOCK_VIDEO_ENABLED === 'true';
     
-    if (!apiKey || !apiSecret) {
+    // In development mode with mock enabled, we don't require real credentials
+    if (!mockEnabled && (!apiKey || !apiSecret)) {
       throw new Error('Twilio provider requires apiKey and apiSecret');
     }
     
     // Store config for later use
     this.config = {
       ...config,
-      apiKey,
-      apiSecret,
+      apiKey: apiKey || 'mock-api-key',
+      apiSecret: apiSecret || 'mock-api-secret',
+      mockEnabled
     };
+    
+    if (mockEnabled) {
+      console.log('[MOCK] Twilio provider initialized in mock mode');
+      return;
+    }
     
     try {
       // Create local tracks for testing connection
@@ -42,6 +50,34 @@ export class TwilioProvider extends BaseVideoProvider {
 
   async createRoom(options: RoomOptions): Promise<Room> {
     this.validateRoomOptions(options);
+    
+    // Check for mock mode
+    if (this.config?.mockEnabled) {
+      console.log(`[MOCK] Creating room with options:`, options);
+      
+      const roomId = `mock-room-${Date.now()}`;
+      this.roomSid = roomId;
+      
+      return {
+        id: roomId,
+        name: options.name || `room-${Date.now()}`,
+        participants: [],
+        createdAt: new Date(),
+        settings: {
+          maxParticipants: options.maxParticipants || 10,
+          duration: options.duration || 60,
+          layout: options.layout || 'grid'
+        },
+        security: {
+          isProtectedCall: options.security?.isProtectedCall || false,
+          encryptionEnabled: options.security?.encryptionEnabled || true,
+          allowRecording: options.security?.allowRecording || false,
+          allowAIMonitoring: options.security?.allowAIMonitoring || false,
+          requiredParticipantRoles: options.security?.requiredParticipantRoles || []
+        }
+      };
+    }
+    
     if (!this.config?.apiKey || !this.config?.apiSecret) {
       throw new Error('Twilio provider not initialized with required credentials');
     }
@@ -82,6 +118,13 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async joinRoom(roomId: string, participant: Participant): Promise<void> {
+    // Check for mock mode
+    if (this.config?.mockEnabled) {
+      console.log(`[MOCK] Joining room ${roomId} with participant:`, participant);
+      this.roomSid = roomId;
+      return;
+    }
+    
     if (!this.config?.apiKey || !this.config?.apiSecret) {
       throw new Error('Twilio provider not initialized with required credentials');
     }
