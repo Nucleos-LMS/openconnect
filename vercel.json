@@ -5,7 +5,6 @@
   "framework": "nextjs",
   "outputDirectory": ".next",
   "regions": ["iad1"],
-  "_comment": "Dynamic URL configuration for preview deployments",
   "env": {
     "NEXT_PUBLIC_API_URL": "${VERCEL_ENV === 'production' ? 'https://openconnect-api.vercel.app' : 'https://' + process.env.VERCEL_URL}",
     "NEXTAUTH_URL": "${VERCEL_ENV === 'production' ? 'https://openconnect-one.vercel.app' : 'https://' + process.env.VERCEL_URL}",
