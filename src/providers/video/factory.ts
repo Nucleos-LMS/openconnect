@@ -7,17 +7,22 @@ export class VideoProviderFactory {
   private static providers = new Map<string, BaseVideoProvider>();
 
   static async create(
-    provider: SupportedProvider,
-    config: ProviderConfig
+    config: ProviderConfig,
+    provider?: SupportedProvider
   ): Promise<VideoProvider> {
-    const existingProvider = this.providers.get(provider);
+    // Use environment variable if provider not specified
+    const providerType = provider || 
+      process.env.NEXT_PUBLIC_DEFAULT_VIDEO_PROVIDER as SupportedProvider || 
+      'twilio';
+    
+    const existingProvider = this.providers.get(providerType);
     if (existingProvider) {
       return existingProvider;
     }
 
     let newProvider: BaseVideoProvider;
 
-    switch (provider) {
+    switch (providerType) {
       case 'twilio':
         const { TwilioProvider } = await import('./providers/twilio/index');
         newProvider = new TwilioProvider(config);
@@ -31,15 +36,19 @@ export class VideoProviderFactory {
         newProvider = new GoogleMeetProvider(config);
         break;
       default:
-        throw new Error(`Unsupported provider: ${provider}`);
+        throw new Error(`Unsupported provider: ${providerType}`);
     }
 
     await newProvider.initialize(config);
-    this.providers.set(provider, newProvider);
+    this.providers.set(providerType, newProvider);
     return newProvider;
   }
 
-  static async destroy(provider: SupportedProvider): Promise<void> {
+  static async destroy(provider?: SupportedProvider): Promise<void> {
+    if (!provider) {
+      return this.destroyAll();
+    }
+    
     const existingProvider = this.providers.get(provider);
     if (existingProvider) {
       await existingProvider.disconnect();
@@ -57,4 +66,6 @@ export class VideoProviderFactory {
 
 // Export the VideoProvider type and factory
 export type { VideoProvider };
-export const createVideoProvider = VideoProviderFactory.create.bind(VideoProviderFactory);
+export const createVideoProvider = (provider?: SupportedProvider, config: ProviderConfig = {}) => {
+  return VideoProviderFactory.create(config, provider);
+};

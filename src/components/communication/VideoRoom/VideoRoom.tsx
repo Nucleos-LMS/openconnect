@@ -43,7 +43,8 @@ export const VideoRoom = ({
   useEffect(() => {
     const joinCall = async () => {
       try {
-        providerRef.current = await createVideoProvider(provider || 'twilio', {
+        const defaultProvider = process.env.NEXT_PUBLIC_DEFAULT_VIDEO_PROVIDER as 'twilio' | 'google-meet' || 'twilio';
+        providerRef.current = await createVideoProvider(provider || defaultProvider, {
           userId,
           userRole,
           facilityId

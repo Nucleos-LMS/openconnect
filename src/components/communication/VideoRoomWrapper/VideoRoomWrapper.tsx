@@ -22,7 +22,8 @@ export const VideoRoomWrapper: React.FC<VideoRoomWrapperProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [connectionAttempts, setConnectionAttempts] = useState(0);
   const [debugInfo, setDebugInfo] = useState<any>(null);
-  const [selectedProvider, setSelectedProvider] = useState<'twilio' | 'google-meet'>(provider);
+  const defaultProvider = process.env.NEXT_PUBLIC_DEFAULT_VIDEO_PROVIDER as 'twilio' | 'google-meet' || 'twilio';
+  const [selectedProvider] = useState<'twilio' | 'google-meet'>(provider || defaultProvider);
 
   // Check for environment variables on component mount
   useEffect(() => {

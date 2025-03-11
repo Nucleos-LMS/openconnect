@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { WaitingRoom } from '@/components/communication/WaitingRoom/WaitingRoom';
-import { Box, Container, Heading, Text, useToast, Button, RadioGroup, Radio, Stack } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, useToast, Button } from '@chakra-ui/react';
 
 export default function NewCallPage() {
   const { data: session, status } = useSession();
@@ -12,7 +12,6 @@ export default function NewCallPage() {
   const toast = useToast();
   const [isCreatingCall, setIsCreatingCall] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedProvider, setSelectedProvider] = useState<'twilio' | 'google-meet'>('twilio');
 
   // This function will be called when the user is ready to join the call
   const handleJoinCall = async (selectedParticipants: string[] = []) => {
@@ -115,16 +114,6 @@ export default function NewCallPage() {
           Set up your devices and prepare for your call
         </Text>
       </Box>
-      
-      <Box mb={4}>
-        <Heading as="h3" size="md" mb={2}>Select Video Provider</Heading>
-        <RadioGroup onChange={(value) => setSelectedProvider(value as 'twilio' | 'google-meet')} value={selectedProvider}>
-          <Stack direction="row">
-            <Radio value="twilio">Twilio</Radio>
-            <Radio value="google-meet">Google Meet</Radio>
-          </Stack>
-        </RadioGroup>
-      </Box>
 
       <WaitingRoom
         userId={session?.user?.id || ''}
@@ -134,7 +123,6 @@ export default function NewCallPage() {
         scheduledTime={new Date().toISOString()}
         participants={[]}
         onJoinCall={handleJoinCall}
-        provider={selectedProvider}
       />
     </Container>
   );
