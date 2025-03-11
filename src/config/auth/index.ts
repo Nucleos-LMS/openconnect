@@ -2,7 +2,7 @@ import type { NextAuthConfig } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { urls } from '../urls';
-import type { UserRole, CustomUser } from '../../lib/types/next-auth';
+import type { UserRole, CustomUser, CustomUserProperties } from '../../lib/types/next-auth';
 
 export const authConfig: NextAuthConfig = {
   providers: [

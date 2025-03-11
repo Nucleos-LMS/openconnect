@@ -3,13 +3,15 @@ import type { Session as NextAuthSession, User as NextAuthUser } from 'next-auth
 
 export type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
 
-// Extend the base User type with our custom properties
-export interface CustomUser extends NextAuthUser {
+// Define our custom user properties
+export interface CustomUserProperties {
   role: UserRole;
   facility_id: string;
-  // image and emailVerified are already in the base User type
   emailVerified: Date | null;
 }
+
+// Combine with NextAuth's User type
+export type CustomUser = NextAuthUser & CustomUserProperties;
 
 declare module 'next-auth/jwt' {
   interface JWT {
@@ -22,8 +24,9 @@ declare module 'next-auth' {
   interface Session extends NextAuthSession {
     user: CustomUser;
   }
-  interface User extends CustomUser {
-    // Add a property to satisfy ESLint no-empty-interface rule
-    _userType?: 'nextauth';
+  interface User {
+    role?: UserRole;
+    facility_id?: string;
+    emailVerified?: Date | null;
   }
 }
