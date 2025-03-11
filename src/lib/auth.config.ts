@@ -1,5 +1,5 @@
 import { type NextAuthConfig } from 'next-auth';
-import { JWT } from '@auth/core/jwt';
+import { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 import { AdapterUser } from '@auth/core/adapters';
