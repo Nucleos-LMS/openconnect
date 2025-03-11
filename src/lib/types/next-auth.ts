@@ -1,18 +1,18 @@
-// Import types from next-auth
-import type { Session as NextAuthSession, User as NextAuthUser } from 'next-auth';
-
+// Define our basic types without any imports or circular references
 export type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
 
-// Define our custom user properties
-export interface CustomUserProperties {
+// Define our custom user properties directly
+export interface CustomUser {
+  id: string;
+  name: string | null;
+  email: string;
   role: UserRole;
   facility_id: string;
+  image: string | null;
   emailVerified: Date | null;
 }
 
-// Combine with NextAuth's User type
-export type CustomUser = NextAuthUser & CustomUserProperties;
-
+// Extend JWT and Session types in their respective modules
 declare module 'next-auth/jwt' {
   interface JWT {
     role?: UserRole;
@@ -21,12 +21,13 @@ declare module 'next-auth/jwt' {
 }
 
 declare module 'next-auth' {
-  interface Session extends NextAuthSession {
+  interface Session {
     user: CustomUser;
   }
+  
+  // Extend the base User type with our properties
   interface User {
     role?: UserRole;
     facility_id?: string;
-    emailVerified?: Date | null;
   }
 }
