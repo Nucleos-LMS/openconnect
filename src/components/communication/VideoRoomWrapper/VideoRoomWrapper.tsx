@@ -6,7 +6,13 @@ import { useParams, useRouter } from 'next/navigation';
 import { VideoRoom } from '../VideoRoom/VideoRoom';
 import { Box, Container, Heading, Text, Button, useToast, Code, VStack } from '@chakra-ui/react';
 
-export const VideoRoomWrapper: React.FC = () => {
+interface VideoRoomWrapperProps {
+  provider?: 'twilio' | 'google-meet';
+}
+
+export const VideoRoomWrapper: React.FC<VideoRoomWrapperProps> = ({ 
+  provider = 'twilio'
+}) => {
   const { data: session, status } = useSession();
   const params = useParams();
   const router = useRouter();
@@ -16,6 +22,7 @@ export const VideoRoomWrapper: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [connectionAttempts, setConnectionAttempts] = useState(0);
   const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [selectedProvider, setSelectedProvider] = useState<'twilio' | 'google-meet'>(provider);
 
   // Check for environment variables on component mount
   useEffect(() => {
@@ -183,6 +190,7 @@ export const VideoRoomWrapper: React.FC = () => {
         userRole={(session?.user?.role as string ?? 'visitor') as 'resident' | 'visitor' | 'attorney' | 'staff'}
         facilityId={session?.user?.facility_id as string ?? ''}
         onError={handleConnectionError}
+        provider={selectedProvider}
       />
     </Container>
   );

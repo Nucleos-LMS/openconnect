@@ -85,10 +85,15 @@ export class TwilioProvider extends BaseVideoProvider {
     try {
       const twilioOptions: ConnectOptions = {
         name: options.name || `room-${Date.now()}`,
-        tracks: [],
+        tracks: this.localTracks,
         audio: true,
         video: true,
-        region: this.config.region || 'us-east-1'
+        region: this.config.region || 'us-east-1',
+        dominantSpeaker: true,
+        networkQuality: {
+          local: 1,
+          remote: 1
+        }
       };
 
       this.activeRoom = await connect(this.config.apiKey, twilioOptions);
@@ -136,14 +141,22 @@ export class TwilioProvider extends BaseVideoProvider {
     try {
       const connectOptions: ConnectOptions = {
         name: roomId,
-        audio: participant.audioEnabled,
-        video: participant.videoEnabled,
+        audio: participant.audioEnabled !== false,
+        video: participant.videoEnabled !== false,
         tracks: this.localTracks,
-        region: this.config.region || 'us-east-1'
+        region: this.config.region || 'us-east-1',
+        dominantSpeaker: true,
+        networkQuality: {
+          local: 1,
+          remote: 1
+        }
       };
 
       this.activeRoom = await connect(this.config.apiKey, connectOptions);
       this.roomSid = this.activeRoom.sid;
+      
+      // Setup participant tracking
+      this.setupParticipantTracking(this.activeRoom);
     } catch (error) {
       throw new Error(`Failed to join room: ${error}`);
     }
@@ -337,6 +350,42 @@ export class TwilioProvider extends BaseVideoProvider {
         ...settings
       }
     };
+  }
+
+  private setupParticipantTracking(room: TwilioRoom): void {
+    // Handle local participant
+    room.localParticipant.on('trackPublished', track => {
+      console.log(`Local track published: ${track.trackSid}`);
+    });
+    
+    // Handle existing participants
+    room.participants.forEach(participant => {
+      this.setupParticipantListeners(participant);
+    });
+    
+    // Handle participants joining
+    room.on('participantConnected', participant => {
+      console.log(`Participant connected: ${participant.identity}`);
+      this.setupParticipantListeners(participant);
+    });
+    
+    // Handle participants leaving
+    room.on('participantDisconnected', participant => {
+      console.log(`Participant disconnected: ${participant.identity}`);
+    });
+  }
+  
+  private setupParticipantListeners(participant: any): void {
+    participant.on('trackSubscribed', (track: any) => {
+      // Attach track to DOM
+      const trackElement = track.attach();
+      document.getElementById('video-container')?.appendChild(trackElement);
+    });
+    
+    participant.on('trackUnsubscribed', (track: any) => {
+      // Remove track from DOM
+      track.detach().forEach((element: any) => element.remove());
+    });
   }
 
   async disconnect(): Promise<void> {
