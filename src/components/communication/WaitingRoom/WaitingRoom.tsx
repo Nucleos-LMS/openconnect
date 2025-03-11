@@ -25,7 +25,6 @@ export interface WaitingRoomProps {
     isReady: boolean;
   }>;
   onJoinCall?: (selectedParticipants?: string[]) => void;
-  provider?: 'twilio' | 'google-meet';
 }
 
 export const WaitingRoom: React.FC<WaitingRoomProps> = ({
@@ -36,7 +35,6 @@ export const WaitingRoom: React.FC<WaitingRoomProps> = ({
   scheduledTime = new Date().toISOString(),
   participants = [],
   onJoinCall = () => {},
-  provider = 'twilio',
 }) => {
   const toast = useToast();
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
