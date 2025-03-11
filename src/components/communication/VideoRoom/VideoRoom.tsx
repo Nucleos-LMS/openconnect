@@ -20,6 +20,7 @@ interface VideoRoomProps {
   facilityId: string;
   userName?: string;
   onError?: (errorMessage: string) => void;
+  provider?: 'twilio' | 'google-meet';
 }
 
 export const VideoRoom = ({
@@ -28,7 +29,8 @@ export const VideoRoom = ({
   userRole,
   facilityId,
   userName,
-  onError
+  onError,
+  provider = 'twilio'
 }: VideoRoomProps) => {
   const [isConnecting, setIsConnecting] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +43,7 @@ export const VideoRoom = ({
   useEffect(() => {
     const joinCall = async () => {
       try {
-        providerRef.current = await createVideoProvider('twilio', {
+        providerRef.current = await createVideoProvider(provider || 'twilio', {
           userId,
           userRole,
           facilityId
