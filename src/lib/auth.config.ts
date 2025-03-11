@@ -191,7 +191,7 @@ export const authConfig: NextAuthConfig = {
             return {
               id: '999',
               name: 'Fallback User',
-              email: email || 'fallback@example.com',
+              email: typeof email === 'string' ? email : 'fallback@example.com',
               role: 'visitor' as UserRole,
               facility_id: '123',
               image: null,
