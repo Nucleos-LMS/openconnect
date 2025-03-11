@@ -369,6 +369,32 @@ vercel projects ls
    npm run build
    ```
 
+## Managing Neon Database Branches <a name="neon-database-branches"></a>
+
+The branch limit error you're encountering is related to Neon database branches, not Vercel deployment branches. Vercel automatically creates a new Neon database branch for each deployment branch, which is causing the branch limit to be reached on the free tier of Neon.
+
+### Current Solution
+We've disabled automatic database branch creation with this setting in `vercel.json`:
+```json
+{
+  "env": {
+    "NEON_DATABASE_BRANCH_CREATION": "false"
+  }
+}
+```
+
+This setting tells Vercel not to create a new database branch for each deployment. All deployments will use the main database branch instead.
+
+### Accessing the Neon Dashboard
+To manage database branches directly:
+1. Go to the [Vercel Dashboard](https://vercel.com)
+2. Select the openconnect project
+3. Go to Storage > Database
+4. Click on "View in Neon Dashboard"
+
+### Upgrading to a Paid Plan
+If you need more than 10 database branches, consider upgrading to a paid Neon plan through the Neon dashboard.
+
 ## Best Practices <a name="best-practices"></a>
 
 ### Branch Management
