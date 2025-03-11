@@ -1,15 +1,13 @@
 // Import types from next-auth
-import type { Session as NextAuthSession } from 'next-auth';
+import type { Session as NextAuthSession, User as NextAuthUser } from 'next-auth';
 
 export type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
 
-export interface CustomUser {
-  id: string;
-  email: string;
-  name: string | null;
+// Extend the base User type with our custom properties
+export interface CustomUser extends NextAuthUser {
   role: UserRole;
   facility_id: string;
-  image: string | null;
+  // image and emailVerified are already in the base User type
   emailVerified: Date | null;
 }
 

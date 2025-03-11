@@ -1,10 +1,10 @@
-import type { NextAuthConfig as AuthConfig } from 'next-auth';
-import type { DefaultJWT } from 'next-auth/jwt';
+import type { NextAuthConfig } from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { urls } from '../urls';
-import type { CustomUser } from '../../lib/types/next-auth';
+import type { UserRole, CustomUser } from '../../lib/types/next-auth';
 
-export const authConfig: AuthConfig = {
+export const authConfig: NextAuthConfig = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -34,6 +34,7 @@ export const authConfig: AuthConfig = {
             name: user.name.toString(),
             role: user.role.toString(),
             facility_id: user.facility_id.toString(),
+            image: null, // Add the image property
           };
           return {
             ...typedUser,
@@ -50,7 +51,7 @@ export const authConfig: AuthConfig = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user }: { token: any; user: CustomUser | null }) {
+    async jwt({ token, user }) {
       if (user) {
         return {
           ...token,
