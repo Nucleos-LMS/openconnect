@@ -6,9 +6,9 @@
   "outputDirectory": ".next",
   "regions": ["iad1"],
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://openconnect-api.vercel.app",
-    "NEXTAUTH_URL": "https://openconnect-one.vercel.app",
-    "NEXT_PUBLIC_APP_URL": "https://openconnect-one.vercel.app",
+    "NEXT_PUBLIC_API_URL": "${VERCEL_ENV === 'production' ? 'https://openconnect-api.vercel.app' : 'https://' + process.env.VERCEL_URL}",
+    "NEXTAUTH_URL": "${VERCEL_ENV === 'production' ? 'https://openconnect-one.vercel.app' : 'https://' + process.env.VERCEL_URL}",
+    "NEXT_PUBLIC_APP_URL": "${VERCEL_ENV === 'production' ? 'https://openconnect-one.vercel.app' : 'https://' + process.env.VERCEL_URL}",
     "NEXTAUTH_SECRET": "dKPntuOaj26qQ0unshxDJCyOo+YxS0Aa0PuorhWYFz4=",
     "NEON_DATABASE_BRANCH_CREATION": "false",
     "POSTGRES_URL": "${POSTGRES_URL}",

@@ -1,35 +1,12 @@
 import { type NextAuthConfig } from 'next-auth';
-import { JWT } from '@auth/core/jwt';
+import { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@vercel/postgres';
 import { AdapterUser } from '@auth/core/adapters';
 import { urls } from '../config/urls';
+import { type UserRole, type CustomUser } from './types/next-auth';
 
-type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
-
-interface CustomUser {
-  id: string;
-  email: string;
-  name: string | null;
-  role: UserRole;
-  facility_id: string;
-  image: string | null;
-  emailVerified: Date | null;
-}
-
-declare module '@auth/core/jwt' {
-  interface JWT {
-    role?: UserRole;
-    facility_id?: string;
-  }
-}
-
-declare module 'next-auth' {
-  interface User extends CustomUser {}
-  interface Session {
-    user: CustomUser;
-  }
-}
+// Use the declarations from src/lib/types/next-auth.ts
 
 /**
  * Environment Variable Handling
