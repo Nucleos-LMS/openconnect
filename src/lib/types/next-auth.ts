@@ -1,17 +1,18 @@
-import { type DefaultSession } from 'next-auth';
-
+// Define our basic types without any imports or circular references
 export type UserRole = 'visitor' | 'family' | 'legal' | 'educator' | 'staff' | 'resident';
 
+// Define our custom user properties directly
 export interface CustomUser {
   id: string;
-  email: string;
   name: string | null;
+  email: string;
   role: UserRole;
   facility_id: string;
   image: string | null;
   emailVerified: Date | null;
 }
 
+// Extend JWT and Session types in their respective modules
 declare module 'next-auth/jwt' {
   interface JWT {
     role?: UserRole;
@@ -20,11 +21,13 @@ declare module 'next-auth/jwt' {
 }
 
 declare module 'next-auth' {
-  interface Session extends DefaultSession {
+  interface Session {
     user: CustomUser;
   }
-  interface User extends CustomUser {
-    // Add a property to satisfy ESLint no-empty-interface rule
-    _userType?: 'nextauth';
+  
+  // Extend the base User type with our properties
+  interface User {
+    role?: UserRole;
+    facility_id?: string;
   }
 }

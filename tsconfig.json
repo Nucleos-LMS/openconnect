@@ -25,11 +25,12 @@
         "name": "next"
       }
     ],
-    "types": [
-      "@testing-library/jest-dom",
-      "node",
-      "next-auth"
-    ]
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
+    "types": ["testing-library__jest-dom"],
+    "skipDefaultLibCheck": true
   },
   "include": [
     "src",
