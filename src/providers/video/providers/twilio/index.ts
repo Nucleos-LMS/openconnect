@@ -14,12 +14,20 @@ export class TwilioProvider extends BaseVideoProvider {
   }
 
   async initialize(config: ProviderConfig): Promise<void> {
-    if (!config.apiKey || !config.apiSecret) {
+    // Use environment variables if config values are not provided
+    const apiKey = config.apiKey || process.env.TWILIO_API_KEY_SID;
+    const apiSecret = config.apiSecret || process.env.TWILIO_API_KEY_SECRET;
+    
+    if (!apiKey || !apiSecret) {
       throw new Error('Twilio provider requires apiKey and apiSecret');
     }
     
     // Store config for later use
-    this.config = config;
+    this.config = {
+      ...config,
+      apiKey,
+      apiSecret,
+    };
     
     try {
       // Create local tracks for testing connection
