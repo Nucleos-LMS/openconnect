@@ -10,7 +10,11 @@
     "NEXTAUTH_URL": "https://openconnect-one.vercel.app",
     "NEXT_PUBLIC_APP_URL": "https://openconnect-one.vercel.app",
     "NEXTAUTH_SECRET": "dKPntuOaj26qQ0unshxDJCyOo+YxS0Aa0PuorhWYFz4=",
-    "NEON_DATABASE_BRANCH_CREATION": "false"
+    "NEON_DATABASE_BRANCH_CREATION": "false",
+    "TWILIO_ACCOUNT_SID": "@twilio-account-sid",
+    "TWILIO_AUTH_TOKEN": "@twilio-auth-token",
+    "TWILIO_API_KEY_SID": "@twilio-api-key-sid",
+    "TWILIO_API_KEY_SECRET": "@twilio-api-key-secret"
   },
   "public": true,
   "github": {
@@ -36,5 +40,11 @@
         }
       ]
     }
-  ]
+  ],
+  "build": {
+    "env": {
+      "NEXTAUTH_URL": "https://openconnect-one.vercel.app",
+      "NEXT_PUBLIC_APP_URL": "https://openconnect-one.vercel.app"
+    }
+  }
 }

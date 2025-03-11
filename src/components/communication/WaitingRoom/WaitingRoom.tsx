@@ -1,11 +1,17 @@
 'use client';
 
-import React from 'react';
-import { Box, VStack, Text, Button, useToast } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import { Box, VStack, Text, Button, useToast, Heading, Stack, Checkbox } from '@chakra-ui/react';
 import { DeviceSetup } from './components/DeviceSetup';
 import { NetworkTest } from './components/NetworkTest';
 import { ParticipantStatus } from './components/ParticipantStatus';
 import { CallInfo } from './components/CallInfo';
+
+interface Contact {
+  id: string;
+  name: string;
+  role: string;
+}
 
 export interface WaitingRoomProps {
   userId: string;
@@ -18,7 +24,7 @@ export interface WaitingRoomProps {
     role: string;
     isReady: boolean;
   }>;
-  onJoinCall?: () => void;
+  onJoinCall?: (selectedParticipants?: string[]) => void;
 }
 
 export const WaitingRoom: React.FC<WaitingRoomProps> = ({
@@ -31,6 +37,25 @@ export const WaitingRoom: React.FC<WaitingRoomProps> = ({
   onJoinCall = () => {},
 }) => {
   const toast = useToast();
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
+  const [availableContacts, setAvailableContacts] = useState<Contact[]>([]);
+  
+  // Fetch available contacts based on user role and facility
+  useEffect(() => {
+    const fetchContacts = async () => {
+      try {
+        const response = await fetch(`/api/contacts?facilityId=${facilityId}&userRole=${userRole}`);
+        if (response.ok) {
+          const data = await response.json();
+          setAvailableContacts(data);
+        }
+      } catch (error) {
+        console.error('Error fetching contacts:', error);
+      }
+    };
+    
+    fetchContacts();
+  }, [facilityId, userRole]);
 
   return (
     <VStack spacing={6} align="stretch" p={6}>
@@ -80,10 +105,31 @@ export const WaitingRoom: React.FC<WaitingRoomProps> = ({
 
       <ParticipantStatus participants={participants} />
 
+      <Box mt={6}>
+        <Heading size="md">Select Participants</Heading>
+        <Stack mt={2}>
+          {availableContacts.map((contact) => (
+            <Checkbox
+              key={contact.id}
+              isChecked={selectedParticipants.includes(contact.id)}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedParticipants([...selectedParticipants, contact.id]);
+                } else {
+                  setSelectedParticipants(selectedParticipants.filter(id => id !== contact.id));
+                }
+              }}
+            >
+              {contact.name} ({contact.role})
+            </Checkbox>
+          ))}
+        </Stack>
+      </Box>
+
       <Button 
         colorScheme="blue"
         size="lg"
-        onClick={onJoinCall}
+        onClick={() => onJoinCall(selectedParticipants)}
         isDisabled={participants.some(p => !p.isReady)}
       >
         Join Call

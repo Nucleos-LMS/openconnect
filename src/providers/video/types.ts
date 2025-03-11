@@ -48,6 +48,7 @@ export interface ProviderConfig {
   userId?: string;
   userRole?: string;
   facilityId?: string;
+  mockEnabled?: boolean;
   security?: {
     encryptionKey?: string;
     monitoringConfig?: {
