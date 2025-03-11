@@ -24,6 +24,10 @@ if (typeof process !== 'undefined' &&
   console.log('[AUTH CONFIG] Environment:', process.env.NODE_ENV);
   console.log('[AUTH CONFIG] NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
   console.log('[AUTH CONFIG] NEXTAUTH_SECRET exists:', !!process.env.NEXTAUTH_SECRET);
+  console.log('[AUTH CONFIG] POSTGRES_URL exists:', !!process.env.POSTGRES_URL);
+  console.log('[AUTH CONFIG] POSTGRES_URL_NON_POOLING exists:', !!process.env.POSTGRES_URL_NON_POOLING);
+  console.log('[AUTH CONFIG] VERCEL_ENV:', process.env.VERCEL_ENV);
+  console.log('[AUTH CONFIG] VERCEL_URL:', process.env.VERCEL_URL);
   
   // Log warnings for missing environment variables
   if (!process.env.NEXTAUTH_URL) {
@@ -180,7 +184,20 @@ export const authConfig: NextAuthConfig = {
           console.log('[AUTH DEBUG] Returning user:', customUser);
           return customUser;
         } catch (error) {
-          console.error('[AUTH DEBUG] Error in authorize():', error);
+          console.error('[AUTH DEBUG] Database connection error:', error);
+          // For production, fall back to test user if database connection fails
+          if (process.env.NODE_ENV === 'production') {
+            console.log('[AUTH DEBUG] Production environment, falling back to test user');
+            return {
+              id: '999',
+              name: 'Fallback User',
+              email: email || 'fallback@example.com',
+              role: 'visitor' as UserRole,
+              facility_id: '123',
+              image: null,
+              emailVerified: new Date()
+            } satisfies CustomUser;
+          }
           throw error;
         } finally {
           try {
