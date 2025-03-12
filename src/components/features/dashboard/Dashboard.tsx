@@ -7,6 +7,7 @@
  * - Improved type safety for router instance
  */
 import React from 'react';
+import Link from 'next/link';
 import {
   Box,
   Heading,
@@ -34,37 +35,39 @@ interface RouterInstance {
   prefetch: (path: string) => Promise<void>;
 }
 
-// Conditionally import useRouter to avoid errors in Storybook
-let useRouter: () => RouterInstance;
-try {
-  // Dynamic import to avoid issues in Storybook
-  // Using dynamic import with proper type handling
-  const nextNavigation = typeof require !== 'undefined' ? require('next/navigation') : null;
-  useRouter = nextNavigation?.useRouter;
-} catch (e) {
-  // Mock router for Storybook environment
-  useRouter = () => ({
-    push: (path: string) => {
-      console.log(`[Storybook] Navigation to: ${path}`);
-    },
-    back: () => {
-      console.log(`[Storybook] Navigation: back`);
-    },
-    forward: () => {
-      console.log(`[Storybook] Navigation: forward`);
-    },
-    refresh: () => {
-      console.log(`[Storybook] Navigation: refresh`);
-    },
-    replace: (path: string) => {
-      console.log(`[Storybook] Navigation: replace ${path}`);
-    },
-    prefetch: (path: string) => {
-      console.log(`[Storybook] Navigation: prefetch ${path}`);
-      return Promise.resolve();
-    }
-  });
-}
+// Import useRouter directly to avoid SSR issues
+import { useRouter as nextUseRouter } from 'next/navigation';
+
+// Simplified router handling to avoid SSR issues
+const useRouter = () => {
+  try {
+    return nextUseRouter();
+  } catch (e) {
+    // Mock router for Storybook or environments where Next.js router is not available
+    console.warn('[Router] Using mock router implementation');
+    return {
+      push: (path: string) => {
+        console.log(`[Mock Router] Navigation to: ${path}`);
+      },
+      back: () => {
+        console.log(`[Mock Router] Navigation: back`);
+      },
+      forward: () => {
+        console.log(`[Mock Router] Navigation: forward`);
+      },
+      refresh: () => {
+        console.log(`[Mock Router] Navigation: refresh`);
+      },
+      replace: (path: string) => {
+        console.log(`[Mock Router] Navigation: replace ${path}`);
+      },
+      prefetch: (path: string) => {
+        console.log(`[Mock Router] Navigation: prefetch ${path}`);
+        return Promise.resolve();
+      }
+    };
+  }
+};
 
 interface DashboardProps {
   userName?: string | null;
@@ -97,7 +100,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   
   // Type guard for router
   const hasRouter = (router: any): router is RouterInstance => {
-    return router !== null;
+    return router !== null && typeof router.push === 'function';
   };
   
   // Determine user role for role-specific UI elements
@@ -217,9 +220,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Heading>
             
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-              <Button colorScheme="blue" size="lg" onClick={handleNewCall}>
-                Start New Call
-              </Button>
+              <Link href="/calls/new" passHref>
+                <Button as="a" colorScheme="blue" size="lg" onClick={(e) => {
+                  e.preventDefault();
+                  handleNewCall();
+                }}>
+                  Start New Call
+                </Button>
+              </Link>
               <Button colorScheme="gray" size="lg" onClick={handleViewCalls}>
                 View My Calls
               </Button>

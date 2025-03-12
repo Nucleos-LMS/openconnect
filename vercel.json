@@ -14,7 +14,10 @@
     "TWILIO_ACCOUNT_SID": "@twilio-account-sid",
     "TWILIO_AUTH_TOKEN": "@twilio-auth-token",
     "TWILIO_API_KEY_SID": "@twilio-api-key-sid",
-    "TWILIO_API_KEY_SECRET": "@twilio-api-key-secret"
+    "TWILIO_API_KEY_SECRET": "@twilio-api-key-secret",
+    "NEXT_PUBLIC_DEFAULT_VIDEO_PROVIDER": "twilio",
+    "NEXT_PUBLIC_TWILIO_ENABLED": "true",
+    "NEXT_PUBLIC_MOCK_VIDEO_ENABLED": "false"
   },
   "public": true,
   "github": {

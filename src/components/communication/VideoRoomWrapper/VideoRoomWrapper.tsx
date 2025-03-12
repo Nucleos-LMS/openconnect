@@ -26,7 +26,7 @@ export const VideoRoomWrapper: React.FC<VideoRoomWrapperProps> = ({
 
   // Check for environment variables on component mount
   useEffect(() => {
-    // For development purposes only, check if Twilio environment variables are set
+    // Check for environment variables on component mount
     const missingEnvVars = [];
     if (!process.env.NEXT_PUBLIC_TWILIO_ENABLED && !process.env.TWILIO_API_KEY_SID) missingEnvVars.push('TWILIO_API_KEY_SID');
     if (!process.env.NEXT_PUBLIC_TWILIO_ENABLED && !process.env.TWILIO_API_KEY_SECRET) missingEnvVars.push('TWILIO_API_KEY_SECRET');
@@ -34,14 +34,12 @@ export const VideoRoomWrapper: React.FC<VideoRoomWrapperProps> = ({
     if (missingEnvVars.length > 0) {
       console.warn(`Missing environment variables: ${missingEnvVars.join(', ')}`);
       
-      // For development, we'll use mock data if environment variables are missing
-      if (process.env.NODE_ENV === 'development') {
-        setDebugInfo({
-          environment: process.env.NODE_ENV,
-          missingVars: missingEnvVars,
-          mockMode: true
-        });
-      }
+      // Use mock mode in any environment if environment variables are missing
+      setDebugInfo({
+        environment: typeof process !== 'undefined' ? process.env.NODE_ENV : 'unknown',
+        missingVars: missingEnvVars,
+        mockMode: true
+      });
     }
   }, []);
 
@@ -141,8 +139,8 @@ export const VideoRoomWrapper: React.FC<VideoRoomWrapperProps> = ({
     );
   }
 
-  // For development, if we're in mock mode, show a mock interface
-  if (process.env.NODE_ENV === 'development' && (debugInfo?.mockMode || process.env.NEXT_PUBLIC_MOCK_VIDEO_ENABLED === 'true')) {
+  // Show mock interface if we're in mock mode (in any environment) or if mock is explicitly enabled
+  if (debugInfo?.mockMode || process.env.NEXT_PUBLIC_MOCK_VIDEO_ENABLED === 'true') {
     return (
       <Container maxW="container.xl" p={4}>
         <Box bg="blue.50" p={4} borderRadius="md" mb={4}>

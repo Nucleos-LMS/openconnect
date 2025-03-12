@@ -5,6 +5,24 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { WaitingRoom } from '@/components/communication/WaitingRoom/WaitingRoom';
 import { Box, Container, Heading, Text, useToast, Button, RadioGroup, Radio, Stack } from '@chakra-ui/react';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+
+// Add error boundary component
+const CallsErrorBoundary = ({ children }: { children: React.ReactNode }) => {
+  const [hasError, setHasError] = useState(false);
+  
+  if (hasError) {
+    return <Container maxW="container.md" py={8}>
+      <Heading as="h2" size="lg" color="red.500">Error Loading Call Page</Heading>
+      <Text mt={4}>There was an error loading the call page. Please try again later.</Text>
+      <Button mt={6} colorScheme="blue" onClick={() => setHasError(false)}>
+        Try Again
+      </Button>
+    </Container>;
+  }
+  
+  return <ErrorBoundary onError={() => setHasError(true)}>{children}</ErrorBoundary>;
+};
 
 export default function NewCallPage() {
   const { data: session, status } = useSession();
@@ -12,7 +30,9 @@ export default function NewCallPage() {
   const toast = useToast();
   const [isCreatingCall, setIsCreatingCall] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedProvider, setSelectedProvider] = useState<'twilio' | 'google-meet'>('twilio');
+  const [selectedProvider, setSelectedProvider] = useState<'twilio' | 'google-meet'>(
+    (typeof window !== 'undefined' && window.localStorage.getItem('preferred_provider') as 'twilio' | 'google-meet') || 'twilio'
+  );
 
   // This function will be called when the user is ready to join the call
   const handleJoinCall = async (selectedParticipants: string[] = []) => {
@@ -108,34 +128,44 @@ export default function NewCallPage() {
   }
   
   return (
-    <Container maxW="container.xl" py={8}>
-      <Box mb={8}>
-        <Heading size="lg">Start Video Call</Heading>
-        <Text mt={2} color="gray.600">
-          Set up your devices and prepare for your call
-        </Text>
-      </Box>
-      
-      <Box mb={4}>
-        <Heading as="h3" size="md" mb={2}>Select Video Provider</Heading>
-        <RadioGroup onChange={(value) => setSelectedProvider(value as 'twilio' | 'google-meet')} value={selectedProvider}>
-          <Stack direction="row">
-            <Radio value="twilio">Twilio</Radio>
-            <Radio value="google-meet">Google Meet</Radio>
-          </Stack>
-        </RadioGroup>
-      </Box>
+    <CallsErrorBoundary>
+      <Container maxW="container.xl" py={8}>
+        <Box mb={8}>
+          <Heading size="lg">Start Video Call</Heading>
+          <Text mt={2} color="gray.600">
+            Set up your devices and prepare for your call
+          </Text>
+        </Box>
+        
+        <Box mb={4}>
+          <Heading as="h3" size="md" mb={2}>Select Video Provider</Heading>
+          <RadioGroup onChange={(value) => {
+            const provider = value as 'twilio' | 'google-meet';
+            setSelectedProvider(provider);
+            // Save preference to localStorage
+            if (typeof window !== 'undefined') {
+              window.localStorage.setItem('preferred_provider', provider);
+            }
+          }} value={selectedProvider}>
+            <Stack direction="row">
+              <Radio value="twilio">Twilio</Radio>
+              <Radio value="google-meet">Google Meet</Radio>
+            </Stack>
+          </RadioGroup>
+        </Box>
 
-      <WaitingRoom
-        userId={session?.user?.id || ''}
-        userRole={session?.user?.role || 'visitor'}
-        facilityId={session?.user?.facility_id || '123'}
-        callType="standard"
-        scheduledTime={new Date().toISOString()}
-        participants={[]}
-        onJoinCall={handleJoinCall}
-        provider={selectedProvider}
-      />
-    </Container>
+        <WaitingRoom
+          userId={session?.user?.id || ''}
+          userRole={session?.user?.role || 'visitor'}
+          facilityId={session?.user?.facility_id || '123'}
+          callType="standard"
+          scheduledTime={new Date().toISOString()}
+          participants={[]}
+          onJoinCall={handleJoinCall}
+          // @ts-ignore - Provider prop will be added to WaitingRoomProps in a separate PR
+          provider={selectedProvider}
+        />
+      </Container>
+    </CallsErrorBoundary>
   );
 }
