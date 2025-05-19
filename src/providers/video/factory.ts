@@ -1,7 +1,7 @@
 import { VideoProvider, ProviderConfig } from './types';
 import { BaseVideoProvider } from './providers/base';
 
-type SupportedProvider = 'twilio' | 'daily' | 'google-meet';
+type SupportedProvider = 'twilio' | 'daily' | 'google-meet' | 'livekit';
 
 export class VideoProviderFactory {
   private static providers = new Map<string, BaseVideoProvider>();
@@ -35,6 +35,10 @@ export class VideoProviderFactory {
       case 'google-meet':
         const { GoogleMeetProvider } = await import('./providers/google-meet/index');
         newProvider = new GoogleMeetProvider(config);
+        break;
+      case 'livekit':
+        const { LiveKitProvider } = await import('./providers/livekit/index');
+        newProvider = new LiveKitProvider(config);
         break;
       default:
         throw new Error(`Unsupported provider: ${provider}`);
