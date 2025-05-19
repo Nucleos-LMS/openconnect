@@ -68,6 +68,29 @@ GOOGLE_REFRESH_TOKEN=your_refresh_token
 - Less control over data
 - Limited API access
 
+### 4. LiveKit
+#### Features
+- Open-source SFU enabling on-prem/self-host with WebRTC
+- Low-latency SFU routing with peer-to-peer fallback
+- Configurable recording pipeline via plugins
+- Role-based access control and track-level permissions
+
+#### Configuration
+Environment Variables:
+```
+LIVEKIT_URL=<your-livekit-url>
+LIVEKIT_API_KEY=<your-livekit-api-key>
+LIVEKIT_API_SECRET=<your-livekit-api-secret>
+```
+
+#### Limitations
+- Requires self-hosted infrastructure or managed hosting
+- No out-of-the-box recording (requires additional setup)
+- Limited analytics compared to Twilio
+- Community support via GitHub Issues and Slack
+
+**Migration**: See [LiveKit Migration Plan](./livekit-migration-plan.md)
+
 ## Security Configuration
 All providers require additional security configuration:
 ```

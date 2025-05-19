@@ -19,7 +19,7 @@ LIVEKIT_API_KEY=<your-livekit-api-key>    # Required for LiveKit
 LIVEKIT_API_SECRET=<your-livekit-api-secret>  # Required for LiveKit
 
 # Provider Settings
-VIDEO_PROVIDER=twilio                    # livekit | twilio | daily | google-meet
+VIDEO_PROVIDER=livekit                    # livekit | twilio | daily | google-meet
 PROVIDER_ENVIRONMENT=development        # development | production
 PROVIDER_REGION=us-east-1              # Provider-specific region
 PROVIDER_LOG_LEVEL=info                # debug | info | warn | error

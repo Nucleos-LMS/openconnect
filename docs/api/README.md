@@ -34,6 +34,22 @@ POST /api/calls/{callId}/join
 POST /api/calls/{callId}/end
 ```
 
+### Get Video Token
+```http
+GET /api/video/token?room={roomName}&user={userId}
+```
+
+### Response
+```json
+{
+  "success": true,
+  "data": {
+    "token": "jwt-token",
+    "url": "wss://livekit.example.com"
+  }
+}
+```
+
 ## Recording APIs
 
 ### List Recordings
