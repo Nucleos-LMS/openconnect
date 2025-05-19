@@ -40,7 +40,7 @@
 5. Add basic security measures
 
 ### Technical Considerations
-- WebRTC implementation using `simple-peer`
+- WebRTC implementation using `LiveKit` (self-hosted SFU)
 - State management with Redux/Context
 - UI components using Chakra UI
 - Error boundary implementation
