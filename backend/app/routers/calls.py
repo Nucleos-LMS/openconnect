@@ -1,11 +1,23 @@
 from typing import Any, List
 from uuid import UUID, uuid4
+from os import getenv
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+
 from app.core.deps import get_db, get_current_active_user
 from app.models.users import User
 from app.models.video_calls import VideoCall
-from app.schemas.video_calls import VideoCallBase, VideoCallCreate, VideoCallRead, VideoCallUpdate
+from app.schemas.video_calls import VideoCallBase, VideoCallRead
+
+# Dynamically pick the video provider at runtime so that switching back and forth
+# between Twilio (or the mock implementation) and LiveKit is a zero-config
+# operation. The `VIDEO_PROVIDER` env var is evaluated once on module import.
+VIDEO_PROVIDER = getenv("VIDEO_PROVIDER", "livekit").lower()
+if VIDEO_PROVIDER == "twilio":
+    from app.providers.twilio import generate_room_token  # type: ignore
+else:
+    from app.providers.livekit import generate_room_token  # type: ignore
 
 router = APIRouter()
 
