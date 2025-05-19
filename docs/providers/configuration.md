@@ -12,8 +12,14 @@ TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      # Required for Twilio
 TWILIO_API_KEY=SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx       # Required for Twilio
 TWILIO_API_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      # Required for Twilio
 
+
+# LiveKit Configuration
+LIVEKIT_URL=<your-livekit-server-url>    # Required for LiveKit
+LIVEKIT_API_KEY=<your-livekit-api-key>    # Required for LiveKit
+LIVEKIT_API_SECRET=<your-livekit-api-secret>  # Required for LiveKit
+
 # Provider Settings
-PROVIDER_TYPE=twilio                    # twilio | daily | google-meet
+VIDEO_PROVIDER=twilio                    # livekit | twilio | daily | google-meet
 PROVIDER_ENVIRONMENT=development        # development | production
 PROVIDER_REGION=us-east-1              # Provider-specific region
 PROVIDER_LOG_LEVEL=info                # debug | info | warn | error

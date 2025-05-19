@@ -5,14 +5,80 @@ This file captures the tactical steps for replacing the current Twilio-mock vide
 ### Completed
 - Redundant in-function LiveKit imports removed in `backend/app/routers/calls.py`; token generation now respects the dynamic `VIDEO_PROVIDER` at module load time.
 
-### Pending – Milestone 1
-1. Dependency file (requirements/pyproject) including `livekit==0.0.2`.
-2. Expose `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, and `VIDEO_PROVIDER` in `backend/app/config.py`.
-3. Extend `.env.example` with the new variables.
-4. Unit tests that toggle `VIDEO_PROVIDER` and assert token prefixes.
-5. `docker-compose.livekit.yml` (self-host LiveKit for dev/CI).
-6. Front-end: add `livekit-client`, wrap in `LiveKitProvider`.
-7. Update docs with self-host instructions and cost considerations.
+### Pending – Milestone 1 (Backend & Local Setup)
+
+1. Dependency Management
+   - Add `livekit==0.0.2` to the Python dependencies:
+     - Poetry: add to `pyproject.toml` under `[tool.poetry.dependencies]`:
+       ```toml
+       livekit = "0.0.2"
+       ```
+     - Or pip: include in `requirements.txt`:
+       ```text
+       livekit==0.0.2
+       ```
+   - Install with:
+     ```bash
+     yarn install   # frontend deps
+     poetry install # backend deps (or pip install -r requirements.txt)
+     ```
+
+2. Backend Configuration
+   - In `backend/app/config.py`, expose the LiveKit variables and default provider:
+     ```python
+     class Settings(BaseSettings):
+         VIDEO_PROVIDER: str = "twilio"
+         LIVEKIT_URL: HttpUrl
+         LIVEKIT_API_KEY: str
+         LIVEKIT_API_SECRET: str
+     ```
+   - Ensure these settings are loaded from environment variables.
+
+3. Environment Example
+   - Update `.env.example` at project root:
+     ```env
+     # LiveKit settings
+     LIVEKIT_URL=https://your-livekit-server
+     LIVEKIT_API_KEY=lk_api_key_here
+     LIVEKIT_API_SECRET=lk_api_secret_here
+
+     # Select video provider
+     VIDEO_PROVIDER=livekit
+     ```
+
+4. Unit Tests
+   - Create `backend/tests/test_livekit_provider.py`:
+     - Mock `livekit.AccessToken` to return predictable tokens.
+     - Toggle `VIDEO_PROVIDER` in test settings to `livekit`.
+     - Assert generated token prefixes and payload claims.
+
+5. Local LiveKit Server
+   - Add `docker-compose.livekit.yml` to project root:
+     ```yaml
+     version: '3.7'
+     services:
+       livekit-server:
+         image: livekit/livekit-server:latest
+         ports:
+           - "7880:7880"   # API & WebSocket port
+           - "5349:5349"   # TURN port
+         environment:
+           LIVEKIT_KEYS: "${LIVEKIT_API_KEY}:${LIVEKIT_API_SECRET}"
+     ```
+   - Document startup steps in this plan and in `docs/providers/livekit-migration-plan.md`.
+
+6. Front-end Integration Prep
+   - Install the LiveKit client libraries:
+     ```bash
+     cd src
+     yarn add livekit-client @livekit/react
+     ```
+   - Create a stub provider implementation at `src/providers/video/providers/livekit.ts` extending `BaseVideoProvider`.
+
+7. Documentation Updates
+   - Link to this plan from `docs/providers/README.md` under Supported Providers.
+   - Add self-hosting instructions and cost considerations to `docs/providers/livekit-migration-plan.md`.
+
 
 
 ---
