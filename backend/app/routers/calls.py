@@ -55,7 +55,6 @@ def create_call(
     db.refresh(call)
     
     # Generate token for the room
-    from app.providers.livekit import generate_room_token
     token = generate_room_token(call.room_name, str(current_user.id))
     
     response = call.dict()
@@ -94,8 +93,7 @@ def join_call(
         db.add(call)
         db.commit()
     
-    # Generate LiveKit token for the room
-    from app.providers.livekit import generate_room_token
+    # Generate token for the room
     token = generate_room_token(call.room_name, str(current_user.id))
     
     return {
@@ -135,8 +133,6 @@ def get_room_token(
 
     if current_user.id not in call.participant_ids and current_user.role != "staff":
         raise HTTPException(status_code=403, detail="Not authorized for this room")
-
-    from app.providers.livekit import generate_room_token
 
     token = generate_room_token(room, user)
     return {"token": token}
