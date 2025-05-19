@@ -7,7 +7,7 @@ import { VideoRoom } from '../VideoRoom/VideoRoom';
 import { Box, Container, Heading, Text, Button, useToast, Code, VStack } from '@chakra-ui/react';
 
 interface VideoRoomWrapperProps {
-  provider?: 'twilio' | 'google-meet';
+  provider?: 'twilio' | 'google-meet' | 'livekit';
 }
 
 export const VideoRoomWrapper: React.FC<VideoRoomWrapperProps> = ({ 
@@ -22,7 +22,7 @@ export const VideoRoomWrapper: React.FC<VideoRoomWrapperProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [connectionAttempts, setConnectionAttempts] = useState(0);
   const [debugInfo, setDebugInfo] = useState<any>(null);
-  const [selectedProvider, setSelectedProvider] = useState<'twilio' | 'google-meet'>(provider);
+  const [selectedProvider, setSelectedProvider] = useState<'twilio' | 'google-meet' | 'livekit'>(provider);
 
   // Check for environment variables on component mount
   useEffect(() => {

@@ -1,11 +1,23 @@
 from typing import Any, List
 from uuid import UUID, uuid4
+from os import getenv
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+
 from app.core.deps import get_db, get_current_active_user
 from app.models.users import User
 from app.models.video_calls import VideoCall
-from app.schemas.video_calls import VideoCallBase, VideoCallCreate, VideoCallRead, VideoCallUpdate
+from app.schemas.video_calls import VideoCallBase, VideoCallRead
+
+# Dynamically pick the video provider at runtime so that switching back and forth
+# between Twilio (or the mock implementation) and LiveKit is a zero-config
+# operation. The `VIDEO_PROVIDER` env var is evaluated once on module import.
+VIDEO_PROVIDER = getenv("VIDEO_PROVIDER", "livekit").lower()
+if VIDEO_PROVIDER == "twilio":
+    from app.providers.twilio import generate_room_token  # type: ignore
+else:
+    from app.providers.livekit import generate_room_token  # type: ignore
 
 router = APIRouter()
 
@@ -43,7 +55,6 @@ def create_call(
     db.refresh(call)
     
     # Generate token for the room
-    from app.providers.twilio import generate_room_token
     token = generate_room_token(call.room_name, str(current_user.id))
     
     response = call.dict()
@@ -82,8 +93,7 @@ def join_call(
         db.add(call)
         db.commit()
     
-    # Generate Twilio token for the room
-    from app.providers.twilio import generate_room_token
+    # Generate token for the room
     token = generate_room_token(call.room_name, str(current_user.id))
     
     return {
@@ -92,6 +102,41 @@ def join_call(
         "duration": call.scheduled_duration,
         "token": token
     }
+
+@router.get("/token")
+def get_room_token(
+    *,
+    room: str,
+    user: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Return a LiveKit (or configured provider) token for the given room/user.
+
+    This endpoint is used by the client-side LiveKitProvider to join an existing
+    room. For environments where LiveKit credentials are not configured, a
+    deterministic mock token is returned by the provider helper, which keeps
+    local development and CI simple.
+    """
+    # Only allow requesting token for current user
+    if str(current_user.id) != user:
+        raise HTTPException(status_code=403, detail="Cannot request token for other user")
+
+    # Verify that the requested room exists / user is participant (best-effort)
+    call = (
+        db.query(VideoCall)
+        .filter(VideoCall.room_name == room)
+        .first()
+    )
+    if not call:
+        raise HTTPException(status_code=404, detail="Room not found")
+
+    if current_user.id not in call.participant_ids and current_user.role != "staff":
+        raise HTTPException(status_code=403, detail="Not authorized for this room")
+
+    token = generate_room_token(room, user)
+    return {"token": token}
+
 
 @router.get("/scheduled", response_model=List[VideoCallRead])
 def list_scheduled_calls(

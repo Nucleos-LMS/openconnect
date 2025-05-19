@@ -1,6 +1,19 @@
 # LiveKit Migration Plan
 
 This file captures the tactical steps for replacing the current Twilio-mock video layer with an open-source LiveKit stack that satisfies the requirements in docs/specs.
+## Status Update (2025-05-19)
+### Completed
+- Redundant in-function LiveKit imports removed in `backend/app/routers/calls.py`; token generation now respects the dynamic `VIDEO_PROVIDER` at module load time.
+
+### Pending – Milestone 1
+1. Dependency file (requirements/pyproject) including `livekit==0.0.2`.
+2. Expose `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, and `VIDEO_PROVIDER` in `backend/app/config.py`.
+3. Extend `.env.example` with the new variables.
+4. Unit tests that toggle `VIDEO_PROVIDER` and assert token prefixes.
+5. `docker-compose.livekit.yml` (self-host LiveKit for dev/CI).
+6. Front-end: add `livekit-client`, wrap in `LiveKitProvider`.
+7. Update docs with self-host instructions and cost considerations.
+
 
 ---
 ## 1. Why LiveKit?

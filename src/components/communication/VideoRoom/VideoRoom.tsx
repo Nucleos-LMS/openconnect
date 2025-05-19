@@ -20,7 +20,7 @@ interface VideoRoomProps {
   facilityId: string;
   userName?: string;
   onError?: (errorMessage: string) => void;
-  provider?: 'twilio' | 'google-meet';
+  provider?: 'twilio' | 'google-meet' | 'livekit';
 }
 
 export const VideoRoom = ({
@@ -42,12 +42,13 @@ export const VideoRoom = ({
 
   useEffect(() => {
     const joinCall = async () => {
+      // Determine provider priority: prop > env default
+      const envDefault = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_DEFAULT_VIDEO_PROVIDER as 'twilio' | 'google-meet' | 'livekit') || 'twilio';
+
       try {
-        // Safely access environment variable with fallback
-        const defaultProvider = (typeof process !== 'undefined' && 
-          process.env.NEXT_PUBLIC_DEFAULT_VIDEO_PROVIDER as 'twilio' | 'google-meet') || 'twilio';
+        const selectedProvider = provider || envDefault;
         
-        providerRef.current = await createVideoProvider(provider || defaultProvider, {
+        providerRef.current = await createVideoProvider(selectedProvider, {
           userId,
           userRole,
           facilityId
